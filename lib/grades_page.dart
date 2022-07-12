@@ -181,9 +181,14 @@ class _GradesPageState extends State<GradesPage> {
                                       shadowColor: (_groupedCoursesMap.values
                                                   .elementAt(index)[i]
                                                   .mark >=
-                                              4.0)
+                                              5.0)
                                           ? Colors.blue
-                                          : Colors.red,
+                                          : (_groupedCoursesMap.values
+                                                      .elementAt(index)[i]
+                                                      .mark >=
+                                                  4.0)
+                                              ? Colors.orange
+                                              : Colors.red,
                                       clipBehavior: Clip.antiAlias,
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -225,12 +230,18 @@ class _GradesPageState extends State<GradesPage> {
                                                                   .elementAt(
                                                                       index)[i]
                                                                   .mark >=
-                                                              4.0)
-                                                          ? Colors.blue
-                                                          : Colors.red,
+                                                              5.0)
+                                                          ? Colors.blueAccent
+                                                          : (_groupedCoursesMap
+                                                                      .values
+                                                                      .elementAt(
+                                                                          index)[i]
+                                                                      .mark >=
+                                                                  4.0)
+                                                              ? Colors.orange
+                                                              : Colors.red,
                                                       fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w400),
+                                                      fontWeight: FontWeight.w400),
                                                 ),
                                               ],
                                             ),
@@ -294,9 +305,16 @@ class _GradesPageState extends State<GradesPage> {
                                                                   .elementAt(
                                                                       index)
                                                                   .y >=
-                                                              4)
+                                                              5.0)
                                                           ? Colors.blueAccent
-                                                          : Colors.redAccent,
+                                                          : (barData.spots
+                                                                      .elementAt(
+                                                                          index)
+                                                                      .y >=
+                                                                  4.0)
+                                                              ? Colors.orange
+                                                              : Colors
+                                                                  .redAccent,
                                                       strokeWidth: 4.0),
                                                   FlDotData(
                                                     show: true,
