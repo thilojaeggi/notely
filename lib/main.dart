@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:schulnetz/Globals.dart';
 import 'package:schulnetz/login_page.dart';
 import 'package:schulnetz/style.dart';
 import 'package:schulnetz/view_container.dart';
