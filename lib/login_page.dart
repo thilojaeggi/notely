@@ -200,6 +200,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -215,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           "Notely",
                           style: TextStyle(
-                            fontSize: 50,
+                            fontSize: 64,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -271,7 +272,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(
-                      height: 15,
+                      height: 5,
                     ),
                     AuthTextField(
                       hintText: 'Benutzername',
@@ -281,7 +282,7 @@ class _LoginPageState extends State<LoginPage> {
                       textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(
-                      height: 15,
+                      height: 5,
                     ),
                     AuthTextField(
                       hintText: 'Passwort',

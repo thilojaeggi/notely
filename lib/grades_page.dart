@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -20,7 +21,10 @@ class _GradesPageState extends State<GradesPage> {
   List<Grade> _gradeList = List.empty(growable: true);
   Map _groupedCoursesMap = Map();
   Map _averageGradeMap = Map();
-  bool _isLoading = true;
+  Color goodEnough = Colors.orange;
+  Color good = Colors.blueAccent;
+  Color bad = Colors.redAccent;
+
   final ScrollController _scrollController = ScrollController();
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
@@ -85,11 +89,6 @@ class _GradesPageState extends State<GradesPage> {
       _averageGradeMap.addAll({
         _groupedCoursesMap.keys.elementAt(i):
             (combinedGrade / combinedWeight).toStringAsFixed(3)
-      });
-    }
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
       });
     }
 
@@ -178,17 +177,11 @@ class _GradesPageState extends State<GradesPage> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(7),
                                       ),
-                                      shadowColor: (_groupedCoursesMap.values
-                                                  .elementAt(index)[i]
-                                                  .mark >=
-                                              5.0)
-                                          ? Colors.blue
-                                          : (_groupedCoursesMap.values
-                                                      .elementAt(index)[i]
-                                                      .mark >=
-                                                  4.0)
-                                              ? Colors.orange
-                                              : Colors.red,
+                                      shadowColor: gradeColor(_groupedCoursesMap
+                                          .values
+                                          .elementAt(index)[i]
+                                          .mark
+                                          .toDouble()),
                                       clipBehavior: Clip.antiAlias,
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -225,23 +218,16 @@ class _GradesPageState extends State<GradesPage> {
                                                       .mark
                                                       .toString(),
                                                   style: TextStyle(
-                                                      color: (_groupedCoursesMap
-                                                                  .values
-                                                                  .elementAt(
-                                                                      index)[i]
-                                                                  .mark >=
-                                                              5.0)
-                                                          ? Colors.blueAccent
-                                                          : (_groupedCoursesMap
-                                                                      .values
-                                                                      .elementAt(
-                                                                          index)[i]
-                                                                      .mark >=
-                                                                  4.0)
-                                                              ? Colors.orange
-                                                              : Colors.red,
+                                                      color: gradeColor(
+                                                          _groupedCoursesMap
+                                                              .values
+                                                              .elementAt(
+                                                                  index)[i]
+                                                              .mark
+                                                              .toDouble()),
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.w400),
+                                                      fontWeight:
+                                                          FontWeight.w400),
                                                 ),
                                               ],
                                             ),
@@ -256,7 +242,13 @@ class _GradesPageState extends State<GradesPage> {
                                                       fontSize: 16),
                                                 ),
                                                 Text(
-                                                  "${_groupedCoursesMap.values.elementAt(index)[i].date}",
+                                                  DateFormat("dd.MM.yyyy")
+                                                      .format(DateTime.parse(
+                                                          _groupedCoursesMap
+                                                              .values
+                                                              .elementAt(
+                                                                  index)[i]
+                                                              .date)),
                                                   style: const TextStyle(
                                                       fontSize: 16),
                                                 ),
@@ -303,20 +295,10 @@ class _GradesPageState extends State<GradesPage> {
                                               return spotIndexes.map((index) {
                                                 return TouchedSpotIndicatorData(
                                                   FlLine(
-                                                      color: (barData.spots
-                                                                  .elementAt(
-                                                                      index)
-                                                                  .y >=
-                                                              5.0)
-                                                          ? Colors.blueAccent
-                                                          : (barData.spots
-                                                                      .elementAt(
-                                                                          index)
-                                                                      .y >=
-                                                                  4.0)
-                                                              ? Colors.orange
-                                                              : Colors
-                                                                  .redAccent,
+                                                      color: gradeColor(barData
+                                                          .spots
+                                                          .elementAt(index)
+                                                          .y),
                                                       strokeWidth: 4.0),
                                                   FlDotData(
                                                     show: true,
@@ -335,14 +317,8 @@ class _GradesPageState extends State<GradesPage> {
                                                   return LineTooltipItem(
                                                     lineBarSpot.y.toString(),
                                                     TextStyle(
-                                                        color: (lineBarSpot.y >=
-                                                                5.0)
-                                                            ? Colors.blueAccent
-                                                            : (lineBarSpot.y >=
-                                                                    4.0)
-                                                                ? Colors.orange
-                                                                : Colors
-                                                                    .redAccent,
+                                                        color: gradeColor(
+                                                            lineBarSpot.y),
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   );
@@ -358,11 +334,7 @@ class _GradesPageState extends State<GradesPage> {
                                                         barData, index) =>
                                                     FlDotCirclePainter(
                                                   radius: 6,
-                                                  color: (spot.y >= 5)
-                                                      ? Colors.blueAccent
-                                                      : (spot.y >= 4)
-                                                          ? Colors.orange
-                                                          : Colors.redAccent,
+                                                  color: gradeColor(spot.y),
                                                   strokeColor:
                                                       Colors.transparent,
                                                 ),
@@ -386,47 +358,34 @@ class _GradesPageState extends State<GradesPage> {
                                                                               index)
                                                                           .length;
                                                                   i++)
-                                                                (List.from(_groupedCoursesMap.values.elementAt(index))
-                                                                            .reversed
-                                                                            .toList()[
-                                                                                i]
-                                                                            .mark!
-                                                                            .toDouble() >=
-                                                                        5)
-                                                                    ? Colors
-                                                                        .blueAccent
-                                                                    : (List.from(_groupedCoursesMap.values.elementAt(index)).reversed.toList()[i].mark!.toDouble() >=
-                                                                            4)
-                                                                        ? Colors
-                                                                            .orange
-                                                                        : Colors
-                                                                            .redAccent,
+                                                                gradeColor(List.from(_groupedCoursesMap
+                                                                        .values
+                                                                        .elementAt(
+                                                                            index))
+                                                                    .reversed
+                                                                    .toList()[i]
+                                                                    .mark!
+                                                                    .toDouble())
                                                             ]
                                                           : [
-                                                              (List.from(_groupedCoursesMap.values.elementAt(
+                                                              gradeColor(List.from(
+                                                                      _groupedCoursesMap
+                                                                          .values
+                                                                          .elementAt(
                                                                               index))
-                                                                          .reversed
-                                                                          .toList()[
-                                                                              0]
-                                                                          .mark!
-                                                                          .toDouble() >=
-                                                                      4)
-                                                                  ? Colors
-                                                                      .blueAccent
-                                                                  : Colors
-                                                                      .redAccent,
-                                                              (List.from(_groupedCoursesMap.values.elementAt(
+                                                                  .reversed
+                                                                  .toList()[0]
+                                                                  .mark!
+                                                                  .toDouble()),
+                                                              gradeColor(List.from(
+                                                                      _groupedCoursesMap
+                                                                          .values
+                                                                          .elementAt(
                                                                               index))
-                                                                          .reversed
-                                                                          .toList()[
-                                                                              0]
-                                                                          .mark!
-                                                                          .toDouble() >=
-                                                                      4)
-                                                                  ? Colors
-                                                                      .blueAccent
-                                                                  : Colors
-                                                                      .redAccent
+                                                                  .reversed
+                                                                  .toList()[0]
+                                                                  .mark!
+                                                                  .toDouble())
                                                             ]),
                                               spots: [
                                                 for (var i = 0;
@@ -472,32 +431,12 @@ extension Iterables<E> on Iterable<E> {
           map..putIfAbsent(keyFunction(element), () => <E>[]).add(element));
 }
 
-Color lerpGradient(List<Color> colors, List<double> stops, double t) {
-  if (colors.isEmpty) {
-    throw ArgumentError('"colors" is empty.');
-  } else if (colors.length == 1) {
-    return colors[0];
+Color gradeColor(double grade) {
+  if (grade >= 4.5) {
+    return Colors.blueAccent;
+  } else if (grade >= 4) {
+    return Colors.orangeAccent;
+  } else {
+    return Colors.redAccent;
   }
-
-  if (stops.length != colors.length) {
-    stops = [];
-
-    /// provided gradientColorStops is invalid and we calculate it here
-    colors.asMap().forEach((index, color) {
-      final percent = 1.0 / (colors.length - 1);
-      stops.add(percent * index);
-    });
-  }
-
-  for (var s = 0; s < stops.length - 1; s++) {
-    final leftStop = stops[s], rightStop = stops[s + 1];
-    final leftColor = colors[s], rightColor = colors[s + 1];
-    if (t <= leftStop) {
-      return leftColor;
-    } else if (t < rightStop) {
-      final sectionT = (t - leftStop) / (rightStop - leftStop);
-      return Color.lerp(leftColor, rightColor, sectionT)!;
-    }
-  }
-  return colors.last;
 }

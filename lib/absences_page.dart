@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:schulnetz/Absence.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -114,7 +115,8 @@ class _AbsencesPageState extends State<AbsencesPage> {
                               width: 20,
                             ),
                             Text(
-                              _absenceList[index].date.toString(),
+                              DateFormat("dd.MM.yyyy").format(
+                                  DateTime.parse(_absenceList[index].date)),
                               style: const TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w500),
                             ),
