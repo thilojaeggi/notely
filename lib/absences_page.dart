@@ -87,7 +87,10 @@ class _AbsencesPageState extends State<AbsencesPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  shadowColor: Colors.transparent.withOpacity(0.5),
+                  shadowColor: (_absenceList.elementAt(index).status == "nz" ||
+                          _absenceList.elementAt(index).status == "e")
+                      ? Colors.blue
+                      : Colors.red,
                   child: Container(
                     padding: EdgeInsets.all(10.0),
                     child: Column(
@@ -117,13 +120,29 @@ class _AbsencesPageState extends State<AbsencesPage> {
                             ),
                           ],
                         ),
-                        Text(
-                          _absenceList[index].hourFrom.toString() +
-                              " - " +
-                              _absenceList[index].hourTo.toString(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _absenceList[index].hourFrom.toString() +
+                                  " - " +
+                                  _absenceList[index].hourTo.toString(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              (_absenceList.elementAt(index).status == "nz")
+                                  ? 'Nicht zählend'
+                                  : (_absenceList.elementAt(index).status ==
+                                          "e")
+                                      ? 'Entschuldigt'
+                                      : "Offen",
+                              style: const TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
