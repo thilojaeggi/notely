@@ -291,7 +291,9 @@ class _GradesPageState extends State<GradesPage> {
                                                   SideTitles(showTitles: false),
                                             ),
                                           ),
-                                          borderData: FlBorderData(show: false),
+                                          borderData: FlBorderData(
+                                            show: false,
+                                          ),
                                           gridData: FlGridData(
                                               horizontalInterval: 1,
                                               verticalInterval: 1),
@@ -334,9 +336,13 @@ class _GradesPageState extends State<GradesPage> {
                                                     lineBarSpot.y.toString(),
                                                     TextStyle(
                                                         color: (lineBarSpot.y >=
-                                                                4.0)
+                                                                5.0)
                                                             ? Colors.blueAccent
-                                                            : Colors.redAccent,
+                                                            : (lineBarSpot.y >=
+                                                                    4.0)
+                                                                ? Colors.orange
+                                                                : Colors
+                                                                    .redAccent,
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   );
@@ -352,9 +358,11 @@ class _GradesPageState extends State<GradesPage> {
                                                         barData, index) =>
                                                     FlDotCirclePainter(
                                                   radius: 6,
-                                                  color: (spot.y >= 4)
+                                                  color: (spot.y >= 5)
                                                       ? Colors.blueAccent
-                                                      : Colors.redAccent,
+                                                      : (spot.y >= 4)
+                                                          ? Colors.orange
+                                                          : Colors.redAccent,
                                                   strokeColor:
                                                       Colors.transparent,
                                                 ),
@@ -384,11 +392,15 @@ class _GradesPageState extends State<GradesPage> {
                                                                                 i]
                                                                             .mark!
                                                                             .toDouble() >=
-                                                                        4)
+                                                                        5)
                                                                     ? Colors
                                                                         .blueAccent
-                                                                    : Colors
-                                                                        .redAccent
+                                                                    : (List.from(_groupedCoursesMap.values.elementAt(index)).reversed.toList()[i].mark!.toDouble() >=
+                                                                            4)
+                                                                        ? Colors
+                                                                            .orange
+                                                                        : Colors
+                                                                            .redAccent,
                                                             ]
                                                           : [
                                                               (List.from(_groupedCoursesMap.values.elementAt(
