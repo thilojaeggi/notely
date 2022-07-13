@@ -47,7 +47,5 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
-		<key>flutter_apns.disable_swizzling</key>
-		<true/>
 	</dict>
 </plist>
