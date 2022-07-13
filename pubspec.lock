@@ -120,48 +120,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.1.2"
-  firebase_core:
-    dependency: transitive
-    description:
-      name: firebase_core
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.19.2"
-  firebase_core_platform_interface:
-    dependency: transitive
-    description:
-      name: firebase_core_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.4.3"
-  firebase_core_web:
-    dependency: transitive
-    description:
-      name: firebase_core_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.7.0"
-  firebase_messaging:
-    dependency: transitive
-    description:
-      name: firebase_messaging
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "11.4.4"
-  firebase_messaging_platform_interface:
-    dependency: transitive
-    description:
-      name: firebase_messaging_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.5.4"
-  firebase_messaging_web:
-    dependency: transitive
-    description:
-      name: firebase_messaging_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.4.4"
   fl_chart:
     dependency: "direct main"
     description:
@@ -181,20 +139,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_apns:
-    dependency: "direct main"
-    description:
-      name: flutter_apns
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.5.4"
-  flutter_apns_only:
-    dependency: transitive
-    description:
-      name: flutter_apns_only
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.5.2"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:

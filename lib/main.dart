@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_apns/apns.dart';
-import 'package:flutter_apns/flutter_apns.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:schulnetz/Globals.dart';
 import 'package:schulnetz/login_page.dart';
@@ -29,7 +27,7 @@ class _NotelyState extends State<Notely> {
       loggedIn = newState;
     });
   }
-
+/*
   final connector = createPushConnector();
 
   @override
@@ -46,7 +44,7 @@ class _NotelyState extends State<Notely> {
 
   Future<void> _onMessage(RemoteMessage message) async {
     print(message.data.toString());
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
