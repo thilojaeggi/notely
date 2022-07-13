@@ -27,21 +27,21 @@ class _NotelyState extends State<Notely> {
       loggedIn = newState;
     });
   }
-/*
-  final connector = createPushConnector();
+
+  //final connector = createPushConnector();
 
   @override
   initState() {
     super.initState();
     checkIfLoggedIn();
-    if (Platform.isIOS) {
+    /* if (Platform.isIOS) {
       connector.configure(
         onMessage: _onMessage,
       );
       connector.requestNotificationPermissions();
-    }
+    }*/
   }
-
+/*
   Future<void> _onMessage(RemoteMessage message) async {
     print(message.data.toString());
   }*/
