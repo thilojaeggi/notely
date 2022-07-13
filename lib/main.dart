@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_apns/apns.dart';
+import 'package:flutter_apns/flutter_apns.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:schulnetz/Globals.dart';
 import 'package:schulnetz/login_page.dart';
@@ -6,16 +10,16 @@ import 'package:schulnetz/style.dart';
 import 'package:schulnetz/view_container.dart';
 import 'package:theme_provider/theme_provider.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const Notely());
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Notely extends StatefulWidget {
+  const Notely({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<Notely> createState() => _NotelyState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _NotelyState extends State<Notely> {
   static const storage = FlutterSecureStorage();
   bool loggedIn = false;
   void checkIfLoggedIn() async {
@@ -26,10 +30,22 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  final connector = createPushConnector();
+
   @override
   initState() {
     super.initState();
     checkIfLoggedIn();
+    if (Platform.isIOS) {
+      connector.configure(
+        onMessage: _onMessage,
+      );
+      connector.requestNotificationPermissions();
+    }
+  }
+
+  Future<void> _onMessage(RemoteMessage message) async {
+    print(message.data.toString());
   }
 
   @override

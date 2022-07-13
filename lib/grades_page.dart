@@ -309,6 +309,9 @@ class _GradesPageState extends State<GradesPage> {
                                             touchTooltipData:
                                                 LineTouchTooltipData(
                                               tooltipRoundedRadius: 8,
+                                              fitInsideHorizontally: true,
+                                              tooltipPadding:
+                                                  EdgeInsets.all(8.0),
                                               getTooltipItems:
                                                   (List<LineBarSpot>
                                                       lineBarsSpot) {

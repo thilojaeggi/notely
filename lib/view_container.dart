@@ -134,16 +134,8 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
         return Scaffold(
           extendBody: true,
           bottomNavigationBar: Container(
-            margin: EdgeInsets.only(
-              bottom: 10.0,
-              left: 10.0,
-              right: 10.0,
-            ),
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(
-                Radius.circular(16),
-              ),
               boxShadow: [
                 BoxShadow(
                     color: Colors.black.withOpacity(0.2), blurRadius: 16.0),

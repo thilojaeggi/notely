@@ -52,6 +52,8 @@ dependencies:
   dropdown_button2: ^1.6.3
   persistent_bottom_nav_bar: ^4.0.2
   intl: ^0.17.0
+  flutter_apns: ^1.5.4  
+  
 dev_dependencies:
   flutter_launcher_icons: ^0.9.3
   flutter_test:
