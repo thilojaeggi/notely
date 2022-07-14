@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:schulnetz/Globals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import '../config/Globals.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -26,64 +28,64 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   String _name = "";
   String _email = "";
-  String _education = "";
+  String _accessToken = "";
+  List _classList = List.empty(growable: true);
   final storage = const FlutterSecureStorage();
+  String school = "";
   Map<String, dynamic> _user = Map();
 
-  Future<void> getExistingData() async {
+  Future<void> getExistingValues() async {
     final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('name') ?? "");
     if (mounted) {
       setState(() {
+        _classList =
+            jsonDecode(prefs.getString('classes') ?? jsonEncode(List.empty()));
         _name = prefs.getString('name') ?? "";
         _email = prefs.getString('email') ?? "";
-        _education = prefs.getString('education') ?? "";
       });
     }
   }
 
   Future<void> getMe() async {
     final prefs = await SharedPreferences.getInstance();
-    const storage = FlutterSecureStorage();
-    String username = await storage.read(key: "username") as String;
-    String password = await storage.read(key: "password") as String;
-    String school = await prefs.getString("school") ?? "ksso";
+    _accessToken = await prefs.getString("accessToken") ?? "";
+    school = await prefs.getString("school") ?? "ksso";
+    print(_accessToken);
     print(school);
-    String url = Globals.apiBase +
-        "user/info?mandator=" +
-        school.toLowerCase() +
-        "&username=" +
-        username +
-        "&password=" +
-        password;
+    String url =
+        "https://kaschuso.so.ch/public/" + school.toLowerCase() + "/rest/v1/me";
     print(url);
     try {
-      await http.get(Uri.parse(url)).then((response) {
+      await http.get(Uri.parse(url), headers: {
+        'Authorization': 'Bearer $_accessToken',
+      }).then((response) {
         print(response.body);
-        if (response.statusCode == 200) {
-          _user = jsonDecode(response.body);
-        }
+        _user = jsonDecode(response.body);
       });
     } catch (e) {
       print(e.toString());
     }
 
+    _classList.clear();
     if (mounted) {
       setState(() {
-        _name = _user['userInfo']['name'];
-        _email = _user['userInfo']['email'];
-        _education = _user['userInfo']['education'];
+        _name = _user['firstName'] + " " + _user['lastName'];
+        _email = _user['email'];
+        for (var schoolClass in _user['regularClasses']) {
+          _classList.add(schoolClass['token']);
+        }
       });
     }
-    await prefs.setString('name', _user['userInfo']['name']);
-    await prefs.setString('email', _user['userInfo']['email']);
-    await prefs.setString('education', _user['userInfo']['education']);
+    print(_user['firstName'] + " " + _user['lastName']);
+    await prefs.setString('name', _user['firstName'] + " " + _user['lastName']);
+    await prefs.setString('email', _user['email']);
+    await prefs.setString('classes', jsonEncode(_classList));
   }
 
   @override
   initState() {
     super.initState();
-    getExistingData();
+    getExistingValues();
     getMe();
   }
 
@@ -122,12 +124,21 @@ class _StartPageState extends State<StartPage> {
             ),
           ),
           const SizedBox(
-            height: 40,
+            height: 15,
           ),
-          Text(
-            _education,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+          const Text(
+            "Klassen:",
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
           ),
+          ListView.builder(
+              shrinkWrap: true,
+              itemCount: _classList.length,
+              itemBuilder: (BuildContext ctxt, int index) {
+                return Text(
+                  _classList[index].toString(),
+                  style: const TextStyle(fontSize: 20),
+                );
+              }),
           const Spacer(),
         ],
       ),

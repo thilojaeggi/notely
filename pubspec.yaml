@@ -52,7 +52,10 @@ dependencies:
   dropdown_button2: ^1.6.3
   persistent_bottom_nav_bar: ^4.0.2
   intl: ^0.17.0
-  
+  flutter_local_notifications: ^9.7.0
+  workmanager: ^0.5.0
+  animated_theme_switcher: "^2.0.5"
+  shimmer: ^2.0.0
 dev_dependencies:
   flutter_launcher_icons: ^0.9.3
   flutter_test:

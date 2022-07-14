@@ -3,14 +3,13 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:schulnetz/settings_page.dart';
-import 'package:schulnetz/start_page.dart';
+import 'package:schulnetz/pages/settings_page.dart';
+import 'package:schulnetz/pages/start_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:theme_provider/theme_provider.dart';
 
-import 'absences_page.dart';
-import 'grades_page.dart';
+import 'pages/absences_page.dart';
+import 'pages/grades_page.dart';
 
 class ViewContainerWidget extends StatefulWidget {
   const ViewContainerWidget({Key? key}) : super(key: key);
@@ -51,7 +50,6 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('state = $state');
     if (state == AppLifecycleState.resumed) {
       getAccessToken();
     }
@@ -143,7 +141,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
               color: Colors.white.withOpacity(0.1),
             ),
             child: BackdropFilter(
-              filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              filter: new ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
               child: BottomNavigationBar(
                 elevation: 6,
                 type: BottomNavigationBarType.fixed,

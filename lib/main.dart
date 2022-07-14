@@ -1,14 +1,59 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:schulnetz/Globals.dart';
-import 'package:schulnetz/login_page.dart';
-import 'package:schulnetz/style.dart';
+import 'package:schulnetz/pages/login_page.dart';
+import 'package:schulnetz/config/style.dart';
 import 'package:schulnetz/view_container.dart';
 import 'package:theme_provider/theme_provider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:workmanager/workmanager.dart';
 
-void main() => runApp(const Notely());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isIOS || Platform.isAndroid) {
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    Workmanager().registerPeriodicTask(
+      "getNewGradesTask",
+      "simplePeriodicTask",
+      frequency: Duration(minutes: 15),
+    );
+  }
+  runApp(const Notely());
+}
+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) {
+    FlutterLocalNotificationsPlugin flip =
+        new FlutterLocalNotificationsPlugin();
+    var android = new AndroidInitializationSettings('ic_stat_school');
+    var IOS = new IOSInitializationSettings();
+    var settings = new InitializationSettings(android: android, iOS: IOS);
+    flip.initialize(settings);
+    _showNotificationWithDefaultSound(flip);
+    return Future.value(true);
+  });
+}
+
+Future _showNotificationWithDefaultSound(
+    FlutterLocalNotificationsPlugin flip) async {
+  // Show a notification after every 15 minute with the first
+  // appearance happening a minute after invoking the method
+  var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+      'Neue Noten', 'Benachrichtigung bei einer neuen Note',
+      importance: Importance.max, priority: Priority.high);
+  var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+
+  // initialise channel platform for both Android and iOS device.
+  var platformChannelSpecifics = new NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics);
+  await flip.show(Random.secure().nextInt(10), 'Neue Note',
+      'Es gibt eine neue Note', platformChannelSpecifics,
+      payload: 'Default_Sound');
+}
 
 class Notely extends StatefulWidget {
   const Notely({Key? key}) : super(key: key);
@@ -19,32 +64,17 @@ class Notely extends StatefulWidget {
 
 class _NotelyState extends State<Notely> {
   static const storage = FlutterSecureStorage();
-  bool loggedIn = false;
-  void checkIfLoggedIn() async {
+
+  Future<bool> loggedIn() async {
     bool newState = (await storage.read(key: "username") != null &&
         (await storage.read(key: "password")) != null);
-    setState(() {
-      loggedIn = newState;
-    });
+    return newState;
   }
-
-  //final connector = createPushConnector();
 
   @override
   initState() {
     super.initState();
-    checkIfLoggedIn();
-    /* if (Platform.isIOS) {
-      connector.configure(
-        onMessage: _onMessage,
-      );
-      connector.requestNotificationPermissions();
-    }*/
   }
-/*
-  Future<void> _onMessage(RemoteMessage message) async {
-    print(message.data.toString());
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +97,17 @@ class _NotelyState extends State<Notely> {
           builder: (themeContext) => MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
-            home: loggedIn ? const ViewContainerWidget() : const LoginPage(),
+            home: FutureBuilder<bool>(
+                future: loggedIn(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return snapshot.data ?? false
+                        ? const ViewContainerWidget()
+                        : const LoginPage();
+                  } else {
+                    return Container();
+                  }
+                }),
           ),
         ),
       ),

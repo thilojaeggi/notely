@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:schulnetz/login_page.dart';
+import 'package:schulnetz/pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -81,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Row(
                     children: [
                       const Text(
-                        "Farbschema",
+                        "Hell/Dark-Mode",
                         style: TextStyle(
                           fontSize: 23,
                         ),

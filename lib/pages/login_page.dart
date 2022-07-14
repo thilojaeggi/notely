@@ -5,7 +5,8 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:schulnetz/AuthTextField.dart';
+import 'package:schulnetz/widgets/AuthTextField.dart';
+import 'package:schulnetz/config/Globals.dart';
 import 'package:schulnetz/view_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -40,8 +41,8 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> signIn() async {
     const storage = FlutterSecureStorage();
     await http.post(
-        Uri.parse(
-            "https://kaschuso.so.ch/public/${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
+        Uri.parse(Globals.apiBase +
+            "/${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
         body: {
           "login": _usernameController.text,
           "passwort": _passwordController.text,
