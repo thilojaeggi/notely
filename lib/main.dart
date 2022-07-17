@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:schulnetz/config/CustomScrollBehavior.dart';
 import 'package:schulnetz/pages/login_page.dart';
 import 'package:schulnetz/config/style.dart';
 import 'package:schulnetz/view_container.dart';
@@ -11,9 +12,11 @@ import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:workmanager/workmanager.dart';
 
+const storage = FlutterSecureStorage();
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isIOS || Platform.isAndroid) {
+  if (Platform.isAndroid) {
     Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     Workmanager().registerPeriodicTask(
       "getNewGradesTask",
@@ -24,17 +27,25 @@ void main() {
   runApp(const Notely());
 }
 
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) {
-    FlutterLocalNotificationsPlugin flip =
-        new FlutterLocalNotificationsPlugin();
-    var android = new AndroidInitializationSettings('ic_stat_school');
-    var IOS = new IOSInitializationSettings();
-    var settings = new InitializationSettings(android: android, iOS: IOS);
-    flip.initialize(settings);
-    _showNotificationWithDefaultSound(flip);
-    return Future.value(true);
-  });
+Future<bool> isLoggedIn() async {
+  return (await storage.read(key: "username") != null &&
+      (await storage.read(key: "password")) != null);
+}
+
+Future<void> callbackDispatcher() async {
+  bool isloggedin = await isLoggedIn();
+  if (isloggedin) {
+    Workmanager().executeTask((task, inputData) {
+      FlutterLocalNotificationsPlugin flip =
+          new FlutterLocalNotificationsPlugin();
+      var android = new AndroidInitializationSettings('ic_stat_school');
+      var IOS = new IOSInitializationSettings();
+      var settings = new InitializationSettings(android: android, iOS: IOS);
+      flip.initialize(settings);
+      _showNotificationWithDefaultSound(flip);
+      return Future.value(true);
+    });
+  }
 }
 
 Future _showNotificationWithDefaultSound(
@@ -63,19 +74,6 @@ class Notely extends StatefulWidget {
 }
 
 class _NotelyState extends State<Notely> {
-  static const storage = FlutterSecureStorage();
-
-  Future<bool> loggedIn() async {
-    bool newState = (await storage.read(key: "username") != null &&
-        (await storage.read(key: "password")) != null);
-    return newState;
-  }
-
-  @override
-  initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ThemeProvider(
@@ -98,14 +96,17 @@ class _NotelyState extends State<Notely> {
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
             home: FutureBuilder<bool>(
-                future: loggedIn(),
+                future: isLoggedIn(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return snapshot.data ?? false
-                        ? const ViewContainerWidget()
+                        ? ScrollConfiguration(
+                            child: const ViewContainerWidget(),
+                            behavior: CustomScrollBehavior(),
+                          )
                         : const LoginPage();
                   } else {
-                    return Container();
+                    return SizedBox.shrink();
                   }
                 }),
           ),

@@ -42,21 +42,23 @@ class _GradesPageState extends State<GradesPage> {
     String gradeList = await prefs.getString("gradeList") ?? "[]";
     _gradeList =
         (json.decode(gradeList) as List).map((i) => Grade.fromJson(i)).toList();
-    setState(() {
-      _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
-      for (var i = 0; i < _groupedCoursesMap.length; i++) {
-        double combinedGrade = 0;
-        double combinedWeight = 0;
-        for (var grade in _groupedCoursesMap.values.elementAt(i)) {
-          combinedGrade = combinedGrade + (grade.mark * grade.weight);
-          combinedWeight = combinedWeight + grade.weight;
+    if (mounted) {
+      setState(() {
+        _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
+        for (var i = 0; i < _groupedCoursesMap.length; i++) {
+          double combinedGrade = 0;
+          double combinedWeight = 0;
+          for (var grade in _groupedCoursesMap.values.elementAt(i)) {
+            combinedGrade = combinedGrade + (grade.mark * grade.weight);
+            combinedWeight = combinedWeight + grade.weight;
+          }
+          _averageGradeMap.addAll({
+            _groupedCoursesMap.keys.elementAt(i):
+                (combinedGrade / combinedWeight).toStringAsFixed(3)
+          });
         }
-        _averageGradeMap.addAll({
-          _groupedCoursesMap.keys.elementAt(i):
-              (combinedGrade / combinedWeight).toStringAsFixed(3)
-        });
-      }
-    });
+      });
+    }
   }
 
   Future<void> getData() async {
@@ -68,7 +70,7 @@ class _GradesPageState extends State<GradesPage> {
     String debugUrl = "https://api.mocki.io/v2/e3516d96/grades";
     print(url);
     try {
-      await http.get(Uri.parse(url), headers: {
+      await http.get(Uri.parse(debugUrl), headers: {
         'Authorization': 'Bearer $_accessToken',
       }).then((response) {
         print(response.body);
@@ -79,23 +81,24 @@ class _GradesPageState extends State<GradesPage> {
     } catch (e) {
       print(e.toString());
     }
-    setState(() {
-      _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
-      for (var i = 0; i < _groupedCoursesMap.length; i++) {
-        double combinedGrade = 0;
-        double combinedWeight = 0;
-        for (var grade in _groupedCoursesMap.values.elementAt(i)) {
-          combinedGrade = combinedGrade + (grade.mark * grade.weight);
-          combinedWeight = combinedWeight + grade.weight;
+    if (mounted) {
+      setState(() {
+        _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
+        for (var i = 0; i < _groupedCoursesMap.length; i++) {
+          double combinedGrade = 0;
+          double combinedWeight = 0;
+          for (var grade in _groupedCoursesMap.values.elementAt(i)) {
+            combinedGrade = combinedGrade + (grade.mark * grade.weight);
+            combinedWeight = combinedWeight + grade.weight;
+          }
+
+          _averageGradeMap.addAll({
+            _groupedCoursesMap.keys.elementAt(i):
+                (combinedGrade / combinedWeight).toStringAsFixed(3)
+          });
         }
-
-        _averageGradeMap.addAll({
-          _groupedCoursesMap.keys.elementAt(i):
-              (combinedGrade / combinedWeight).toStringAsFixed(3)
-        });
-      }
-    });
-
+      });
+    }
     prefs.setString("gradeList", json.encode(_gradeList));
   }
 
@@ -130,7 +133,10 @@ class _GradesPageState extends State<GradesPage> {
             padding: const EdgeInsets.all(5),
             child: Text(
               _groupedCoursesMap.keys.elementAt(index),
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           trailing: Text(

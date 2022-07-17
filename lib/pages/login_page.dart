@@ -5,6 +5,7 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:schulnetz/config/style.dart';
 import 'package:schulnetz/widgets/AuthTextField.dart';
 import 'package:schulnetz/config/Globals.dart';
 import 'package:schulnetz/view_container.dart';
@@ -203,140 +204,143 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: <Widget>[
-              const Spacer(),
-              Form(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                        padding: EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          "Notely",
-                          style: TextStyle(
-                            fontSize: 64,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.start,
-                        )),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+        child: Theme(
+          data: Styles.themeData(true, context),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: <Widget>[
+                const Spacer(),
+                Form(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                          padding: EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            "Notely",
+                            style: TextStyle(
+                              fontSize: 64,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.start,
+                          )),
+                      const SizedBox(
+                        height: 5,
                       ),
-                      child: DropdownButtonFormField2<String>(
-                        value: dropdownValue,
-                        selectedItemHighlightColor: Colors.black,
-                        focusColor: Colors.transparent,
-                        icon: const Icon(Icons.arrow_downward),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 16),
-                        decoration: const InputDecoration(
-                          hintStyle: TextStyle(color: Colors.white),
-                          prefixIcon: Icon(
-                            Icons.school,
-                            color: Colors.white,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(16),
-                            ),
-                            borderSide:
-                                BorderSide(color: Colors.white, width: 4.0),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(16),
-                            ),
-                            borderSide:
-                                BorderSide(color: Colors.white, width: 2.5),
-                          ),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            dropdownValue = newValue!;
-                          });
-                        },
-                        items: <String>['GIBSSO', 'KBSSO', 'KSSO']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                        child: DropdownButtonFormField2<String>(
+                          value: dropdownValue,
+                          selectedItemHighlightColor: Colors.black,
+                          focusColor: Colors.transparent,
+                          icon: const Icon(Icons.arrow_downward),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 16),
+                          decoration: const InputDecoration(
+                            hintStyle: TextStyle(color: Colors.white),
+                            prefixIcon: Icon(
+                              Icons.school,
+                              color: Colors.white,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(16),
+                              ),
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 4.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(16),
+                              ),
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 2.5),
+                            ),
+                          ),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              dropdownValue = newValue!;
+                            });
+                          },
+                          items: <String>['GIBSSO', 'KBSSO', 'KSSO']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    AuthTextField(
-                      hintText: 'Benutzername',
-                      icon: Icons.person,
-                      editingController: _usernameController,
-                      passwordField: false,
-                      textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    AuthTextField(
-                      hintText: 'Passwort',
-                      icon: Icons.lock,
-                      editingController: _passwordController,
-                      passwordField: true,
-                      textInputAction: TextInputAction.done,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: OutlinedButton(
-                        onPressed: () async {
-                          setState(() {
-                            _loginHasBeenPressed = true;
-                          });
-                          await Future.delayed(
-                              const Duration(milliseconds: 300));
-                          signIn();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                          side: BorderSide(
-                              width: 2.0,
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      AuthTextField(
+                        hintText: 'Benutzername',
+                        icon: Icons.person,
+                        editingController: _usernameController,
+                        passwordField: false,
+                        textInputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      AuthTextField(
+                        hintText: 'Passwort',
+                        icon: Icons.lock,
+                        editingController: _passwordController,
+                        passwordField: true,
+                        textInputAction: TextInputAction.done,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            setState(() {
+                              _loginHasBeenPressed = true;
+                            });
+                            await Future.delayed(
+                                const Duration(milliseconds: 300));
+                            signIn();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                            side: BorderSide(
+                                width: 2.0,
+                                color: _loginHasBeenPressed
+                                    ? Colors.white
+                                    : Colors.black),
+                            backgroundColor: _loginHasBeenPressed
+                                ? Colors.black
+                                : Colors.white,
+                            animationDuration: const Duration(
+                              milliseconds: 450,
+                            ),
+                          ),
+                          child: Text(
+                            'Anmelden',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
                               color: _loginHasBeenPressed
                                   ? Colors.white
-                                  : Colors.black),
-                          backgroundColor: _loginHasBeenPressed
-                              ? Colors.black
-                              : Colors.white,
-                          animationDuration: const Duration(
-                            milliseconds: 450,
-                          ),
-                        ),
-                        child: Text(
-                          'Anmelden',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: _loginHasBeenPressed
-                                ? Colors.white
-                                : Colors.black,
+                                  : Colors.black,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Spacer(),
-            ],
+                const Spacer(),
+              ],
+            ),
           ),
         ),
       ),

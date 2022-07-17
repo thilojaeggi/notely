@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class Styles {
   static ThemeData themeData(bool isDarkTheme, BuildContext context) {
     return ThemeData(
+        useMaterial3: false,
         primarySwatch: Colors.blue,
         accentColor: Colors.blue[400],
         fontFamily: "WorkSans",

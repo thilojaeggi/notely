@@ -16,13 +16,9 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  PackageInfo _packageInfo = PackageInfo(
-    appName: 'Unknown',
-    packageName: 'Unknown',
-    version: 'Unknown',
-    buildNumber: 'Unknown',
-    buildSignature: 'Unknown',
-  );
+  Future<PackageInfo> _getPackageInfo() {
+    return PackageInfo.fromPlatform();
+  }
 
   @override
   void initState() {
@@ -30,12 +26,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _initPackageInfo();
   }
 
-  Future<void> _initPackageInfo() async {
-    final info = await PackageInfo.fromPlatform();
-    setState(() {
-      _packageInfo = info;
-    });
-  }
+  Future<void> _initPackageInfo() async {}
 
   void enableDarkMode(bool dark) {
     if (dark) {
@@ -147,10 +138,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(bottom: 5),
-                    child: Text(
-                      _packageInfo.version + " BLD" + _packageInfo.buildNumber,
-                      style: TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
-                    ),
+                    child: FutureBuilder<PackageInfo>(
+                        future: _getPackageInfo(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Text(
+                              (snapshot.data!.version) +
+                                  " BLD" +
+                                  snapshot.data!.buildNumber,
+                              style: TextStyle(
+                                  color: Color.fromRGBO(158, 158, 158, 1)),
+                            );
+                          }
+                          return Text("");
+                        }),
                   ),
                   Container(
                     margin: const EdgeInsets.only(bottom: 5),
