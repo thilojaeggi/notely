@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:day_night_switcher/day_night_switcher.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -19,6 +22,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<PackageInfo> _getPackageInfo() {
     return PackageInfo.fromPlatform();
   }
+
+  int dropdownValue = 5;
+  final double maxInputValue = 6;
 
   @override
   void initState() {
@@ -88,6 +94,80 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+            Card(
+              elevation: 3,
+              margin: const EdgeInsets.only(bottom: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding:
+                    const EdgeInsets.only(left: 16.0, bottom: 16.0, top: 16.0),
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 5,
+                      child: Text(
+                        "Zielnote",
+                        style: TextStyle(
+                          fontSize: 23,
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+                    Flexible(
+                      flex: 1,
+                      child: TextField(
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.all(6.0),
+                          hintStyle: const TextStyle(color: Colors.white),
+                          enabledBorder: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            ),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1),
+                          ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5),
+                            ),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 1.5),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            final TextSelection newSelection =
+                                newValue.selection;
+                            String truncated = newValue.text;
+                            final double? value =
+                                double.tryParse(newValue.text);
+                            if (value == null) {
+                              return TextEditingValue(
+                                text: truncated,
+                                selection: newSelection,
+                              );
+                            }
+                            if (value > maxInputValue || value == 0) {
+                              truncated = maxInputValue.toString();
+                            }
+
+                            return TextEditingValue(
+                                text: truncated, selection: newSelection);
+                          }),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ),
             ),

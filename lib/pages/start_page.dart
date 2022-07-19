@@ -65,7 +65,6 @@ class _StartPageState extends State<StartPage> {
     } catch (e) {
       print(e.toString());
     }
-
     _classList.clear();
     if (mounted) {
       setState(() {

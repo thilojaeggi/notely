@@ -50,7 +50,7 @@ class _GradesPageState extends State<GradesPage> {
           double combinedWeight = 0;
           for (var grade in _groupedCoursesMap.values.elementAt(i)) {
             combinedGrade = combinedGrade + (grade.mark * grade.weight);
-            combinedWeight = combinedWeight + grade.weight;
+            combinedWeight += grade.weight;
           }
           _averageGradeMap.addAll({
             _groupedCoursesMap.keys.elementAt(i):
@@ -89,7 +89,7 @@ class _GradesPageState extends State<GradesPage> {
           double combinedWeight = 0;
           for (var grade in _groupedCoursesMap.values.elementAt(i)) {
             combinedGrade = combinedGrade + (grade.mark * grade.weight);
-            combinedWeight = combinedWeight + grade.weight;
+            combinedWeight += grade.weight;
           }
 
           _averageGradeMap.addAll({

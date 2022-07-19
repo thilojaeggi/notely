@@ -3,16 +3,17 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:schulnetz/config/CustomScrollBehavior.dart';
 import 'package:schulnetz/pages/login_page.dart';
 import 'package:schulnetz/config/style.dart';
 import 'package:schulnetz/view_container.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:workmanager/workmanager.dart';
 
 const storage = FlutterSecureStorage();
+const fetchNotifications = "fetchNotifications";
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,25 +28,23 @@ void main() {
   runApp(const Notely());
 }
 
-Future<bool> isLoggedIn() async {
-  return (await storage.read(key: "username") != null &&
-      (await storage.read(key: "password")) != null);
-}
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    FlutterLocalNotificationsPlugin flip =
+        new FlutterLocalNotificationsPlugin();
+    var android = new AndroidInitializationSettings('ic_stat_school');
+    var IOS = new IOSInitializationSettings();
+    var settings = new InitializationSettings(android: android, iOS: IOS);
+    flip.initialize(settings);
+    const storage = FlutterSecureStorage();
 
-Future<void> callbackDispatcher() async {
-  bool isloggedin = await isLoggedIn();
-  if (isloggedin) {
-    Workmanager().executeTask((task, inputData) {
-      FlutterLocalNotificationsPlugin flip =
-          new FlutterLocalNotificationsPlugin();
-      var android = new AndroidInitializationSettings('ic_stat_school');
-      var IOS = new IOSInitializationSettings();
-      var settings = new InitializationSettings(android: android, iOS: IOS);
-      flip.initialize(settings);
+    if ((await storage.read(key: "username") != null &&
+        (await storage.read(key: "password")) != null)) {
       _showNotificationWithDefaultSound(flip);
-      return Future.value(true);
-    });
-  }
+    }
+
+    return Future.value(true);
+  });
 }
 
 Future _showNotificationWithDefaultSound(
@@ -64,6 +63,11 @@ Future _showNotificationWithDefaultSound(
   await flip.show(Random.secure().nextInt(10), 'Neue Note',
       'Es gibt eine neue Note', platformChannelSpecifics,
       payload: 'Default_Sound');
+}
+
+Future<bool> isLoggedIn() async {
+  return (await storage.read(key: "username") != null &&
+      (await storage.read(key: "password")) != null);
 }
 
 class Notely extends StatefulWidget {
