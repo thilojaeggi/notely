@@ -133,42 +133,39 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
       } else {
         return Scaffold(
           extendBody: true,
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CustomNavigationBar(
-              backgroundColor:
-                  (ThemeProvider.controllerOf(context).currentThemeId ==
-                          'dark_theme')
-                      ? Colors.grey.withOpacity(0.2)
-                      : Colors.white.withOpacity(0.5),
-              borderRadius: Radius.circular(10.0),
-              selectedColor: Colors.blue,
-              blurEffect: true,
-              iconSize: 30.0,
-              scaleFactor: 0.1,
-              elevation: 0,
-              unSelectedColor: Colors.grey[600],
-              items: <CustomNavigationBarItem>[
-                CustomNavigationBarItem(
-                  icon: Icon(
-                    CupertinoIcons.house_fill,
-                  ),
+          bottomNavigationBar: CustomNavigationBar(
+            backgroundColor:
+                (ThemeProvider.controllerOf(context).currentThemeId ==
+                        'dark_theme')
+                    ? Colors.grey.withOpacity(0.2)
+                    : Colors.white.withOpacity(0.5),
+            borderRadius: Radius.circular(10.0),
+            selectedColor: Colors.blue,
+            blurEffect: true,
+            iconSize: 30.0,
+            scaleFactor: 0.1,
+            elevation: 0,
+            unSelectedColor: Colors.grey[600],
+            items: <CustomNavigationBarItem>[
+              CustomNavigationBarItem(
+                icon: Icon(
+                  CupertinoIcons.house_fill,
                 ),
-                CustomNavigationBarItem(
-                  icon: Icon(
-                    CupertinoIcons.text_badge_checkmark,
-                  ),
+              ),
+              CustomNavigationBarItem(
+                icon: Icon(
+                  CupertinoIcons.text_badge_checkmark,
                 ),
-                CustomNavigationBarItem(
-                  icon: Icon(Icons.sick),
-                ),
-                CustomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.gear_solid),
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              onTap: changeDestination,
-            ),
+              ),
+              CustomNavigationBarItem(
+                icon: Icon(Icons.sick),
+              ),
+              CustomNavigationBarItem(
+                icon: Icon(CupertinoIcons.gear_solid),
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            onTap: changeDestination,
           ),
           body: SafeArea(
             child: _pages[_selectedIndex],
