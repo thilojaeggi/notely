@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:custom_navigation_bar/custom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -7,6 +8,7 @@ import 'package:schulnetz/pages/settings_page.dart';
 import 'package:schulnetz/pages/start_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:theme_provider/theme_provider.dart';
 
 import 'pages/absences_page.dart';
 import 'pages/grades_page.dart';
@@ -131,45 +133,41 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
       } else {
         return Scaffold(
           extendBody: true,
-          bottomNavigationBar: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.2), blurRadius: 16.0),
+          bottomNavigationBar: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CustomNavigationBar(
+              backgroundColor:
+                  (ThemeProvider.controllerOf(context).currentThemeId ==
+                          'dark_theme')
+                      ? Colors.grey.withOpacity(0.2)
+                      : Colors.white.withOpacity(0.5),
+              borderRadius: Radius.circular(10.0),
+              selectedColor: Colors.blue,
+              blurEffect: true,
+              iconSize: 30.0,
+              scaleFactor: 0.1,
+              elevation: 0,
+              unSelectedColor: Colors.grey[600],
+              items: <CustomNavigationBarItem>[
+                CustomNavigationBarItem(
+                  icon: Icon(
+                    CupertinoIcons.house_fill,
+                  ),
+                ),
+                CustomNavigationBarItem(
+                  icon: Icon(
+                    CupertinoIcons.text_badge_checkmark,
+                  ),
+                ),
+                CustomNavigationBarItem(
+                  icon: Icon(Icons.sick),
+                ),
+                CustomNavigationBarItem(
+                  icon: Icon(CupertinoIcons.gear_solid),
+                ),
               ],
-              color: Colors.white.withOpacity(0.1),
-            ),
-            child: BackdropFilter(
-              filter: new ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: BottomNavigationBar(
-                elevation: 6,
-                type: BottomNavigationBarType.fixed,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      CupertinoIcons.house_fill,
-                    ),
-                    label: "Start",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      CupertinoIcons.text_badge_checkmark,
-                    ),
-                    label: 'Noten',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.sick),
-                    label: "Absenzen",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.gear_solid),
-                    label: "Einstellungen",
-                  ),
-                ],
-                currentIndex: _selectedIndex,
-                onTap: changeDestination,
-              ),
+              currentIndex: _selectedIndex,
+              onTap: changeDestination,
             ),
           ),
           body: SafeArea(

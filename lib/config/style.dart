@@ -26,9 +26,7 @@ class Styles {
         ),
         bottomNavigationBarTheme:
             Theme.of(context).bottomNavigationBarTheme.copyWith(
-                  backgroundColor: isDarkTheme
-                      ? Color.fromARGB(255, 27, 27, 27).withOpacity(0.2)
-                      : Colors.white,
+                  backgroundColor: isDarkTheme ? Colors.black : Colors.white,
                 ));
   }
 }

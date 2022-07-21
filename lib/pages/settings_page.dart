@@ -120,51 +120,55 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     Spacer(),
                     Flexible(
-                      flex: 1,
-                      child: TextField(
-                        maxLines: 1,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: EdgeInsets.all(6.0),
-                          hintStyle: const TextStyle(color: Colors.white),
-                          enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
+                      child: Container(
+                        color: Colors.blue,
+                        child: TextField(
+                          maxLines: 1,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(6.0),
+                            hintStyle: const TextStyle(color: Colors.white),
+                            enabledBorder: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5),
+                              ),
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 1),
                             ),
-                            borderSide:
-                                BorderSide(color: Colors.white, width: 1),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(5),
+                            focusedBorder: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5),
+                              ),
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 1.5),
                             ),
-                            borderSide:
-                                BorderSide(color: Colors.white, width: 1.5),
                           ),
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                          TextInputFormatter.withFunction((oldValue, newValue) {
-                            final TextSelection newSelection =
-                                newValue.selection;
-                            String truncated = newValue.text;
-                            final double? value =
-                                double.tryParse(newValue.text);
-                            if (value == null) {
-                              return TextEditingValue(
-                                text: truncated,
-                                selection: newSelection,
-                              );
-                            }
-                            if (value > maxInputValue || value == 0) {
-                              truncated = maxInputValue.toString();
-                            }
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r"[0-9.]")),
+                            TextInputFormatter.withFunction(
+                                (oldValue, newValue) {
+                              final TextSelection newSelection =
+                                  newValue.selection;
+                              String truncated = newValue.text;
+                              final double? value =
+                                  double.tryParse(newValue.text);
+                              if (value == null) {
+                                return TextEditingValue(
+                                  text: truncated,
+                                  selection: newSelection,
+                                );
+                              }
+                              if (value > maxInputValue || value == 0) {
+                                truncated = maxInputValue.toString();
+                              }
 
-                            return TextEditingValue(
-                                text: truncated, selection: newSelection);
-                          }),
-                        ],
+                              return TextEditingValue(
+                                  text: truncated, selection: newSelection);
+                            }),
+                          ],
+                        ),
                       ),
                     )
                   ],

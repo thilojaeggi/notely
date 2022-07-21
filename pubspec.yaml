@@ -56,6 +56,7 @@ dependencies:
   workmanager: ^0.5.0
   animated_theme_switcher: "^2.0.5"
   shimmer: ^2.0.0
+  custom_navigation_bar: ^0.8.2
 dev_dependencies:
   flutter_launcher_icons: ^0.9.3
   flutter_test:
