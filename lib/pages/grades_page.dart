@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:equations/equations.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
   Color good = Colors.blueAccent;
   Color bad = Colors.redAccent;
+  late double targetGrade;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -41,6 +43,8 @@ class _GradesPageState extends State<GradesPage> {
   void getExistingData() async {
     final prefs = await SharedPreferences.getInstance();
     String gradeList = await prefs.getString("gradeList") ?? "[]";
+    targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;
+
     _gradeList =
         (json.decode(gradeList) as List).map((i) => Grade.fromJson(i)).toList();
     if (mounted) {
@@ -152,6 +156,13 @@ class _GradesPageState extends State<GradesPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      /* Padding(
+                        padding: const EdgeInsets.only(left: 7.0),
+                        child: Text(
+                          "Note benötigt für Ø $targetGrade: ",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),*/
                       for (var i = 0;
                           i < _groupedCoursesMap.values.elementAt(index).length;
                           i++)
@@ -299,50 +310,43 @@ class _GradesPageState extends State<GradesPage> {
                                     ),
                                   ),
                                   gradient: LinearGradient(
-                                      colors:
-                                          // This is really ugly, I know.
-                                          // TODO Make this prettier.
-                                          (_groupedCoursesMap.values
-                                                      .elementAt(index)
-                                                      .toList()
-                                                      .length >
-                                                  1)
-                                              ? [
-                                                  for (var i = 0;
-                                                      i <
-                                                          _groupedCoursesMap
-                                                              .values
-                                                              .elementAt(index)
-                                                              .length;
-                                                      i++)
-                                                    gradeColor(List.from(
-                                                            _groupedCoursesMap
-                                                                .values
-                                                                .elementAt(
-                                                                    index))
-                                                        .reversed
-                                                        .toList()[i]
-                                                        .mark!
-                                                        .toDouble())
-                                                ]
-                                              : [
-                                                  gradeColor(List.from(
-                                                          _groupedCoursesMap
-                                                              .values
-                                                              .elementAt(index))
-                                                      .reversed
-                                                      .toList()[0]
-                                                      .mark!
-                                                      .toDouble()),
-                                                  gradeColor(List.from(
-                                                          _groupedCoursesMap
-                                                              .values
-                                                              .elementAt(index))
-                                                      .reversed
-                                                      .toList()[0]
-                                                      .mark!
-                                                      .toDouble())
-                                                ]),
+                                      colors: (_groupedCoursesMap.values
+                                                  .elementAt(index)
+                                                  .toList()
+                                                  .length >
+                                              1)
+                                          ? [
+                                              for (var i = 0;
+                                                  i <
+                                                      _groupedCoursesMap.values
+                                                          .elementAt(index)
+                                                          .length;
+                                                  i++)
+                                                gradeColor(List.from(
+                                                        _groupedCoursesMap
+                                                            .values
+                                                            .elementAt(index))
+                                                    .reversed
+                                                    .toList()[i]
+                                                    .mark!
+                                                    .toDouble())
+                                            ]
+                                          : [
+                                              gradeColor(List.from(
+                                                      _groupedCoursesMap.values
+                                                          .elementAt(index))
+                                                  .reversed
+                                                  .toList()[0]
+                                                  .mark!
+                                                  .toDouble()),
+                                              gradeColor(List.from(
+                                                      _groupedCoursesMap.values
+                                                          .elementAt(index))
+                                                  .reversed
+                                                  .toList()[0]
+                                                  .mark!
+                                                  .toDouble())
+                                            ]),
                                   spots: [
                                     for (var i = 0;
                                         i <

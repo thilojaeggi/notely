@@ -20,8 +20,21 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  TextEditingController targetGradeController = new TextEditingController();
+
   Future<PackageInfo> _getPackageInfo() {
     return PackageInfo.fromPlatform();
+  }
+
+  Future<void> getTargetGrade() async {
+    final prefs = await SharedPreferences.getInstance();
+    double targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;
+    targetGradeController.text = targetGrade.toString();
+  }
+
+  Future<void> setTargetGrade(double grade) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble("targetGrade", grade);
   }
 
   int dropdownValue = 5;
@@ -30,10 +43,8 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _initPackageInfo();
+    getTargetGrade();
   }
-
-  Future<void> _initPackageInfo() async {}
 
   Future<void> enableDarkMode(bool dark) async {
     if (dark) {
@@ -98,7 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            Card(
+            /*Card(
               elevation: 3,
               margin: const EdgeInsets.only(bottom: 10),
               shape: RoundedRectangleBorder(
@@ -119,6 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     width: 40,
                     child: TextField(
                       maxLines: 1,
+                      controller: targetGradeController,
                       decoration: InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.all(8.0),
@@ -156,49 +168,14 @@ class _SettingsPageState extends State<SettingsPage> {
                           if (value > maxInputValue || value == 0) {
                             truncated = "6";
                           }
+                          setTargetGrade(double.parse(truncated));
+
                           return TextEditingValue(
                               text: truncated, selection: newSelection);
                         }),
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-            /*
-            
-            Card(
-              elevation: 3,
-              margin: const EdgeInsets.only(bottom: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    left: 16.0,
-                    bottom: 16.0,
-                    top:
-                        16.0), 
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 5,
-                      child: Text(
-                        "Zielnote",
-                        style: TextStyle(
-                          fontSize: 23,
-                        ),
-                      ),
-                    ),
-                    Spacer(),
-                    Flexible(
-                      child: Container(
-                        color: Colors.blue,
-                        child: 
-                      ),
-                    )
-                  ],
                 ),
               ),
             ),*/
