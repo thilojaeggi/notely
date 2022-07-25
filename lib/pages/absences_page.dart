@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:schulnetz/Models/Absence.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+import '../Models/Absence.dart';
+import '../config/Globals.dart';
 
 class AbsencesPage extends StatefulWidget {
   const AbsencesPage({Key? key}) : super(key: key);
@@ -28,16 +30,14 @@ class _AbsencesPageState extends State<AbsencesPage> {
 
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    String _accessToken = prefs.getString('accessToken') ?? "";
     String school = prefs.getString("school") ?? "ksso";
     String url =
         "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/absencenotices";
     print(url);
     try {
       await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $_accessToken',
+        'Authorization': 'Bearer $accessToken',
       }).then((response) {
-        print(response.body.toString());
         setState(() {
           _absenceList = (json.decode(response.body) as List)
               .reversed
@@ -56,6 +56,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
     super.initState();
     getExistingData();
     getData();
+    print(accessToken);
   }
 
   @override

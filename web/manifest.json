@@ -1,6 +1,6 @@
 {
-    "name": "schulnetz",
-    "short_name": "schulnetz",
+    "name": "Notely",
+    "short_name": "Notely",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

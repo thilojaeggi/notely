@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../Models/Grade.dart';
+import '../config/Globals.dart';
 
 class GradesPage extends StatefulWidget {
   const GradesPage({Key? key}) : super(key: key);
@@ -63,7 +64,6 @@ class _GradesPageState extends State<GradesPage> {
 
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    String _accessToken = prefs.getString('accessToken') ?? "";
     String school = prefs.getString("school") ?? "ksso";
     String url =
         "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/grades";
@@ -71,9 +71,8 @@ class _GradesPageState extends State<GradesPage> {
     print(url);
     try {
       await http.get(Uri.parse(debugUrl), headers: {
-        'Authorization': 'Bearer $_accessToken',
+        'Authorization': 'Bearer $accessToken',
       }).then((response) {
-        print(response.body);
         _gradeList = (json.decode(response.body) as List)
             .map((i) => Grade.fromJson(i))
             .toList();
@@ -107,6 +106,7 @@ class _GradesPageState extends State<GradesPage> {
     super.initState();
     getExistingData();
     getData();
+    print(accessToken);
   }
 
   Widget _buildGradeCard(BuildContext context, int index) {

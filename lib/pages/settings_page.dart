@@ -1,15 +1,16 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:day_night_switcher/day_night_switcher.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:schulnetz/pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+import 'login_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -34,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _initPackageInfo() async {}
 
-  void enableDarkMode(bool dark) {
+  Future<void> enableDarkMode(bool dark) async {
     if (dark) {
       ThemeProvider.controllerOf(context).setTheme("dark_theme");
     } else {
@@ -106,7 +107,79 @@ class _SettingsPageState extends State<SettingsPage> {
               clipBehavior: Clip.antiAlias,
               child: Padding(
                 padding:
-                    const EdgeInsets.only(left: 16.0, bottom: 16.0, top: 16.0),
+                    const EdgeInsets.only(left: 0.0, bottom: 6.0, top: 6.0),
+                child: ListTile(
+                  leading: Text(
+                    "Zielnote",
+                    style: TextStyle(
+                      fontSize: 23,
+                    ),
+                  ),
+                  trailing: SizedBox(
+                    width: 40,
+                    child: TextField(
+                      maxLines: 1,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.all(8.0),
+                        enabledBorder: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5),
+                          ),
+                          borderSide: BorderSide(color: Colors.grey, width: 1),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5),
+                          ),
+                          borderSide:
+                              BorderSide(color: Colors.grey, width: 1.5),
+                        ),
+                      ),
+                      keyboardType: Platform.isIOS
+                          ? TextInputType.numberWithOptions(
+                              signed: true, decimal: true)
+                          : TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                        TextInputFormatter.withFunction((oldValue, newValue) {
+                          final TextSelection newSelection = newValue.selection;
+                          String truncated = newValue.text;
+                          final double? value = double.tryParse(newValue.text);
+                          if (value == null) {
+                            return TextEditingValue(
+                              text: truncated,
+                              selection: newSelection,
+                            );
+                          }
+                          if (value > maxInputValue || value == 0) {
+                            truncated = "6";
+                          }
+                          return TextEditingValue(
+                              text: truncated, selection: newSelection);
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            /*
+            
+            Card(
+              elevation: 3,
+              margin: const EdgeInsets.only(bottom: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    left: 16.0,
+                    bottom: 16.0,
+                    top:
+                        16.0), 
                 child: Row(
                   children: [
                     Flexible(
@@ -122,59 +195,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     Flexible(
                       child: Container(
                         color: Colors.blue,
-                        child: TextField(
-                          maxLines: 1,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.all(6.0),
-                            hintStyle: const TextStyle(color: Colors.white),
-                            enabledBorder: const OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(5),
-                              ),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 1),
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(5),
-                              ),
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 1.5),
-                            ),
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r"[0-9.]")),
-                            TextInputFormatter.withFunction(
-                                (oldValue, newValue) {
-                              final TextSelection newSelection =
-                                  newValue.selection;
-                              String truncated = newValue.text;
-                              final double? value =
-                                  double.tryParse(newValue.text);
-                              if (value == null) {
-                                return TextEditingValue(
-                                  text: truncated,
-                                  selection: newSelection,
-                                );
-                              }
-                              if (value > maxInputValue || value == 0) {
-                                truncated = maxInputValue.toString();
-                              }
-
-                              return TextEditingValue(
-                                  text: truncated, selection: newSelection);
-                            }),
-                          ],
-                        ),
+                        child: 
                       ),
                     )
                   ],
                 ),
               ),
-            ),
+            ),*/
             GestureDetector(
               onTap: () async {
                 const storage = FlutterSecureStorage();

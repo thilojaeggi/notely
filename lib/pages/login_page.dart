@@ -5,13 +5,14 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:schulnetz/config/style.dart';
-import 'package:schulnetz/widgets/AuthTextField.dart';
-import 'package:schulnetz/config/Globals.dart';
-import 'package:schulnetz/view_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+
+import '../config/Globals.dart';
+import '../config/style.dart';
+import '../view_container.dart';
+import '../widgets/AuthTextField.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -42,14 +43,12 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> signIn() async {
     const storage = FlutterSecureStorage();
     await http.post(
-        Uri.parse(Globals.apiBase +
+        Uri.parse(apiBase +
             "/${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
         body: {
           "login": _usernameController.text,
           "passwort": _passwordController.text,
         }).then((response) async {
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
 
@@ -62,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
         storage.write(key: "username", value: _usernameController.text);
         storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue);
-        await prefs.setString("accessToken", trimmedString);
+        accessToken = trimmedString;
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),
@@ -119,7 +118,6 @@ class _LoginPageState extends State<LoginPage> {
         )
             .then((response) async {
           if (response.statusCode == 200) {
-            print(response.body);
             /*signIn();
             showToast(
           alignment: Alignment.bottomCenter,

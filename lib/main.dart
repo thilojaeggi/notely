@@ -2,21 +2,30 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:Notely/config/Globals.dart';
+import 'package:Notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:schulnetz/config/CustomScrollBehavior.dart';
-import 'package:schulnetz/pages/login_page.dart';
-import 'package:schulnetz/config/style.dart';
-import 'package:schulnetz/view_container.dart';
 import 'package:theme_provider/theme_provider.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:workmanager/workmanager.dart';
+
+import 'config/CustomScrollBehavior.dart';
+import 'config/style.dart';
+import 'pages/login_page.dart';
 
 const storage = FlutterSecureStorage();
 const fetchNotifications = "fetchNotifications";
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows) {
+    await windowManager.ensureInitialized();
+    windowManager.waitUntilReadyToShow().then((_) async {
+      await windowManager.setTitleBarStyle(TitleBarStyle.normal);
+    });
+  }
   if (Platform.isAndroid) {
     Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     Workmanager().registerPeriodicTask(
@@ -78,6 +87,11 @@ class Notely extends StatefulWidget {
 }
 
 class _NotelyState extends State<Notely> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ThemeProvider(

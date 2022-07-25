@@ -1,4 +1,4 @@
-name: schulnetz
+name: Notely
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -56,7 +56,8 @@ dependencies:
   workmanager: ^0.5.0
   animated_theme_switcher: "^2.0.5"
   shimmer: ^2.0.0
-  custom_navigation_bar: ^0.8.2
+  glassmorphism_widgets: ^0.1.1
+  window_manager: ^0.2.5
 dev_dependencies:
   flutter_launcher_icons: ^0.9.3
   flutter_test:

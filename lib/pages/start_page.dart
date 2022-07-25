@@ -28,7 +28,6 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   String _name = "";
   String _email = "";
-  String _accessToken = "";
   List _classList = List.empty(growable: true);
   final storage = const FlutterSecureStorage();
   String school = "";
@@ -48,18 +47,16 @@ class _StartPageState extends State<StartPage> {
 
   Future<void> getMe() async {
     final prefs = await SharedPreferences.getInstance();
-    _accessToken = await prefs.getString("accessToken") ?? "";
     school = await prefs.getString("school") ?? "ksso";
-    print(_accessToken);
+    print(accessToken);
     print(school);
     String url =
         "https://kaschuso.so.ch/public/" + school.toLowerCase() + "/rest/v1/me";
     print(url);
     try {
       await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $_accessToken',
+        'Authorization': 'Bearer $accessToken',
       }).then((response) {
-        print(response.body);
         _user = jsonDecode(response.body);
       });
     } catch (e) {
@@ -86,12 +83,12 @@ class _StartPageState extends State<StartPage> {
     super.initState();
     getExistingValues();
     getMe();
+    print(accessToken);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.transparent,
       width: double.infinity,
       height: double.infinity,
       padding: const EdgeInsets.only(left: 8),

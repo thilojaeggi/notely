@@ -85,13 +85,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
-  custom_navigation_bar:
-    dependency: "direct main"
-    description:
-      name: custom_navigation_bar
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.8.2"
   day_night_switcher:
     dependency: "direct main"
     description:
@@ -254,6 +247,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  glassmorphism_widgets:
+    dependency: "direct main"
+    description:
+      name: glassmorphism_widgets
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.1"
   html:
     dependency: "direct main"
     description:
@@ -464,6 +464,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.2"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -623,6 +630,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.6.1"
+  window_manager:
+    dependency: "direct main"
+    description:
+      name: window_manager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.5"
   workmanager:
     dependency: "direct main"
     description:
