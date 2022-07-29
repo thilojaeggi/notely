@@ -8,7 +8,7 @@ class CustomScrollBehavior extends ScrollBehavior {
     Widget child,
     ScrollableDetails details,
   ) {
-    /*switch (getPlatform(context)) {
+    switch (getPlatform(context)) {
       case TargetPlatform.iOS:
       case TargetPlatform.linux:
       case TargetPlatform.macOS:
@@ -25,10 +25,5 @@ class CustomScrollBehavior extends ScrollBehavior {
           child: child,
         );
     }
-  }*/
-    return StretchingOverscrollIndicator(
-      axisDirection: details.direction,
-      child: child,
-    );
   }
 }
