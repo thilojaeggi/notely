@@ -57,8 +57,8 @@ dependencies:
   animated_theme_switcher: "^2.0.5"
   shimmer: ^2.0.0
   glassmorphism_widgets: ^0.1.1
-  window_manager: ^0.2.5
   equations: ^4.0.0
+  flutter_acrylic: ^1.0.0
 dev_dependencies:
   flutter_launcher_icons: ^0.9.3
   flutter_test:

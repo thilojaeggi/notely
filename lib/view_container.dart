@@ -146,17 +146,13 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.2), blurRadius: 16.0),
-                ],
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.transparent,
               ),
               child: BackdropFilter(
-                filter: new ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.white.withOpacity(0.1),
+                  backgroundColor: Colors.grey.withOpacity(0.1),
                   elevation: 0,
                   items: const <BottomNavigationBarItem>[
                     BottomNavigationBarItem(

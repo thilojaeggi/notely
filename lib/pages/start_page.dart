@@ -7,7 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../config/Globals.dart';
+import '../config/Globals.dart' as Globals;
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -48,14 +48,14 @@ class _StartPageState extends State<StartPage> {
   Future<void> getMe() async {
     final prefs = await SharedPreferences.getInstance();
     school = await prefs.getString("school") ?? "ksso";
-    print(accessToken);
+    print(Globals.accessToken);
     print(school);
     String url =
         "https://kaschuso.so.ch/public/" + school.toLowerCase() + "/rest/v1/me";
     print(url);
     try {
       await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
         _user = jsonDecode(response.body);
       });
@@ -83,7 +83,6 @@ class _StartPageState extends State<StartPage> {
     super.initState();
     getExistingValues();
     getMe();
-    print(accessToken);
   }
 
   @override

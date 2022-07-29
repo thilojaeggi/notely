@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../Models/Grade.dart';
-import '../config/Globals.dart';
+import '../config/Globals.dart' as Globals;
 
 class GradesPage extends StatefulWidget {
   const GradesPage({Key? key}) : super(key: key);
@@ -40,13 +40,13 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
-  void getExistingData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String gradeList = await prefs.getString("gradeList") ?? "[]";
-    targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;
+  void getExistingData() {
+    /*final prefs = await SharedPreferences.getInstance();
+    targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;*/
 
-    _gradeList =
-        (json.decode(gradeList) as List).map((i) => Grade.fromJson(i)).toList();
+    _gradeList = (json.decode(Globals.gradeList) as List)
+        .map((i) => Grade.fromJson(i))
+        .toList();
     if (mounted) {
       setState(() {
         _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
@@ -75,7 +75,7 @@ class _GradesPageState extends State<GradesPage> {
     print(url);
     try {
       await http.get(Uri.parse(debugUrl), headers: {
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
         _gradeList = (json.decode(response.body) as List)
             .map((i) => Grade.fromJson(i))
@@ -103,6 +103,7 @@ class _GradesPageState extends State<GradesPage> {
       });
     }
     prefs.setString("gradeList", json.encode(_gradeList));
+    Globals.gradeList = json.encode(_gradeList);
   }
 
   @override
@@ -110,7 +111,7 @@ class _GradesPageState extends State<GradesPage> {
     super.initState();
     getExistingData();
     getData();
-    print(accessToken);
+    print(Globals.accessToken);
   }
 
   Widget _buildGradeCard(BuildContext context, int index) {

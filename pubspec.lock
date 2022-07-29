@@ -160,6 +160,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_acrylic:
+    dependency: "direct main"
+    description:
+      name: flutter_acrylic
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+2"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -478,13 +485,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
-  screen_retriever:
-    dependency: transitive
-    description:
-      name: screen_retriever
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -644,13 +644,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.6.1"
-  window_manager:
-    dependency: "direct main"
-    description:
-      name: window_manager
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.5"
   workmanager:
     dependency: "direct main"
     description:
