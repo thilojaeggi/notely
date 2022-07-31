@@ -150,10 +150,10 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
               ),
               child: BackdropFilter(
                 filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: CupertinoTabBar(
-                  // type: BottomNavigationBarType.fixed,
+                child: BottomNavigationBar(
+                  type: BottomNavigationBarType.fixed,
                   backgroundColor: Colors.grey.withOpacity(0.1),
-                  //elevation: 0,
+                  elevation: 0,
                   items: const <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
                         icon: Icon(
