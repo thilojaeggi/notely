@@ -1,12 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../ad_helper.dart';
 import '../config/Globals.dart' as Globals;
 
 class StartPage extends StatefulWidget {
@@ -32,6 +34,28 @@ class _StartPageState extends State<StartPage> {
   final storage = const FlutterSecureStorage();
   String school = "";
   Map<String, dynamic> _user = Map();
+
+  late BannerAd _bottomBannerAd;
+  bool _isBottomBannerAdLoaded = false;
+
+  void _createBottomBannerAd() {
+    _bottomBannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBottomBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bottomBannerAd.load();
+  }
 
   Future<void> getExistingValues() async {
     final prefs = await SharedPreferences.getInstance();
@@ -83,59 +107,75 @@ class _StartPageState extends State<StartPage> {
     super.initState();
     getExistingValues();
     getMe();
+    _createBottomBannerAd();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bottomBannerAd.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      padding: const EdgeInsets.only(left: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Ich",
-            style: TextStyle(
-              fontSize: 64,
-              fontWeight: FontWeight.w400,
+    return SafeArea(
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        padding: const EdgeInsets.only(left: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Ich",
+              style: TextStyle(
+                fontSize: 64,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.start,
             ),
-            textAlign: TextAlign.start,
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Text(
-            _name,
-            style: const TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.w400,
+            const SizedBox(
+              height: 5,
             ),
-          ),
-          Text(
-            _email,
-            style: const TextStyle(
-              fontSize: 20,
+            Text(
+              _name,
+              style: const TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w400,
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          const Text(
-            "Klassen:",
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-          ),
-          ListView.builder(
-              shrinkWrap: true,
-              itemCount: _classList.length,
-              itemBuilder: (BuildContext ctxt, int index) {
-                return Text(
-                  _classList[index].toString(),
-                  style: const TextStyle(fontSize: 20),
-                );
-              }),
-          const Spacer(),
-        ],
+            Text(
+              _email,
+              style: const TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            const Text(
+              "Klassen:",
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
+            ),
+            ListView.builder(
+                shrinkWrap: true,
+                itemCount: _classList.length,
+                itemBuilder: (BuildContext ctxt, int index) {
+                  return Text(
+                    _classList[index].toString(),
+                    style: const TextStyle(fontSize: 20),
+                  );
+                }),
+            const Spacer(),
+            _isBottomBannerAdLoaded
+                ? Container(
+                    height: _bottomBannerAd.size.height.toDouble(),
+                    width: double.infinity,
+                    child: AdWidget(ad: _bottomBannerAd),
+                  )
+                : SizedBox.shrink(),
+          ],
+        ),
       ),
     );
   }
