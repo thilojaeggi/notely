@@ -59,6 +59,7 @@ dependencies:
   glassmorphism_widgets: ^0.1.1
   equations: ^4.0.0
   flutter_acrylic: ^1.0.0
+  google_mobile_ads: ^2.0.0
 dev_dependencies:
   flutter_launcher_icons: ^0.9.3
   flutter_test:
