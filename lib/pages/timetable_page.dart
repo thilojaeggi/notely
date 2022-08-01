@@ -150,28 +150,35 @@ class _TimetablePageState extends State<TimetablePage> {
                               SizedBox(
                                 width: 5,
                               ),
+                              Text(
+                                event.roomToken.toString(),
+                                style: const TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.w500),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
                               Column(
                                 children: [
                                   Text(
                                     event.startDate!
                                         .substring(event.startDate!.length - 5),
                                     style: TextStyle(fontSize: 18.0),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  Text(
+                                    "-",
+                                    style: TextStyle(fontSize: 18.0),
+                                    textAlign: TextAlign.center,
                                   ),
                                   Text(
                                     event.endDate!
                                         .substring(event.startDate!.length - 5)
                                         .toString(),
                                     style: TextStyle(fontSize: 18.0),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ],
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                event.roomToken.toString(),
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.w500),
                               ),
                             ],
                           )),

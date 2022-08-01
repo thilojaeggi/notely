@@ -26,11 +26,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows) {
-    await Window.initialize();
+    /*await Window.initialize();
     await Window.setEffect(
       effect: WindowEffect.mica,
       dark: true,
-    );
+    );*/
   } else {
     MobileAds.instance.initialize();
   }

@@ -56,6 +56,7 @@ dependencies:
   flutter_acrylic: ^1.0.0
   google_mobile_ads: ^2.0.0
   date_picker_timeline: ^1.2.3
+  flutter_neumorphic: ^3.2.0
 dev_dependencies:
   flutter_launcher_icons: ^0.9.3
   flutter_test:

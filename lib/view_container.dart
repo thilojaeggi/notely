@@ -106,12 +106,18 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                   ),
                   NavigationRailDestination(
                     icon: Icon(
+                      CupertinoIcons.calendar_today,
+                    ),
+                    label: Text('Plan'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(
                       CupertinoIcons.text_badge_checkmark,
                     ),
                     label: Text('Noten'),
                   ),
                   NavigationRailDestination(
-                      icon: Icon(Icons.sick),
+                      icon: Icon(CupertinoIcons.question),
                       label: Text(
                         "Absenzen",
                       )),
@@ -164,7 +170,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                         ),
                         label: "Start"),
                     BottomNavigationBarItem(
-                      icon: Icon(CupertinoIcons.time),
+                      icon: Icon(CupertinoIcons.calendar_today),
                       label: "Plan",
                     ),
                     BottomNavigationBarItem(
@@ -173,7 +179,9 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                         ),
                         label: "Noten"),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.sick), label: "Absenzen"),
+                      icon: Icon(CupertinoIcons.question),
+                      label: "Absenzen",
+                    ),
                     BottomNavigationBarItem(
                         icon: Icon(CupertinoIcons.gear_solid),
                         label: "Einstellungen"),

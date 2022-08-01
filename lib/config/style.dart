@@ -6,8 +6,6 @@ class Styles {
   static ThemeData themeData(bool isDarkTheme, BuildContext context) {
     return ThemeData(
         useMaterial3: false,
-        primarySwatch: Colors.blue,
-        accentColor: Colors.blue[400],
         fontFamily: "WorkSans",
         primaryColor: isDarkTheme ? Colors.black : Colors.white,
         backgroundColor: isDarkTheme ? Colors.black : Color(0xffF1F5FB),
@@ -16,7 +14,7 @@ class Styles {
         focusColor: isDarkTheme ? Color(0xff0B2512) : Color(0xffA8DAB5),
         disabledColor: Colors.grey,
         cardColor: isDarkTheme ? Color(0xFF151515) : Colors.white,
-        canvasColor: isDarkTheme ? Colors.black : Colors.grey[50],
+        canvasColor: isDarkTheme ? Color(0xFF0d0d0d) : Colors.grey[50],
         brightness: isDarkTheme ? Brightness.dark : Brightness.light,
         buttonTheme: Theme.of(context).buttonTheme.copyWith(
             colorScheme:
@@ -24,9 +22,9 @@ class Styles {
         appBarTheme: AppBarTheme(
           elevation: 0.0,
         ),
-        bottomNavigationBarTheme:
-            Theme.of(context).bottomNavigationBarTheme.copyWith(
-                  backgroundColor: isDarkTheme ? Colors.black : Colors.white,
-                ));
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
+            .copyWith(
+                secondary: Colors.blue[400],
+                brightness: isDarkTheme ? Brightness.dark : Brightness.light));
   }
 }
