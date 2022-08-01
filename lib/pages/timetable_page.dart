@@ -17,7 +17,7 @@ class TimetablePage extends StatefulWidget {
 
 class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
-  DateTime today = DateTime.now().add(const Duration(days: 15));
+  DateTime today = DateTime.now();
   List<Event> _eventList = List.empty(growable: true);
 
   @override
@@ -86,10 +86,10 @@ class _TimetablePageState extends State<TimetablePage> {
             ],
           ),
         ),
-        /*  Padding(
+        Padding(
           padding: const EdgeInsets.only(top: 5, left: 10.0, right: 10.0),
           child: DatePicker(
-            today,
+            DateTime.now(),
             initialSelectedDate: today,
             selectionColor: Colors.white.withOpacity(0.2),
             selectedTextColor: Colors.white,
@@ -104,7 +104,7 @@ class _TimetablePageState extends State<TimetablePage> {
               getData();
             },
           ),
-        ),*/
+        ),
         Expanded(
           child: (_eventList.length != 0)
               ? ListView.builder(
