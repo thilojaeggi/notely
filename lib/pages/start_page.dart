@@ -1,11 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../ad_helper.dart';
@@ -107,13 +106,17 @@ class _StartPageState extends State<StartPage> {
     super.initState();
     getExistingValues();
     getMe();
-    _createBottomBannerAd();
+    if (!Platform.isWindows) {
+      _createBottomBannerAd();
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _bottomBannerAd.dispose();
+    if (!Platform.isWindows) {
+      _bottomBannerAd.dispose();
+    }
   }
 
   @override
@@ -167,7 +170,7 @@ class _StartPageState extends State<StartPage> {
                   );
                 }),
             const Spacer(),
-            _isBottomBannerAdLoaded
+            (_isBottomBannerAdLoaded && !Platform.isWindows)
                 ? Container(
                     height: _bottomBannerAd.size.height.toDouble(),
                     width: double.infinity,

@@ -13,7 +13,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:workmanager/workmanager.dart';
 
 import 'Models/Grade.dart';
 import 'config/CustomScrollBehavior.dart';
@@ -25,7 +24,6 @@ const fetchNotifications = "fetchNotifications";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
 
   if (Platform.isWindows) {
     await Window.initialize();
@@ -33,8 +31,9 @@ Future<void> main() async {
       effect: WindowEffect.mica,
       dark: true,
     );
+  } else {
+    MobileAds.instance.initialize();
   }
-
   readSettings();
   runApp(const Notely());
 }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:Notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -33,6 +34,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
 
   final List<Widget> _pages = <Widget>[
     const StartPage(),
+    const TimetablePage(),
     const GradesPage(),
     const AbsencesPage(),
     const SettingsPage(),
@@ -161,6 +163,10 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                           CupertinoIcons.house_fill,
                         ),
                         label: "Start"),
+                    BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.time),
+                      label: "Plan",
+                    ),
                     BottomNavigationBarItem(
                         icon: Icon(
                           CupertinoIcons.text_badge_checkmark,

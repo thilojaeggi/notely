@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:equations/equations.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
@@ -74,7 +73,7 @@ class _GradesPageState extends State<GradesPage> {
     String debugUrl = "https://api.mocki.io/v2/e3516d96/grades";
     print(url);
     try {
-      await http.get(Uri.parse(url), headers: {
+      await http.get(Uri.parse(debugUrl), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
         _gradeList = (json.decode(response.body) as List)
