@@ -86,7 +86,7 @@ class _TimetablePageState extends State<TimetablePage> {
             ],
           ),
         ),
-        Padding(
+        /*  Padding(
           padding: const EdgeInsets.only(top: 5, left: 10.0, right: 10.0),
           child: DatePicker(
             today,
@@ -104,7 +104,7 @@ class _TimetablePageState extends State<TimetablePage> {
               getData();
             },
           ),
-        ),
+        ),*/
         Expanded(
           child: (_eventList.length != 0)
               ? ListView.builder(
