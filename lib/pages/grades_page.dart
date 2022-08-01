@@ -74,7 +74,7 @@ class _GradesPageState extends State<GradesPage> {
     String debugUrl = "https://api.mocki.io/v2/e3516d96/grades";
     print(url);
     try {
-      await http.get(Uri.parse(debugUrl), headers: {
+      await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
         _gradeList = (json.decode(response.body) as List)
