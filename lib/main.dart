@@ -1,20 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-import 'dart:ui';
 
 import 'package:Notely/config/Globals.dart';
 import 'package:Notely/view_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_acrylic/flutter_acrylic.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 
-import 'Models/Grade.dart';
 import 'config/CustomScrollBehavior.dart';
 import 'config/style.dart';
 import 'pages/login_page.dart';
