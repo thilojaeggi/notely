@@ -126,50 +126,53 @@ class _StartPageState extends State<StartPage> {
       child: Container(
         width: double.infinity,
         height: double.infinity,
-        padding: const EdgeInsets.only(left: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Ich",
-              style: TextStyle(
-                fontSize: 64,
-                fontWeight: FontWeight.w400,
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Ich",
+                    style: TextStyle(
+                      fontSize: 64,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    _name,
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    _email,
+                    style: const TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  const Text(
+                    "Klassen:",
+                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
+                  ),
+                  for (var i = 0; i < _classList.length; i++)
+                    Text(
+                      _classList[i].toString(),
+                      style: const TextStyle(fontSize: 20),
+                    )
+                ],
               ),
-              textAlign: TextAlign.start,
             ),
-            const SizedBox(
-              height: 5,
-            ),
-            Text(
-              _name,
-              style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            Text(
-              _email,
-              style: const TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            const Text(
-              "Klassen:",
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.w400),
-            ),
-            ListView.builder(
-                shrinkWrap: true,
-                itemCount: _classList.length,
-                itemBuilder: (BuildContext ctxt, int index) {
-                  return Text(
-                    _classList[index].toString(),
-                    style: const TextStyle(fontSize: 20),
-                  );
-                }),
             const Spacer(),
             (_isBottomBannerAdLoaded && !Platform.isWindows)
                 ? Container(
