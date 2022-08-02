@@ -117,7 +117,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                     label: Text('Noten'),
                   ),
                   NavigationRailDestination(
-                      icon: Icon(CupertinoIcons.question),
+                      icon: Icon(Icons.sick),
                       label: Text(
                         "Absenzen",
                       )),
@@ -161,6 +161,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                 filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
+                  selectedItemColor: Colors.blue[400],
                   backgroundColor: Colors.grey.withOpacity(0.1),
                   elevation: 0,
                   items: const <BottomNavigationBarItem>[
@@ -179,7 +180,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                         ),
                         label: "Noten"),
                     BottomNavigationBarItem(
-                      icon: Icon(CupertinoIcons.question),
+                      icon: Icon(Icons.sick),
                       label: "Absenzen",
                     ),
                     BottomNavigationBarItem(
