@@ -4,10 +4,8 @@ import 'package:Notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:theme_provider/theme_provider.dart';
 
 import 'config/Globals.dart';
 import 'pages/absences_page.dart';

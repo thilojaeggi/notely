@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:Notely/config/Globals.dart';
 import 'package:Notely/view_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +30,11 @@ Future<void> main() async {
   } else {
     MobileAds.instance.initialize();
   }
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.white, // Color for Android
+      statusBarBrightness:
+          Brightness.dark // Dark == white status bar -- for IOS.
+      ));
   readSettings();
   runApp(const Notely());
 }
@@ -61,8 +68,31 @@ class _NotelyState extends State<Notely> {
   Widget build(BuildContext context) {
     return ThemeProvider(
       saveThemesOnChange: true,
-      loadThemeOnInit: true,
+      loadThemeOnInit: false,
       defaultThemeId: "dark_theme",
+      onInitCallback: (controller, previouslySavedThemeFuture) async {
+        String? savedTheme = await previouslySavedThemeFuture;
+
+        if (savedTheme != null) {
+          // If previous theme saved, use saved theme
+          controller.setTheme(savedTheme);
+          if (controller.theme.data.brightness == Brightness.dark) {
+            print("Dark theme");
+            SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle.dark.copyWith(
+                    statusBarColor: Colors.white, // this one for android
+                    statusBarBrightness: Brightness.dark // this one for iOS
+                    ));
+          } else {
+            print("Light theme");
+            SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle.dark.copyWith(
+                    statusBarColor: Colors.black, // this one for android
+                    statusBarBrightness: Brightness.light // this one for iOS
+                    ));
+          }
+        }
+      },
       themes: [
         AppTheme(
             id: "dark_theme",

@@ -15,14 +15,14 @@ class Event {
   String? _status;
   String? _color;
   String? _eventType;
-  Null? _eventRoomStatus;
-  Null? _timetableText;
-  Null? _infoFacilityManagement;
-  Null? _importset;
-  Null? _lessons;
-  Null? _publishToInfoSystem;
-  Null? _studentNames;
-  Null? _studentIds;
+  Null _eventRoomStatus;
+  Null _timetableText;
+  Null _infoFacilityManagement;
+  Null _importset;
+  Null _lessons;
+  Null _publishToInfoSystem;
+  Null _studentNames;
+  Null _studentIds;
 
   Event(
       {String? id,
@@ -41,14 +41,14 @@ class Event {
       String? status,
       String? color,
       String? eventType,
-      Null? eventRoomStatus,
-      Null? timetableText,
-      Null? infoFacilityManagement,
-      Null? importset,
-      Null? lessons,
-      Null? publishToInfoSystem,
-      Null? studentNames,
-      Null? studentIds}) {
+      Null eventRoomStatus,
+      Null timetableText,
+      Null infoFacilityManagement,
+      Null importset,
+      Null lessons,
+      Null publishToInfoSystem,
+      Null studentNames,
+      Null studentIds}) {
     if (id != null) {
       this._id = id;
     }
@@ -97,30 +97,6 @@ class Event {
     if (eventType != null) {
       this._eventType = eventType;
     }
-    if (eventRoomStatus != null) {
-      this._eventRoomStatus = eventRoomStatus;
-    }
-    if (timetableText != null) {
-      this._timetableText = timetableText;
-    }
-    if (infoFacilityManagement != null) {
-      this._infoFacilityManagement = infoFacilityManagement;
-    }
-    if (importset != null) {
-      this._importset = importset;
-    }
-    if (lessons != null) {
-      this._lessons = lessons;
-    }
-    if (publishToInfoSystem != null) {
-      this._publishToInfoSystem = publishToInfoSystem;
-    }
-    if (studentNames != null) {
-      this._studentNames = studentNames;
-    }
-    if (studentIds != null) {
-      this._studentIds = studentIds;
-    }
   }
 
   String? get id => _id;
@@ -156,25 +132,25 @@ class Event {
   set color(String? color) => _color = color;
   String? get eventType => _eventType;
   set eventType(String? eventType) => _eventType = eventType;
-  Null? get eventRoomStatus => _eventRoomStatus;
-  set eventRoomStatus(Null? eventRoomStatus) =>
+  Null get eventRoomStatus => _eventRoomStatus;
+  set eventRoomStatus(Null eventRoomStatus) =>
       _eventRoomStatus = eventRoomStatus;
-  Null? get timetableText => _timetableText;
-  set timetableText(Null? timetableText) => _timetableText = timetableText;
-  Null? get infoFacilityManagement => _infoFacilityManagement;
-  set infoFacilityManagement(Null? infoFacilityManagement) =>
+  Null get timetableText => _timetableText;
+  set timetableText(Null timetableText) => _timetableText = timetableText;
+  Null get infoFacilityManagement => _infoFacilityManagement;
+  set infoFacilityManagement(Null infoFacilityManagement) =>
       _infoFacilityManagement = infoFacilityManagement;
-  Null? get importset => _importset;
-  set importset(Null? importset) => _importset = importset;
-  Null? get lessons => _lessons;
-  set lessons(Null? lessons) => _lessons = lessons;
-  Null? get publishToInfoSystem => _publishToInfoSystem;
-  set publishToInfoSystem(Null? publishToInfoSystem) =>
+  Null get importset => _importset;
+  set importset(Null importset) => _importset = importset;
+  Null get lessons => _lessons;
+  set lessons(Null lessons) => _lessons = lessons;
+  Null get publishToInfoSystem => _publishToInfoSystem;
+  set publishToInfoSystem(Null publishToInfoSystem) =>
       _publishToInfoSystem = publishToInfoSystem;
-  Null? get studentNames => _studentNames;
-  set studentNames(Null? studentNames) => _studentNames = studentNames;
-  Null? get studentIds => _studentIds;
-  set studentIds(Null? studentIds) => _studentIds = studentIds;
+  Null get studentNames => _studentNames;
+  set studentNames(Null studentNames) => _studentNames = studentNames;
+  Null get studentIds => _studentIds;
+  set studentIds(Null studentIds) => _studentIds = studentIds;
 
   Event.fromJson(Map<String, dynamic> json) {
     _id = json['id'];

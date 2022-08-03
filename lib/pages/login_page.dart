@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +26,8 @@ class _LoginPageState extends State<LoginPage> {
   String dropdownValue = 'GIBSSO';
 
   Future<String> getCookie(http.Response response) async {
-    Map<String, String> headers = {};
-    String? rawCookie = response.headers['set-cookie'] as String?;
+    // Map<String, String> headers = {};
+    String? rawCookie = response.headers['set-cookie'];
     if (rawCookie != null) {
       return rawCookie
           .toString()

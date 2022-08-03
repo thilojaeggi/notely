@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../Models/Grade.dart';
 import '../config/Globals.dart' as Globals;
@@ -42,10 +41,11 @@ class _GradesPageState extends State<GradesPage> {
   void getExistingData() {
     /*final prefs = await SharedPreferences.getInstance();
     targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;*/
-
-    _gradeList = (json.decode(Globals.gradeList) as List)
-        .map((i) => Grade.fromJson(i))
-        .toList();
+    if (Globals.gradeList.isNotEmpty) {
+      _gradeList = (json.decode(Globals.gradeList) as List)
+          .map((i) => Grade.fromJson(i))
+          .toList();
+    }
     if (mounted) {
       setState(() {
         _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
@@ -73,7 +73,7 @@ class _GradesPageState extends State<GradesPage> {
     String debugUrl = "https://api.mocki.io/v2/e3516d96/grades";
     print(url);
     try {
-      await http.get(Uri.parse(debugUrl), headers: {
+      await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
         _gradeList = (json.decode(response.body) as List)

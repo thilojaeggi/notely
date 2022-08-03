@@ -108,7 +108,7 @@ class _StartPageState extends State<StartPage> {
     getExistingValues();
     getMe();
     if (!Platform.isWindows) {
-      _createBottomBannerAd();
+      // _createBottomBannerAd();
     }
   }
 
@@ -116,7 +116,7 @@ class _StartPageState extends State<StartPage> {
   void dispose() {
     super.dispose();
     if (!Platform.isWindows) {
-      _bottomBannerAd.dispose();
+      //_bottomBannerAd.dispose();
     }
   }
 

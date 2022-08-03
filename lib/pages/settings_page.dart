@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:math';
-
 import 'package:day_night_switcher/day_night_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,8 +45,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> enableDarkMode(bool dark) async {
     if (dark) {
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.white, // this one for android
+          statusBarBrightness: Brightness.dark // this one for iOS
+          ));
       ThemeProvider.controllerOf(context).setTheme("dark_theme");
     } else {
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.black, // this one for android
+          statusBarBrightness: Brightness.light // this one for iOS
+          ));
       ThemeProvider.controllerOf(context).setTheme("light_theme");
     }
   }

@@ -26,7 +26,7 @@ class AuthTextField extends StatelessWidget {
         ),
         obscureText: passwordField,
         enableSuggestions: !passwordField,
-        autocorrect: !passwordField,
+        autocorrect: false,
         maxLines: 1,
         decoration: InputDecoration(
           hintStyle: const TextStyle(color: Colors.white),
