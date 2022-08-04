@@ -10,22 +10,33 @@ import SwiftUI
 import Intents
 
 struct FlutterData: Decodable, Hashable {
-    let text: String
+    var grades: [String: Double] = [:]
 }
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let flutterData: FlutterData?
 }
-let column = Array(repeating: GridItem(.flexible()), count: 3);
 
 struct Provider: IntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), flutterData: FlutterData(text: "Hello from Flutter"))
+        SimpleEntry(date: Date(), flutterData: FlutterData(grades: ["MATH": 4.5,
+                                                                    "SPOR": 5.0,
+                                                                    "DEUT": 4.5,
+                                                                    "PHYS": 4.5,
+                                                                    "M126": 3.0,
+                                                                    "ENGL": 5.5,
+                                                                    "M128": 5.5,]))
     }
 
     func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), flutterData: FlutterData(text: "Hello from Flutter"))
+        let entry = SimpleEntry(date: Date(), flutterData: FlutterData(grades: ["MATH": 4.5,
+                                                                                "SPOR": 5.0,
+                                                                                "DEUT": 4.5,
+                                                                                "PHYS": 4.5,
+                                                                                "M126": 3.0,
+                                                                                "ENGL": 5.5,
+                                                                                "M128": 5.5,]))
         completion(entry)
     }
 
@@ -59,79 +70,24 @@ struct Provider: IntentTimelineProvider {
 
 struct GradeWidgetEntryView : View {
     var entry: Provider.Entry
-    
-    private var FlutterDataView: some View {
-        List {
-                   Text("Test 1")                .foregroundColor(Color.white)
-
-            Text("Test 2")
-                .foregroundColor(Color.white)
-               }
-    }
-    
-    private var NoDataView: some View {
-        VStack{
-            Spacer()
-
-            LazyVGrid(columns: column, alignment: .center, spacing: 5) {
-                VStack{
-                    Text("Fra")
-                    Text("4.0")
+    var columns = [
+            GridItem(alignment: .center),
+            GridItem(alignment: .center),
+            GridItem(alignment: .center),
+            GridItem(alignment: .center),
+            GridItem(alignment: .center),
+            GridItem(alignment: .center),
+        ]
+        var body: some View {
+            LazyVGrid(columns: columns, spacing: 0.5) {
+                ForEach(entry.flutterData!.grades.sorted(by: >), id: \.key) { key, value in
+                    VStack{
+                        Text(key)
+                        Text(String(value))
+                    }
                 }
-                VStack{
-                    Text("Fra")
-                    Text("4.0")
-                }
-                VStack{
-                    Text("Fra")
-                    Text("4.0")
-                }
-                VStack{
-                    Text("Fra")
-                    Text("4.0")
-                }
-                VStack{
-                    Text("Fra")
-                    Text("4.0")
-                }
-                VStack{
-                    Text("Fra")
-                    Text("4.0")
-                }
-                VStack{
-                    Text("Fra")
-                    Text("4.0")
-                }
-                
-
             }
-            Spacer()
-
         }
-            
-
-        
-
-
-    }
-    
-    var body: some View {
-        
-        VStack{
-            Spacer()
-            if(entry.flutterData == nil) {
-              NoDataView
-            } else {
-              FlutterDataView
-            }
-            Spacer()
-            Divider()
-        }.background(Color.black.opacity(0.9)).foregroundColor(Color.white).overlay(
-            RoundedRectangle(cornerRadius: 17)
-                .stroke(.white, lineWidth: 2).padding(.all, 5.0)
-        )
-      
-    }
 }
 
 
@@ -145,12 +101,25 @@ struct GradeWidget: Widget {
         }
         .configurationDisplayName("Durchschnitts Widget")
         .description("Zeigt pro Fach deinen Durchschnitt an.")
+        .supportedFamilies([.systemMedium])
+
     }
 }
 
 struct GradeWidget_Previews: PreviewProvider {
     static var previews: some View {
-        GradeWidgetEntryView(entry: SimpleEntry(date: Date(), flutterData: nil))
-            .previewContext(WidgetPreviewContext(family: .systemExtraLarge))
+        Group {
+
+            GradeWidgetEntryView(entry: SimpleEntry(date: Date(), flutterData: FlutterData.init(grades: ["MATH": 4.5,
+                                                                                                         "SPOR": 5.0,
+                                                                                                         "DEUT": 4.5,
+                                                                                                         "PHYS": 4.5,
+                                                                                                         "M126": 3.0,
+                                                                                                         "ENGL": 5.5,
+                                                                                                         "M128": 5.5,])))
+                .previewContext(WidgetPreviewContext(family: .systemMedium))
+
+            
+        }
     }
 }
