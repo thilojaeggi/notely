@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -70,8 +71,9 @@ class _GradesPageState extends State<GradesPage> {
     String school = prefs.getString("school") ?? "ksso";
     String url =
         "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/grades";
-    String debugUrl = "https://api.mocki.io/v2/e3516d96/grades";
-    print(url);
+    if (kDebugMode) {
+      url = "https://api.mocki.io/v2/e3516d96/grades";
+    }
     try {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
