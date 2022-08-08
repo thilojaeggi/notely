@@ -1,16 +1,16 @@
 import 'dart:convert';
 
-import 'package:equations/equations.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../Models/Grade.dart';
-import '../config/Globals.dart';
+import '../config/Globals.dart' as Globals;
 
 class GradesPage extends StatefulWidget {
   const GradesPage({Key? key}) : super(key: key);
@@ -32,21 +32,25 @@ class _GradesPageState extends State<GradesPage> {
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
     final keyContext = expansionTileKey.currentContext;
+    HapticFeedback.selectionClick();
+
     if (keyContext != null) {
-      Future.delayed(Duration(milliseconds: 250)).then((value) {
-        Scrollable.ensureVisible(keyContext,
+      Future.delayed(Duration(milliseconds: 250)).then((value) async {
+        await Scrollable.ensureVisible(keyContext,
             duration: Duration(milliseconds: 1000));
+        //  HapticFeedback.mediumImpact();
       });
     }
   }
 
-  void getExistingData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String gradeList = await prefs.getString("gradeList") ?? "[]";
-    targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;
-
-    _gradeList =
-        (json.decode(gradeList) as List).map((i) => Grade.fromJson(i)).toList();
+  void getExistingData() {
+    /*final prefs = await SharedPreferences.getInstance();
+    targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;*/
+    if (Globals.gradeList.isNotEmpty) {
+      _gradeList = (json.decode(Globals.gradeList) as List)
+          .map((i) => Grade.fromJson(i))
+          .toList();
+    }
     if (mounted) {
       setState(() {
         _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
@@ -71,11 +75,12 @@ class _GradesPageState extends State<GradesPage> {
     String school = prefs.getString("school") ?? "ksso";
     String url =
         "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/grades";
-    String debugUrl = "https://api.mocki.io/v2/e3516d96/grades";
-    print(url);
+    if (kDebugMode) {
+      url = "https://api.mocki.io/v2/e3516d96/grades";
+    }
     try {
-      await http.get(Uri.parse(debugUrl), headers: {
-        'Authorization': 'Bearer $accessToken',
+      await http.get(Uri.parse(url), headers: {
+        'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
         _gradeList = (json.decode(response.body) as List)
             .map((i) => Grade.fromJson(i))
@@ -103,6 +108,7 @@ class _GradesPageState extends State<GradesPage> {
       });
     }
     prefs.setString("gradeList", json.encode(_gradeList));
+    Globals.gradeList = json.encode(_gradeList);
   }
 
   @override
@@ -110,7 +116,7 @@ class _GradesPageState extends State<GradesPage> {
     super.initState();
     getExistingData();
     getData();
-    print(accessToken);
+    print(Globals.accessToken);
   }
 
   Widget _buildGradeCard(BuildContext context, int index) {

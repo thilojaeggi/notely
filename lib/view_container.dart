@@ -1,11 +1,11 @@
 import 'dart:ui';
 
+import 'package:Notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:theme_provider/theme_provider.dart';
 
 import 'config/Globals.dart';
 import 'pages/absences_page.dart';
@@ -32,6 +32,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
 
   final List<Widget> _pages = <Widget>[
     const StartPage(),
+    const TimetablePage(),
     const GradesPage(),
     const AbsencesPage(),
     const SettingsPage(),
@@ -103,6 +104,12 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                   ),
                   NavigationRailDestination(
                     icon: Icon(
+                      CupertinoIcons.calendar_today,
+                    ),
+                    label: Text('Plan'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(
                       CupertinoIcons.text_badge_checkmark,
                     ),
                     label: Text('Noten'),
@@ -146,17 +153,14 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.2), blurRadius: 16.0),
-                ],
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.transparent,
               ),
               child: BackdropFilter(
-                filter: new ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.white.withOpacity(0.1),
+                  selectedItemColor: Colors.blue[400],
+                  backgroundColor: Colors.grey.withOpacity(0.1),
                   elevation: 0,
                   items: const <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
@@ -165,12 +169,18 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                         ),
                         label: "Start"),
                     BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.calendar_today),
+                      label: "Plan",
+                    ),
+                    BottomNavigationBarItem(
                         icon: Icon(
                           CupertinoIcons.text_badge_checkmark,
                         ),
                         label: "Noten"),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.sick), label: "Absenzen"),
+                      icon: Icon(Icons.sick),
+                      label: "Absenzen",
+                    ),
                     BottomNavigationBarItem(
                         icon: Icon(CupertinoIcons.gear_solid),
                         label: "Einstellungen"),

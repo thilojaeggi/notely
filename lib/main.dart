@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:Notely/config/Globals.dart';
 import 'package:Notely/view_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:window_manager/window_manager.dart';
-import 'package:workmanager/workmanager.dart';
 
 import 'config/CustomScrollBehavior.dart';
 import 'config/style.dart';
@@ -20,58 +20,30 @@ const fetchNotifications = "fetchNotifications";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (Platform.isWindows) {
-    await windowManager.ensureInitialized();
-    windowManager.waitUntilReadyToShow().then((_) async {
-      await windowManager.setTitleBarStyle(TitleBarStyle.normal);
-    });
+    /*await Window.initialize();
+    await Window.setEffect(
+      effect: WindowEffect.mica,
+      dark: true,
+    );*/
+  } else {
+    MobileAds.instance.initialize();
   }
-  if (Platform.isAndroid) {
-    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-    Workmanager().registerPeriodicTask(
-      "getNewGradesTask",
-      "simplePeriodicTask",
-      frequency: Duration(minutes: 15),
-    );
-  }
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.white, // Color for Android
+      statusBarBrightness:
+          Brightness.dark // Dark == white status bar -- for IOS.
+      ));
+  readSettings();
   runApp(const Notely());
 }
 
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    FlutterLocalNotificationsPlugin flip =
-        new FlutterLocalNotificationsPlugin();
-    var android = new AndroidInitializationSettings('ic_stat_school');
-    var IOS = new IOSInitializationSettings();
-    var settings = new InitializationSettings(android: android, iOS: IOS);
-    flip.initialize(settings);
-    const storage = FlutterSecureStorage();
-
-    if ((await storage.read(key: "username") != null &&
-        (await storage.read(key: "password")) != null)) {
-      _showNotificationWithDefaultSound(flip);
-    }
-
-    return Future.value(true);
-  });
-}
-
-Future _showNotificationWithDefaultSound(
-    FlutterLocalNotificationsPlugin flip) async {
-  // Show a notification after every 15 minute with the first
-  // appearance happening a minute after invoking the method
-  var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-      'Neue Noten', 'Benachrichtigung bei einer neuen Note',
-      importance: Importance.max, priority: Priority.high);
-  var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
-
-  // initialise channel platform for both Android and iOS device.
-  var platformChannelSpecifics = new NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics);
-  await flip.show(Random.secure().nextInt(10), 'Neue Note',
-      'Es gibt eine neue Note', platformChannelSpecifics,
-      payload: 'Default_Sound');
+Future<void> readSettings() async {
+  if (await isLoggedIn()) {
+    final prefs = await SharedPreferences.getInstance();
+    gradeList = await prefs.getString("gradeList") ?? "[]";
+  }
 }
 
 Future<bool> isLoggedIn() async {
@@ -96,8 +68,31 @@ class _NotelyState extends State<Notely> {
   Widget build(BuildContext context) {
     return ThemeProvider(
       saveThemesOnChange: true,
-      loadThemeOnInit: true,
+      loadThemeOnInit: false,
       defaultThemeId: "dark_theme",
+      onInitCallback: (controller, previouslySavedThemeFuture) async {
+        String? savedTheme = await previouslySavedThemeFuture;
+
+        if (savedTheme != null) {
+          // If previous theme saved, use saved theme
+          controller.setTheme(savedTheme);
+          if (controller.theme.data.brightness == Brightness.dark) {
+            print("Dark theme");
+            SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle.dark.copyWith(
+                    statusBarColor: Colors.white, // this one for android
+                    statusBarBrightness: Brightness.dark // this one for iOS
+                    ));
+          } else {
+            print("Light theme");
+            SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle.dark.copyWith(
+                    statusBarColor: Colors.black, // this one for android
+                    statusBarBrightness: Brightness.light // this one for iOS
+                    ));
+          }
+        }
+      },
       themes: [
         AppTheme(
             id: "dark_theme",
