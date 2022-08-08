@@ -9,13 +9,6 @@ import WidgetKit
 import SwiftUI
 import Intents
 
-struct Lesson: Decodable, Hashable {
-    let lessonName: String
-    let room: String
-    let teacher: String
-    let time: String
-}
-
 
 struct LessonEntry: TimelineEntry {
     let date: Date

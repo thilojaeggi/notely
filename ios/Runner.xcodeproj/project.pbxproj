@@ -13,6 +13,8 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		B6137D04289F279B002B5A39 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6137D03289F279B002B5A39 /* NetworkClient.swift */; };
+		B6137D08289F2816002B5A39 /* Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6137D07289F2816002B5A39 /* Lesson.swift */; };
 		B6A8E8E3289D3C7100170A6D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AC8DB32899E8D5000C18CF /* WidgetKit.framework */; };
 		B6A8E8E4289D3C7100170A6D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AC8DB52899E8D5000C18CF /* SwiftUI.framework */; };
 		B6A8E8E7289D3C7100170A6D /* ScheduleWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A8E8E6289D3C7100170A6D /* ScheduleWidget.swift */; };
@@ -75,6 +77,8 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B6137D03289F279B002B5A39 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
+		B6137D07289F2816002B5A39 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
 		B6A8E8E2289D3C7100170A6D /* ScheduleWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScheduleWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6A8E8E6289D3C7100170A6D /* ScheduleWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleWidget.swift; sourceTree = "<group>"; };
 		B6A8E8E8289D3C7100170A6D /* ScheduleWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = ScheduleWidget.intentdefinition; sourceTree = "<group>"; };
@@ -179,6 +183,8 @@
 				B6A8E8E8289D3C7100170A6D /* ScheduleWidget.intentdefinition */,
 				B6A8E8E9289D3C7200170A6D /* Assets.xcassets */,
 				B6A8E8EB289D3C7200170A6D /* Info.plist */,
+				B6137D03289F279B002B5A39 /* NetworkClient.swift */,
+				B6137D07289F2816002B5A39 /* Lesson.swift */,
 			);
 			path = ScheduleWidget;
 			sourceTree = "<group>";
@@ -382,6 +388,8 @@
 			files = (
 				B6A8E8E7289D3C7100170A6D /* ScheduleWidget.swift in Sources */,
 				B6A8E8EC289D3C7200170A6D /* ScheduleWidget.intentdefinition in Sources */,
+				B6137D04289F279B002B5A39 /* NetworkClient.swift in Sources */,
+				B6137D08289F2816002B5A39 /* Lesson.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

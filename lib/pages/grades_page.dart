@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -31,10 +32,13 @@ class _GradesPageState extends State<GradesPage> {
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
     final keyContext = expansionTileKey.currentContext;
+    HapticFeedback.selectionClick();
+
     if (keyContext != null) {
-      Future.delayed(Duration(milliseconds: 250)).then((value) {
-        Scrollable.ensureVisible(keyContext,
+      Future.delayed(Duration(milliseconds: 250)).then((value) async {
+        await Scrollable.ensureVisible(keyContext,
             duration: Duration(milliseconds: 1000));
+        //  HapticFeedback.mediumImpact();
       });
     }
   }
