@@ -9,6 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
+import 'package:http/http.dart' as http;
 
 import 'config/CustomScrollBehavior.dart';
 import 'config/style.dart';
@@ -34,17 +35,41 @@ Future<void> main() async {
 }
 
 Future<void> readSettings() async {
-  if (await isLoggedIn()) {
-    final prefs = await SharedPreferences.getInstance();
-    Globals.gradeList = await prefs.getString("gradeList") ?? "[]";
-    String school = await prefs.getString("school") ?? "ksso";
-    Globals.apiBase = Globals.apiBase + school.toLowerCase() + "/rest/v1";
-  }
+  final prefs = await SharedPreferences.getInstance();
+  Globals.gradeList = await prefs.getString("gradeList") ?? "[]";
 }
 
 Future<bool> isLoggedIn() async {
-  return (await storage.read(key: "username") != null &&
-      (await storage.read(key: "password")) != null);
+  final prefs = await SharedPreferences.getInstance();
+  String school = await prefs.getString("school") ?? "".toLowerCase();
+  String username = await storage.read(key: "username") ?? "";
+  String password = await storage.read(key: "password") ?? "";
+  bool isLoggedIn = false;
+  if (username != "" && password != "" && school != "") {
+    String url = Globals.apiBase +
+        school.toLowerCase() +
+        "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id=";
+    print(url);
+    await http.post(Uri.parse(url), body: {
+      "login": username,
+      "passwort": password,
+    }).then((response) async {
+      print(response.statusCode);
+      if (response.statusCode == 302 && response.headers['location'] != null) {
+        String locationHeader = response.headers['location'].toString();
+        var trimmedString =
+            locationHeader.substring(0, locationHeader.indexOf('&'));
+        trimmedString = trimmedString
+            .substring(trimmedString.indexOf("#") + 1)
+            .replaceAll("access_token=", "");
+        Globals.accessToken = trimmedString;
+        isLoggedIn = true;
+      } else {
+        isLoggedIn = false;
+      }
+    });
+  }
+  return isLoggedIn;
 }
 
 class Notely extends StatefulWidget {

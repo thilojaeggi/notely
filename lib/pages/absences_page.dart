@@ -30,7 +30,11 @@ class _AbsencesPageState extends State<AbsencesPage> {
 
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    String url = Globals.apiBase + "/me/absencenotices";
+    String school = await prefs.getString("school") ?? "ksso";
+    String url = Globals.apiBase +
+        school.toLowerCase() +
+        "/rest/v1" +
+        "/me/absencenotices";
     print(url);
     try {
       await http.get(Uri.parse(url), headers: {

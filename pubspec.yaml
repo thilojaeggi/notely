@@ -51,7 +51,6 @@ dependencies:
   dropdown_button2: ^1.6.3
   intl: ^0.17.0
   flutter_local_notifications: ^9.7.0
-  animated_theme_switcher: "^2.0.5"
   flutter_acrylic: ^1.0.0
   google_mobile_ads: ^2.0.0
   date_picker_timeline: ^1.2.3
@@ -62,7 +61,7 @@ dev_dependencies:
     sdk: flutter
 
 flutter_icons:
-  android: "ic_launcher"
+  android: false
   ios: true
   image_path: "assets/notely.png"
   # The "flutter_lints" package below contains a set of recommended lints to

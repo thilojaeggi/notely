@@ -42,6 +42,7 @@ class _LoginPageState extends State<LoginPage> {
     const storage = FlutterSecureStorage();
     String url = Globals.apiBase +
         "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id=";
+    print(url);
     await http.post(Uri.parse(url), body: {
       "login": _usernameController.text,
       "passwort": _passwordController.text,
@@ -56,10 +57,8 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         storage.write(key: "username", value: _usernameController.text);
         storage.write(key: "password", value: _passwordController.text);
-        await prefs.setString("school", dropdownValue);
+        await prefs.setString("school", dropdownValue.toLowerCase());
         Globals.accessToken = trimmedString;
-        Globals.apiBase =
-            Globals.apiBase + dropdownValue.toLowerCase() + "/rest/v1";
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),

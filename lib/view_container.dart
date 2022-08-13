@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../config/Globals.dart' as Globals;
 
 import 'config/Globals.dart';
 import 'pages/absences_page.dart';
@@ -65,8 +66,9 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     String username = await storage.read(key: "username") as String;
     String password = await storage.read(key: "password") as String;
     await http.post(
-        Uri.parse(
-            "https://kaschuso.so.ch/public/$school/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
+        Uri.parse(Globals.apiBase +
+            school.toLowerCase() +
+            "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
         body: {
           "login": username,
           "passwort": password,
@@ -78,7 +80,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
         trimmedString = trimmedString
             .substring(trimmedString.indexOf("#") + 1)
             .replaceAll("access_token=", "");
-        accessToken = trimmedString;
+        Globals.accessToken = trimmedString;
         print(accessToken);
       } else {}
     });

@@ -190,9 +190,9 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () async {
                 const storage = FlutterSecureStorage();
                 final prefs = await SharedPreferences.getInstance();
+                Globals.gradeList = "[]";
                 await prefs.clear();
                 await storage.deleteAll();
-                Globals.apiBase = "https://kaschuso.so.ch/public/";
                 Navigator.pushReplacement(
                     context,
                     PageTransition(
