@@ -4,7 +4,6 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Event.dart';
 import '../config/Globals.dart' as Globals;
 
@@ -26,13 +25,10 @@ class _TimetablePageState extends State<TimetablePage> {
     getData();
   }
 
-  Future<void> getData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String school = prefs.getString("school") ?? "ksso";
+  void getData() async {
     String dateFormatted = DateFormat('yyyy-MM-dd').format(today);
-
-    String url =
-        "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/events?min_date=$dateFormatted&max_date=$dateFormatted";
+    String url = Globals.apiBase +
+        "/me/events?min_date=$dateFormatted&max_date=$dateFormatted";
     print(url);
     try {
       await http.get(Uri.parse(url), headers: {

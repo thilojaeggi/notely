@@ -57,14 +57,14 @@ dependencies:
   date_picker_timeline: ^1.2.3
   flutter_neumorphic: ^3.2.0
 dev_dependencies:
-  flutter_launcher_icons: ^0.9.3
+  flutter_launcher_icons: ^0.10.0
   flutter_test:
     sdk: flutter
 
 flutter_icons:
   android: "ic_launcher"
   ios: true
-  image_path: "assets/icon.png"
+  image_path: "assets/notely.png"
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
