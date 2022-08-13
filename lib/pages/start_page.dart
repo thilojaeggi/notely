@@ -74,9 +74,9 @@ class _StartPageState extends State<StartPage> {
     school = await prefs.getString("school") ?? "ksso";
     print(Globals.accessToken);
     print(school);
-    String url =
-        "https://kaschuso.so.ch/public/" + school.toLowerCase() + "/rest/v1/me";
+    String url = Globals.apiBase + "/me";
     print(url);
+
     try {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,

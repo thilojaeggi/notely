@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:Notely/config/Globals.dart';
+import 'package:Notely/config/Globals.dart' as Globals;
 import 'package:Notely/view_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -30,11 +29,6 @@ Future<void> main() async {
   } else {
     MobileAds.instance.initialize();
   }
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.white, // Color for Android
-      statusBarBrightness:
-          Brightness.dark // Dark == white status bar -- for IOS.
-      ));
   readSettings();
   runApp(const Notely());
 }
@@ -42,7 +36,9 @@ Future<void> main() async {
 Future<void> readSettings() async {
   if (await isLoggedIn()) {
     final prefs = await SharedPreferences.getInstance();
-    gradeList = await prefs.getString("gradeList") ?? "[]";
+    Globals.gradeList = await prefs.getString("gradeList") ?? "[]";
+    String school = await prefs.getString("school") ?? "ksso";
+    Globals.apiBase = Globals.apiBase + school.toLowerCase() + "/rest/v1";
   }
 }
 
@@ -80,14 +76,17 @@ class _NotelyState extends State<Notely> {
             print("Dark theme");
             SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle.dark.copyWith(
-                    statusBarColor: Colors.white, // this one for android
+                    statusBarColor: Color(0xFF0d0d0d), // status bar color
+                    statusBarIconBrightness: Brightness.light,
                     statusBarBrightness: Brightness.dark // this one for iOS
                     ));
           } else {
             print("Light theme");
-            SystemChrome.setSystemUIOverlayStyle(
-                SystemUiOverlayStyle.dark.copyWith(
-                    statusBarColor: Colors.black, // this one for android
+            SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
+                .copyWith(
+                    statusBarColor:
+                        Colors.white.withOpacity(0.2), // status bar color
+                    statusBarIconBrightness: Brightness.dark,
                     statusBarBrightness: Brightness.light // this one for iOS
                     ));
           }

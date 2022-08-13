@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
-import '../config/Globals.dart';
+import '../config/Globals.dart' as Globals;
 import '../config/style.dart';
 import '../view_container.dart';
 import '../widgets/AuthTextField.dart';
@@ -40,16 +40,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> signIn() async {
     const storage = FlutterSecureStorage();
-    await http.post(
-        Uri.parse(apiBase +
-            "/${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
-        body: {
-          "login": _usernameController.text,
-          "passwort": _passwordController.text,
-        }).then((response) async {
+    String url = Globals.apiBase +
+        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id=";
+    await http.post(Uri.parse(url), body: {
+      "login": _usernameController.text,
+      "passwort": _passwordController.text,
+    }).then((response) async {
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
-
         var trimmedString =
             locationHeader.substring(0, locationHeader.indexOf('&'));
         trimmedString = trimmedString
@@ -59,7 +57,9 @@ class _LoginPageState extends State<LoginPage> {
         storage.write(key: "username", value: _usernameController.text);
         storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue);
-        accessToken = trimmedString;
+        Globals.accessToken = trimmedString;
+        Globals.apiBase =
+            Globals.apiBase + dropdownValue.toLowerCase() + "/rest/v1";
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),
@@ -262,7 +262,7 @@ class _LoginPageState extends State<LoginPage> {
                               dropdownValue = newValue!;
                             });
                           },
-                          items: <String>['GIBSSO', 'KBSSO', 'KSSO']
+                          items: <String>['GIBSSO', 'KBSSO', 'KSSO', 'PORTAL']
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,

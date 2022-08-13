@@ -72,9 +72,11 @@ class _GradesPageState extends State<GradesPage> {
 
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    String school = prefs.getString("school") ?? "ksso";
-    String url =
-        "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/grades";
+    String url = Globals.apiBase + "/me/grades";
+    String email = await prefs.getString('email') ?? "";
+    if (email == "thilo.jaeggi@bbzsogr.ch") {
+      url = "https://api.mocki.io/v2/e3516d96/grades";
+    }
     if (kDebugMode) {
       url = "https://api.mocki.io/v2/e3516d96/grades";
     }

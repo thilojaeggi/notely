@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
+import '../config/Globals.dart' as Globals;
 import '../Models/Absence.dart';
 import '../config/Globals.dart';
 
@@ -30,9 +30,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
 
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    String school = prefs.getString("school") ?? "ksso";
-    String url =
-        "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/absencenotices";
+    String url = Globals.apiBase + "/me/absencenotices";
     print(url);
     try {
       await http.get(Uri.parse(url), headers: {
