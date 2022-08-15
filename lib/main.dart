@@ -5,6 +5,7 @@ import 'package:Notely/config/Globals.dart' as Globals;
 import 'package:Notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,13 +23,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows) {
-    /*await Window.initialize();
+    await Window.initialize();
     await Window.setEffect(
       effect: WindowEffect.mica,
       dark: true,
-    );*/
+    );
   } else {
-    MobileAds.instance.initialize();
+    //MobileAds.instance.initialize();
   }
   readSettings();
   runApp(const Notely());
@@ -48,7 +49,7 @@ Future<bool> isLoggedIn() async {
   if (username != "" && password != "" && school != "") {
     String url = Globals.apiBase +
         school.toLowerCase() +
-        "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id=";
+        "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl";
     print(url);
     await http.post(Uri.parse(url), body: {
       "login": username,
