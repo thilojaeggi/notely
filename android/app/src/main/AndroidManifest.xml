@@ -20,6 +20,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
+	<intent-filter android:label="flutter_web_auth">
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+		<data android:scheme="my.test.app" /> <!-- This must correspond to the custom scheme used for instantiatng the client... See below -->
+	</intent-filter>
+</activity>
         <meta-data
         android:name="com.google.android.gms.ads.APPLICATION_ID"
         android:value="ca-app-pub-3940256099942544~3347511713"/>

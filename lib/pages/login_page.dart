@@ -1,11 +1,13 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../config/Globals.dart' as Globals;
 import '../config/style.dart';
@@ -226,9 +228,25 @@ class _LoginPageState extends State<LoginPage> {
                               _loginHasBeenPressed = true;
                             });
                             FocusManager.instance.primaryFocus?.unfocus();
+                            final result = await FlutterPlatformAlert.showAlert(
+                              windowTitle: 'Erstanmeldung',
+                              text:
+                                  'Das erste mal musst du dich auf folgender Seite anmelden.',
+                              iconStyle: IconStyle.exclamation,
+                              alertStyle: AlertButtonStyle.okCancel,
+                              options: FlutterPlatformAlertOption(
+                                preferMessageBoxOnWindows: true,
+                              ),
+                            );
+                            if (result == AlertButton.okButton) {
+                              if (!await launchUrl(Uri.parse(
+                                  "https://kaschuso.so.ch/public/ksso/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=1cGhyaEJIO8nxPGWj8z0S3QnYNbIdCrXbFpllHs8&redirect_uri=my.test.app:/oauth2redirect"))) {
+                                throw 'Could not launch';
+                              }
+                            }
                             await Future.delayed(
                                 const Duration(milliseconds: 300));
-                            signIn();
+                            // signIn();
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
