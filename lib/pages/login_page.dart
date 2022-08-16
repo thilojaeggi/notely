@@ -228,25 +228,9 @@ class _LoginPageState extends State<LoginPage> {
                               _loginHasBeenPressed = true;
                             });
                             FocusManager.instance.primaryFocus?.unfocus();
-                            final result = await FlutterPlatformAlert.showAlert(
-                              windowTitle: 'Erstanmeldung',
-                              text:
-                                  'Das erste mal musst du dich auf folgender Seite anmelden.',
-                              iconStyle: IconStyle.exclamation,
-                              alertStyle: AlertButtonStyle.okCancel,
-                              options: FlutterPlatformAlertOption(
-                                preferMessageBoxOnWindows: true,
-                              ),
-                            );
-                            if (result == AlertButton.okButton) {
-                              if (!await launchUrl(Uri.parse(
-                                  "https://kaschuso.so.ch/public/ksso/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=1cGhyaEJIO8nxPGWj8z0S3QnYNbIdCrXbFpllHs8&redirect_uri=my.test.app:/oauth2redirect"))) {
-                                throw 'Could not launch';
-                              }
-                            }
                             await Future.delayed(
                                 const Duration(milliseconds: 300));
-                            // signIn();
+                            signIn();
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
