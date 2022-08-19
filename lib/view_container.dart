@@ -23,6 +23,10 @@ class ViewContainerWidget extends StatefulWidget {
 
 class _ViewContainerWidgetState extends State<ViewContainerWidget>
     with WidgetsBindingObserver {
+  PageController pageController = PageController(
+    initialPage: 0,
+    keepPage: true,
+  );
   int _selectedIndex = 0;
 
   void changeDestination(int index) {
@@ -57,6 +61,13 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     if (state == AppLifecycleState.resumed) {
       getAccessToken();
     }
+  }
+
+  void bottomTapped(int index) {
+    setState(() {
+      pageController.animateToPage(index,
+          duration: Duration(milliseconds: 500), curve: Curves.ease);
+    });
   }
 
   Future<void> getAccessToken() async {
@@ -142,7 +153,16 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
         return Scaffold(
           extendBody: true,
           body: SafeArea(
-            child: _pages[_selectedIndex],
+            child: PageView.builder(
+              controller: pageController,
+              itemCount: _pages.length,
+              onPageChanged: (index) {
+                changeDestination(index);
+              },
+              itemBuilder: (BuildContext context, int index) {
+                return _pages[index];
+              },
+            ),
             bottom: false,
             left: true,
             right: true,
@@ -188,7 +208,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                         label: "Einstellungen"),
                   ],
                   currentIndex: _selectedIndex,
-                  onTap: changeDestination,
+                  onTap: bottomTapped,
                 ),
               ),
             ),
