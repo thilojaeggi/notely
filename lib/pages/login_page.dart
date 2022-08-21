@@ -1,13 +1,15 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+import 'package:url_launcher/url_launcher.dart';
 
-import '../config/Globals.dart';
+import '../config/Globals.dart' as Globals;
 import '../config/style.dart';
 import '../view_container.dart';
 import '../widgets/AuthTextField.dart';
@@ -23,33 +25,19 @@ class _LoginPageState extends State<LoginPage> {
   bool _loginHasBeenPressed = false;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String dropdownValue = 'GIBSSO';
-
-  Future<String> getCookie(http.Response response) async {
-    // Map<String, String> headers = {};
-    String? rawCookie = response.headers['set-cookie'];
-    if (rawCookie != null) {
-      return rawCookie
-          .toString()
-          .replaceAll("path=/,", "")
-          .replaceAll("path=/; Secure; HttpOnly", "");
-    } else {
-      return "";
-    }
-  }
+  String dropdownValue = 'KSSO';
 
   Future<void> signIn() async {
     const storage = FlutterSecureStorage();
-    await http.post(
-        Uri.parse(apiBase +
-            "/${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
-        body: {
-          "login": _usernameController.text,
-          "passwort": _passwordController.text,
-        }).then((response) async {
+    String url = Globals.apiBase +
+        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl";
+    print(url);
+    await http.post(Uri.parse(url), body: {
+      "login": _usernameController.text,
+      "passwort": _passwordController.text,
+    }).then((response) async {
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
-
         var trimmedString =
             locationHeader.substring(0, locationHeader.indexOf('&'));
         trimmedString = trimmedString
@@ -58,8 +46,8 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         storage.write(key: "username", value: _usernameController.text);
         storage.write(key: "password", value: _passwordController.text);
-        await prefs.setString("school", dropdownValue);
-        accessToken = trimmedString;
+        await prefs.setString("school", dropdownValue.toLowerCase());
+        Globals.accessToken = trimmedString;
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),
@@ -93,79 +81,6 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else if (response.statusCode == 200 &&
           response.headers['location'] == null) {
-        String cookies = await getCookie(response);
-        print(cookies);
-
-        String allowAppRequest = parse(response.body)
-            .getElementsByTagName("form")
-            .first
-            .attributes['action']
-            .toString();
-        print("https://kaschuso.so.ch/public/${dropdownValue.toLowerCase()}/" +
-            allowAppRequest);
-        await http
-            .post(
-          Uri.parse(
-              "https://kaschuso.so.ch/public/${dropdownValue.toLowerCase()}/" +
-                  allowAppRequest),
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Cookies": cookies,
-          },
-          body: "authorized=yes",
-        )
-            .then((response) async {
-          if (response.statusCode == 200) {
-            /*signIn();
-            showToast(
-          alignment: Alignment.bottomCenter,
-          duration: Duration(seconds: 1),
-          child: Container(
-            margin: EdgeInsets.only(bottom: 32.0),
-            decoration: BoxDecoration(
-              color: Colors.greenAccent,
-              borderRadius: BorderRadius.all(
-                Radius.circular(12.0),
-              ),
-            ),
-            padding: EdgeInsets.all(6.0),
-            child: Text(
-              "Erfolgreich angemeldet",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-              ),
-            ),
-          ),
-          context: context,
-        );*/
-          } else {
-            showToast(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.only(bottom: 32.0),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(12.0),
-                  ),
-                ),
-                padding: EdgeInsets.all(6.0),
-                child: Text(
-                  "Etwas ist schiefgelaufen",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                  ),
-                ),
-              ),
-              context: context,
-            );
-            setState(() {
-              _loginHasBeenPressed = false;
-            });
-          }
-        });
       } else {
         showToast(
           alignment: Alignment.bottomCenter,
@@ -262,13 +177,24 @@ class _LoginPageState extends State<LoginPage> {
                               dropdownValue = newValue!;
                             });
                           },
-                          items: <String>['GIBSSO', 'KBSSO', 'KSSO']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                          items: <String, String>{
+                            'Kanti Solothurn': 'KSSO',
+                            'GIBS Solothurn': 'GIBSSO',
+                            'KBS Solothurn': 'KBSSO',
+                            'GIBS Grenchen': 'GIBSGR',
+                            'GIBS Olten': 'GIBSOL',
+                            'Kanti Olten': 'KSOL',
+                          }
+                              .map((description, value) {
+                                return MapEntry(
+                                    description,
+                                    DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(description),
+                                    ));
+                              })
+                              .values
+                              .toList(),
                         ),
                       ),
                       const SizedBox(
@@ -301,6 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                             setState(() {
                               _loginHasBeenPressed = true;
                             });
+                            FocusManager.instance.primaryFocus?.unfocus();
                             await Future.delayed(
                                 const Duration(milliseconds: 300));
                             signIn();

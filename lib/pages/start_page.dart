@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,9 +74,9 @@ class _StartPageState extends State<StartPage> {
     school = await prefs.getString("school") ?? "ksso";
     print(Globals.accessToken);
     print(school);
-    String url =
-        "https://kaschuso.so.ch/public/" + school.toLowerCase() + "/rest/v1/me";
+    String url = Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me";
     print(url);
+
     try {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
@@ -89,14 +89,19 @@ class _StartPageState extends State<StartPage> {
     _classList.clear();
     if (mounted) {
       setState(() {
-        _name = _user['firstName'] + " " + _user['lastName'];
-        _email = _user['email'];
+        if (kDebugMode) {
+          _name = "Max Mustermann";
+          _email = "u50365@ksso.ch";
+        } else {
+          _name = _user['firstName'] + " " + _user['lastName'];
+          _email = _user['email'];
+        }
+
         for (var schoolClass in _user['regularClasses']) {
           _classList.add(schoolClass['token']);
         }
       });
     }
-    print(_user['firstName'] + " " + _user['lastName']);
     await prefs.setString('name', _user['firstName'] + " " + _user['lastName']);
     await prefs.setString('email', _user['email']);
     await prefs.setString('classes', jsonEncode(_classList));

@@ -26,13 +26,14 @@ class _TimetablePageState extends State<TimetablePage> {
     getData();
   }
 
-  Future<void> getData() async {
+  void getData() async {
     final prefs = await SharedPreferences.getInstance();
-    String school = prefs.getString("school") ?? "ksso";
+    String school = await prefs.getString("school") ?? "";
     String dateFormatted = DateFormat('yyyy-MM-dd').format(today);
-
-    String url =
-        "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/events?min_date=$dateFormatted&max_date=$dateFormatted";
+    String url = Globals.apiBase +
+        school.toLowerCase() +
+        "/rest/v1" +
+        "/me/events?min_date=$dateFormatted&max_date=$dateFormatted";
     print(url);
     try {
       await http.get(Uri.parse(url), headers: {

@@ -6,7 +6,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
+import '../config/Globals.dart' as Globals;
 import 'login_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -46,13 +46,15 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> enableDarkMode(bool dark) async {
     if (dark) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-          statusBarColor: Colors.white, // this one for android
+          statusBarColor: Color(0xFF0d0d0d), // status bar color
+          statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark // this one for iOS
           ));
       ThemeProvider.controllerOf(context).setTheme("dark_theme");
     } else {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-          statusBarColor: Colors.black, // this one for android
+          statusBarColor: Colors.white.withOpacity(0.2), // status bar color
+          statusBarIconBrightness: Brightness.dark,
           statusBarBrightness: Brightness.light // this one for iOS
           ));
       ThemeProvider.controllerOf(context).setTheme("light_theme");
@@ -188,6 +190,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () async {
                 const storage = FlutterSecureStorage();
                 final prefs = await SharedPreferences.getInstance();
+                Globals.gradeList = "[]";
                 await prefs.clear();
                 await storage.deleteAll();
                 Navigator.pushReplacement(
@@ -237,8 +240,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           if (snapshot.hasData) {
                             return Text(
                               (snapshot.data!.version) +
-                                  " BLD" +
-                                  snapshot.data!.buildNumber,
+                                  " (" +
+                                  snapshot.data!.buildNumber +
+                                  ")",
                               style: TextStyle(
                                   color: Color.fromRGBO(158, 158, 158, 1)),
                             );

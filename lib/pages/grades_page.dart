@@ -43,6 +43,16 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
+  Color gradeColor(double grade) {
+    if (grade >= 4.5) {
+      return good;
+    } else if (grade >= 4) {
+      return goodEnough;
+    } else {
+      return bad;
+    }
+  }
+
   void getExistingData() {
     /*final prefs = await SharedPreferences.getInstance();
     targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;*/
@@ -72,9 +82,10 @@ class _GradesPageState extends State<GradesPage> {
 
   Future<void> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    String school = prefs.getString("school") ?? "ksso";
+    String school = await prefs.getString("school") ?? "ksso";
     String url =
-        "https://kaschuso.so.ch/public/${school.toLowerCase()}/rest/v1/me/grades";
+        Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
+    String email = await prefs.getString('email') ?? "";
     if (kDebugMode) {
       url = "https://api.mocki.io/v2/e3516d96/grades";
     }
@@ -421,14 +432,4 @@ extension Iterables<E> on Iterable<E> {
       <K, List<E>>{},
       (Map<K, List<E>> map, E element) =>
           map..putIfAbsent(keyFunction(element), () => <E>[]).add(element));
-}
-
-Color gradeColor(double grade) {
-  if (grade >= 4.5) {
-    return Colors.blueAccent;
-  } else if (grade >= 4) {
-    return Colors.orangeAccent;
-  } else {
-    return Colors.redAccent;
-  }
 }
