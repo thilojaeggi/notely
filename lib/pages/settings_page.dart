@@ -240,8 +240,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           if (snapshot.hasData) {
                             return Text(
                               (snapshot.data!.version) +
-                                  " BLD" +
-                                  snapshot.data!.buildNumber,
+                                  " (" +
+                                  snapshot.data!.buildNumber +
+                                  ")",
                               style: TextStyle(
                                   color: Color.fromRGBO(158, 158, 158, 1)),
                             );
