@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
@@ -88,14 +89,19 @@ class _StartPageState extends State<StartPage> {
     _classList.clear();
     if (mounted) {
       setState(() {
-        _name = _user['firstName'] + " " + _user['lastName'];
-        _email = _user['email'];
+        if (kDebugMode) {
+          _name = "Max Mustermann";
+          _email = "u50365@ksso.ch";
+        } else {
+          _name = _user['firstName'] + " " + _user['lastName'];
+          _email = _user['email'];
+        }
+
         for (var schoolClass in _user['regularClasses']) {
           _classList.add(schoolClass['token']);
         }
       });
     }
-    print(_user['firstName'] + " " + _user['lastName']);
     await prefs.setString('name', _user['firstName'] + " " + _user['lastName']);
     await prefs.setString('email', _user['email']);
     await prefs.setString('classes', jsonEncode(_classList));
