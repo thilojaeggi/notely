@@ -40,12 +40,10 @@ dependencies:
   theme_provider: ^0.5.0
   fl_chart: ^0.55.0
   rename: ^2.0.1
-  widget_loading: ^0.3.2
   flutter_secure_storage: ^5.0.2
   page_transition: ^2.0.9
   flutter_native_splash: ^2.2.4
   day_night_switcher: ^0.2.0+1
-  html: ^0.15.0
   package_info_plus: ^1.4.2
   fl_toast: ^3.1.0
   dropdown_button2: ^1.6.2
