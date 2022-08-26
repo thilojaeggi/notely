@@ -26,9 +26,76 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   HeadlessInAppWebView? headlessWebView;
+  InAppWebViewController? webViewController;
 
   String dropdownValue = 'KSSO';
   String url = "";
+
+  @override
+  void initState() {
+    super.initState();
+    headlessWebView = new HeadlessInAppWebView(
+      initialUrlRequest:
+          URLRequest(url: Uri.parse("https://www.schul-netz.com/mobile/")),
+      initialOptions: InAppWebViewGroupOptions(
+        crossPlatform: InAppWebViewOptions(),
+      ),
+      onWebViewCreated: (controller) {
+        webViewController = controller;
+        print('HeadlessInAppWebView created!');
+      },
+      onConsoleMessage: (controller, consoleMessage) {
+        print("CONSOLE MESSAGE: " + consoleMessage.message);
+      },
+      onLoadStart: (controller, url) async {
+        print("onLoadStart $url");
+        setState(() {
+          this.url = url.toString();
+        });
+      },
+      onLoadStop: (controller, url) async {
+        print("onLoadStop $url");
+        if (this
+            .url
+            .contains("https://www.schul-netz.com/mobile/login?mandant")) {
+          print("gotologin");
+          await headlessWebView?.webViewController.evaluateJavascript(
+              source:
+                  """document.querySelector('.mat-raised-button').click();""");
+        }
+        if (this.url.contains("authorize.php")) {
+          print("authorize");
+          await headlessWebView?.webViewController
+              .evaluateJavascript(source: """
+if(document.getElementById("login") && document.getElementById("passwort")){
+document.getElementById("login").value = "${_usernameController.text}"; 
+document.getElementById("passwort").value = "${_passwordController.text}"; 
+}
+document.querySelector('.login-submit').click();
+""");
+        }
+        setState(() {
+          this.url = url.toString();
+        });
+      },
+      onUpdateVisitedHistory: (controller, url, androidIsReload) async {
+        print("onUpdateVisitedHistory $url");
+
+        setState(() {
+          this.url = url.toString();
+        });
+
+        if (this.url.contains("ttps://www.schul-netz.com/mobile/start")) {
+          print("sucessfully authenticated for the first time");
+          await headlessWebView?.dispose();
+          setState(() {
+            _loginHasBeenPressed = false;
+          });
+          signIn();
+        }
+      },
+    );
+  }
 
   Future<void> signIn() async {
     const storage = FlutterSecureStorage();
@@ -39,6 +106,7 @@ class _LoginPageState extends State<LoginPage> {
       "login": _usernameController.text,
       "passwort": _passwordController.text,
     }).then((response) async {
+      print(response.statusCode);
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
         var trimmedString =
@@ -84,59 +152,14 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else if (response.statusCode == 200 &&
           response.headers['location'] == null) {
-        headlessWebView = new HeadlessInAppWebView(
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(
-                  "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F" +
-                      dropdownValue.toLowerCase())),
-          initialOptions: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(),
-          ),
-          onWebViewCreated: (controller) {
-            print('HeadlessInAppWebView created!');
-          },
-          onConsoleMessage: (controller, consoleMessage) {
-            print("CONSOLE MESSAGE: " + consoleMessage.message);
-          },
-          onLoadStart: (controller, url) async {
-            print("onLoadStart $url");
-            setState(() {
-              this.url = url.toString();
-            });
-          },
-          onLoadStop: (controller, url) async {
-            print("onLoadStop $url");
-            if (this
-                .url
-                .contains("https://www.schul-netz.com/mobile/login?mandant")) {
-              print("gotologin");
-              await headlessWebView?.webViewController.evaluateJavascript(
-                  source:
-                      """document.querySelector('.mat-raised-button').click();""");
-            }
-            if (this.url.contains("authorize.php")) {
-              print("authorize");
-              await headlessWebView?.webViewController.evaluateJavascript(
-                  source:
-                      """document.getElementById("login").value = "${_usernameController.text}"; document.getElementById("passwort").value = "${_passwordController.text}"; document.querySelector('.login-submit').click();""");
-            }
-            setState(() {
-              this.url = url.toString();
-            });
-          },
-          onUpdateVisitedHistory: (controller, url, androidIsReload) async {
-            print("onUpdateVisitedHistory $url");
-
-            setState(() {
-              this.url = url.toString();
-            });
-
-            if (this.url.contains("ttps://www.schul-netz.com/mobile/start")) {
-              print("sucessfully authenticated");
-              await headlessWebView?.dispose();
-            }
-          },
-        );
+        print("Hasn't authenticated for the first time");
+        await headlessWebView?.dispose();
+        await headlessWebView?.run();
+        webViewController?.loadUrl(
+            urlRequest: URLRequest(
+                url: Uri.parse(
+                    "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F" +
+                        dropdownValue.toLowerCase())));
       } else {
         showToast(
           alignment: Alignment.bottomCenter,
