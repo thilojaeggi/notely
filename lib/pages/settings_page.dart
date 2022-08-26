@@ -1,4 +1,6 @@
 import 'package:day_night_switcher/day_night_switcher.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -116,6 +118,40 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
+            (kDebugMode) ? Card(
+                elevation: 3,
+                margin: const EdgeInsets.only(bottom: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                  child: Row(
+                    children: [
+                      const Text(
+                        "Enable Debugging",
+                        style: TextStyle(
+                          fontSize: 23,
+                        ),
+                      ),
+                      const Spacer(),
+                      Switch(
+                        activeColor: CupertinoColors.systemBlue,
+                        value: Globals.debug,
+                        onChanged: (value) {
+                          setState(() {
+                            Globals.debug = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+            )
+            :
+            SizedBox.shrink(),
+            
             /*Card(
               elevation: 3,
               margin: const EdgeInsets.only(bottom: 10),

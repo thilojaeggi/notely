@@ -86,7 +86,7 @@ class _GradesPageState extends State<GradesPage> {
     String url =
         Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
     String email = await prefs.getString('email') ?? "";
-    if (kDebugMode) {
+    if (Globals.debug) {
       url = "https://api.mocki.io/v2/e3516d96/grades";
     }
     try {

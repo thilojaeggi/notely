@@ -1,12 +1,14 @@
 import 'dart:convert';
 
-import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:date_picker_timeline/date_picker_widget.dart';
+import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Event.dart';
 import '../config/Globals.dart' as Globals;
+import '../widgets/calendar_appbar.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({Key? key}) : super(key: key);
@@ -121,68 +123,96 @@ class _TimetablePageState extends State<TimetablePage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: Container(
-                          padding: EdgeInsets.all(10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                      child: InkWell(
+                        onTap: () {
+                          showToast(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 32.0),
+                              decoration: BoxDecoration(
+                                color: Colors.greenAccent,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(12.0),
+                                ),
+                              ),
+                              padding: EdgeInsets.all(6.0),
+                              child: Text(
+                                "Tapped",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ),
+                            context: context,
+                          );
+                        },
+                        child: Container(
+                            padding: EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        event.courseName.toString(),
+                                        textAlign: TextAlign.start,
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      Text(
+                                        event.teachers!.first.toString(),
+                                        textAlign: TextAlign.start,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  event.roomToken.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Column(
                                   children: [
                                     Text(
-                                      event.courseName.toString(),
-                                      textAlign: TextAlign.start,
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500),
+                                      event.startDate!.substring(
+                                          event.startDate!.length - 5),
+                                      style: TextStyle(fontSize: 18.0),
+                                      textAlign: TextAlign.center,
                                     ),
                                     Text(
-                                      event.teachers!.first.toString(),
-                                      textAlign: TextAlign.start,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                      ),
+                                      "-",
+                                      style: TextStyle(fontSize: 18.0),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Text(
+                                      event.endDate!
+                                          .substring(
+                                              event.startDate!.length - 5)
+                                          .toString(),
+                                      style: TextStyle(fontSize: 18.0),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                event.roomToken.toString(),
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.w500),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Column(
-                                children: [
-                                  Text(
-                                    event.startDate!
-                                        .substring(event.startDate!.length - 5),
-                                    style: TextStyle(fontSize: 18.0),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "-",
-                                    style: TextStyle(fontSize: 18.0),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    event.endDate!
-                                        .substring(event.startDate!.length - 5)
-                                        .toString(),
-                                    style: TextStyle(fontSize: 18.0),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )),
+                              ],
+                            )),
+                      ),
                     );
                   })
               : Center(

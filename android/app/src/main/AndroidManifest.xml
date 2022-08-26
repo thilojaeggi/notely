@@ -2,7 +2,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <application android:label="Notely" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
+    <application android:label="Notely" android:name="${applicationName}" android:icon="@mipmap/ic_launcher" android:allowBackup="false"
+    android:fullBackupOnly="false">
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

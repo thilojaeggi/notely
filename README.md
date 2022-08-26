@@ -25,7 +25,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/thilojaeggi/Notely">
-    <img src="https://play-lh.googleusercontent.com/viKU0odimeMb_E3kMTOn8rE_lgpkW3PyQkGM4hLXsIv_QLJdjTZV8ZwmR43HuwtKHSDz=w240-h480-rw" alt="Logo" width="128" height="128">
+    <img src="https://raw.githubusercontent.com/thilojaeggi/Notely/main/assets/notely.png" alt="Logo" width="128" height="128">
   </a>
 
 <h3 align="center">Notely</h3>

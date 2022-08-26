@@ -89,7 +89,7 @@ class _StartPageState extends State<StartPage> {
     _classList.clear();
     if (mounted) {
       setState(() {
-        if (kDebugMode) {
+        if (Globals.debug) {
           _name = "Max Mustermann";
           _email = "u50365@ksso.ch";
         } else {
