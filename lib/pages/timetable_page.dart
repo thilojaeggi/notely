@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:date_picker_timeline/date_picker_widget.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -88,18 +89,24 @@ class _TimetablePageState extends State<TimetablePage> {
             ],
           ),
         ),
-        CalendarAppBar(
-          fullCalendar: false,
-          backButton: false,
-          firstDate: today,
-          locale: "de",
-          onDateChanged: (date) {
-            setState(() {
-              today = date;
-            });
-            getData();
-          },
-          lastDate: DateTime(DateTime.now().year, 12, 31),
+        Padding(
+          padding: const EdgeInsets.only(top: 5, left: 10.0, right: 10.0),
+          child: DatePicker(
+            DateTime.now(),
+            initialSelectedDate: today,
+            selectionColor: Colors.white.withOpacity(0.2),
+            selectedTextColor: Colors.white,
+            dayTextStyle: TextStyle(color: Colors.grey),
+            monthTextStyle: TextStyle(color: Colors.grey),
+            dateTextStyle: TextStyle(color: Colors.grey),
+            locale: "de",
+            onDateChange: (date) {
+              setState(() {
+                today = date;
+              });
+              getData();
+            },
+          ),
         ),
         Expanded(
           child: (_eventList.length != 0)
