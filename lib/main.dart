@@ -114,6 +114,7 @@ class _NotelyState extends State<Notely> {
           controller.setTheme(savedTheme);
           if (controller.theme.data.brightness == Brightness.dark) {
             print("Dark theme");
+            Globals.isDark = true;
             SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle.dark.copyWith(
                     statusBarColor: Color(0xFF0d0d0d), // status bar color
@@ -122,6 +123,7 @@ class _NotelyState extends State<Notely> {
                     ));
           } else {
             print("Light theme");
+            Globals.isDark = false;
             SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
                 .copyWith(
                     statusBarColor:
