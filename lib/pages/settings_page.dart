@@ -46,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> enableDarkMode(bool dark) async {
+    Globals.isDark = dark;
     if (dark) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
           statusBarColor: Color(0xFF0d0d0d), // status bar color
