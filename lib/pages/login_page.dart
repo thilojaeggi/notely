@@ -1,13 +1,12 @@
+import 'package:Notely/pages/help_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 
 import '../config/Globals.dart' as Globals;
 import '../config/style.dart';
@@ -210,15 +209,12 @@ document.querySelector('.login-submit').click();
                           child: Text(
                             "Notely",
                             style: TextStyle(
-                              fontSize: 64,
+                              fontSize: 80,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                             textAlign: TextAlign.start,
                           )),
-                      const SizedBox(
-                        height: 5,
-                      ),
                       Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -227,7 +223,6 @@ document.querySelector('.login-submit').click();
                           value: dropdownValue,
                           selectedItemHighlightColor: Colors.black,
                           focusColor: Colors.transparent,
-                          icon: const Icon(Icons.arrow_downward),
                           style: const TextStyle(
                               color: Colors.white, fontSize: 16),
                           decoration: const InputDecoration(
@@ -236,6 +231,8 @@ document.querySelector('.login-submit').click();
                               Icons.school,
                               color: Colors.white,
                             ),
+                            contentPadding: EdgeInsets.only(
+                                top: 19.0, bottom: 19.0, right: 19.0),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(
                                 Radius.circular(16),
@@ -297,24 +294,30 @@ document.querySelector('.login-submit').click();
                         textInputAction: TextInputAction.done,
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 6,
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
                         child: OutlinedButton(
                           onPressed: () async {
+                            FocusManager.instance.primaryFocus?.unfocus();
                             setState(() {
                               _loginHasBeenPressed = true;
                             });
-                            FocusManager.instance.primaryFocus?.unfocus();
                             await Future.delayed(
                                 const Duration(milliseconds: 300));
                             signIn();
                           },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                            minimumSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: _loginHasBeenPressed
+                                  ? BorderRadius.circular(18.0)
+                                  : BorderRadius.circular(9.0),
+                            ),
                             side: BorderSide(
-                                width: 2.0,
+                                width: 3.0,
                                 color: _loginHasBeenPressed
                                     ? Colors.white
                                     : Colors.black),
@@ -329,7 +332,7 @@ document.querySelector('.login-submit').click();
                             'Anmelden',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: 26,
                               color: _loginHasBeenPressed
                                   ? Colors.white
                                   : Colors.black,
@@ -341,6 +344,20 @@ document.querySelector('.login-submit').click();
                   ),
                 ),
                 const Spacer(),
+                TextButton(
+                    style: TextButton.styleFrom(
+                        splashFactory: NoSplash.splashFactory),
+                    onPressed: () {
+                      showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => HelpPage());
+                    },
+                    child: Text(
+                      "Hilfe?",
+                      style: TextStyle(color: Colors.white, fontSize: 20.0),
+                    )),
               ],
             ),
           ),
