@@ -1,14 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../ad_helper.dart';
 import '../config/Globals.dart' as Globals;
 
 class StartPage extends StatefulWidget {
@@ -34,28 +31,6 @@ class _StartPageState extends State<StartPage> {
   final storage = const FlutterSecureStorage();
   String school = "";
   Map<String, dynamic> _user = Map();
-
-  late BannerAd _bottomBannerAd;
-  bool _isBottomBannerAdLoaded = false;
-
-  void _createBottomBannerAd() {
-    _bottomBannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      size: AdSize.banner,
-      request: AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {
-            _isBottomBannerAdLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        },
-      ),
-    );
-    _bottomBannerAd.load();
-  }
 
   Future<void> getExistingValues() async {
     final prefs = await SharedPreferences.getInstance();
@@ -179,13 +154,6 @@ class _StartPageState extends State<StartPage> {
               ),
             ),
             const Spacer(),
-            (_isBottomBannerAdLoaded && !Platform.isWindows)
-                ? Container(
-                    height: _bottomBannerAd.size.height.toDouble(),
-                    width: double.infinity,
-                    child: AdWidget(ad: _bottomBannerAd),
-                  )
-                : SizedBox.shrink(),
           ],
         ),
       ),
