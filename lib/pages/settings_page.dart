@@ -132,7 +132,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: Row(
                         children: [
                           const Text(
-                            "Enable Debugging",
+                            "Demo Data",
                             style: TextStyle(
                               fontSize: 23,
                             ),
