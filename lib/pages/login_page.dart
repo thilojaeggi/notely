@@ -331,8 +331,8 @@ document.querySelector('.login-submit').click();
                           child: Text(
                             'Anmelden',
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 26,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 28,
                               color: _loginHasBeenPressed
                                   ? Colors.white
                                   : Colors.black,
