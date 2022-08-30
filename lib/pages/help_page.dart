@@ -1,7 +1,50 @@
 import 'package:flutter/material.dart';
 
-class HelpPage extends StatelessWidget {
+class HelpPage extends StatefulWidget {
   const HelpPage({Key? key}) : super(key: key);
+
+  static const Map<String, String> helpItems = {
+    "Anmeldung fehlgeschlagen?":
+        "Die Zugangsdaten sind dieselben wie auf der Kaschuso Website, überprüfe dass die richtige Schule gewählt ist und du dein Passwort richtig eingegeben hast.\nDein Benutzername ist normalerweise \"vorname.nachname\".",
+    "Erste Anmeldung geht nicht?":
+        "Falls du dich zum ersten mal anmeldest und es trotz richtigen Zugangsdaten nicht funktioniert, melde dich zuerst auf der Kaschuso Website bei \"schulnetz-mobile\" an.\nProbiere es danach erneut.",
+    "Bringt alles nichts?": "Kontaktiere mich unter thilo.jaeggi@ksso.ch",
+  };
+
+  @override
+  State<HelpPage> createState() => _HelpPageState();
+}
+
+class _HelpPageState extends State<HelpPage> {
+  Widget helpCard(BuildContext context, String problem, String answer) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      clipBehavior: Clip.antiAlias,
+      shadowColor: Colors.transparent.withOpacity(0.5),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          title: Text(
+            problem,
+            style: TextStyle(fontSize: 22.0),
+          ),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(14.0),
+              child: Text(
+                answer,
+                style: TextStyle(fontSize: 18.0),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,88 +81,15 @@ class HelpPage extends StatelessWidget {
                   ),
                 ],
               ),
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                clipBehavior: Clip.antiAlias,
-                shadowColor: Colors.transparent.withOpacity(0.5),
-                child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(dividerColor: Colors.transparent),
-                  child: ExpansionTile(
-                    title: Text(
-                      "Anmeldung fehlgeschlagen?",
-                      style: TextStyle(fontSize: 22.0),
-                    ),
-                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(14.0),
-                        child: Text(
-                          "Die Zugangsdaten sind dieselben wie auf der Kaschuso Website, überprüfe dass die richtige Schule gewählt ist und du dein Passwort richtig eingegeben hast.\nDein Benutzername ist normalerweise \"vorname.nachname\".",
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                clipBehavior: Clip.antiAlias,
-                shadowColor: Colors.transparent.withOpacity(0.5),
-                child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(dividerColor: Colors.transparent),
-                  child: ExpansionTile(
-                    title: Text(
-                      "Erste Anmeldung geht nicht?",
-                      style: TextStyle(fontSize: 22.0),
-                    ),
-                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(14.0),
-                        child: Text(
-                          "Falls du dich zum ersten mal anmeldest und es trotz richtigen Zugangsdaten nicht funktioniert, melde dich zuerst auf der Kaschuso Website bei \"schulnetz-mobile\" an.\nProbiere es danach erneut.",
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                clipBehavior: Clip.antiAlias,
-                shadowColor: Colors.transparent.withOpacity(0.5),
-                child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(dividerColor: Colors.transparent),
-                  child: ExpansionTile(
-                    title: Text(
-                      "Bringt alles nichts?",
-                      style: TextStyle(fontSize: 22.0),
-                    ),
-                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(14.0),
-                        child: SelectableText(
-                          "Kontaktiere mich unter thilo.jaeggi@ksso.ch",
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      )
-                    ],
-                  ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: HelpPage.helpItems.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return helpCard(
+                        context,
+                        HelpPage.helpItems.keys.elementAt(index),
+                        HelpPage.helpItems.values.elementAt(index));
+                  },
                 ),
               ),
             ],
