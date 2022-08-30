@@ -356,7 +356,7 @@ document.querySelector('.login-submit').click();
                     },
                     child: Text(
                       "Hilfe?",
-                      style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      style: TextStyle(color: Colors.white, fontSize: 24.0),
                     )),
               ],
             ),
