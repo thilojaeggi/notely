@@ -158,7 +158,14 @@ class _NotelyState extends State<Notely> {
                           )
                         : const LoginPage();
                   } else {
-                    return SizedBox.shrink();
+                    return Container(
+                      child: Center(
+                        child: Text(
+                          "Melde an...\nFalls es länger dauert überprüfe deine Internetverbindung.",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
                   }
                 }),
           ),
