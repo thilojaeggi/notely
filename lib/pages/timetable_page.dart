@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Event.dart';
 import '../config/Globals.dart' as Globals;
-import '../widgets/calendar_appbar.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({Key? key}) : super(key: key);
@@ -89,24 +88,23 @@ class _TimetablePageState extends State<TimetablePage> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 5, left: 10.0, right: 10.0),
-          child: DatePicker(
-            DateTime.now(),
-            initialSelectedDate: today,
-            selectionColor: Colors.white.withOpacity(0.2),
-            selectedTextColor: Colors.white,
-            dayTextStyle: TextStyle(color: Colors.grey),
-            monthTextStyle: TextStyle(color: Colors.grey),
-            dateTextStyle: TextStyle(color: Colors.grey),
-            locale: "de",
-            onDateChange: (date) {
-              setState(() {
-                today = date;
-              });
-              getData();
-            },
-          ),
+        DatePicker(
+          DateTime.now(),
+          initialSelectedDate: today,
+          selectionColor: Globals.isDark
+              ? Color.fromARGB(255, 46, 46, 46)
+              : Colors.grey.withOpacity(0.2),
+          selectedTextColor: Globals.isDark ? Colors.white : Colors.black,
+          dayTextStyle: TextStyle(color: Colors.grey),
+          monthTextStyle: TextStyle(color: Colors.grey),
+          dateTextStyle: TextStyle(color: Colors.grey),
+          locale: "de",
+          onDateChange: (date) {
+            setState(() {
+              today = date;
+            });
+            getData();
+          },
         ),
         Expanded(
           child: (_eventList.length != 0)
@@ -125,27 +123,29 @@ class _TimetablePageState extends State<TimetablePage> {
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
                         onTap: () {
-                          showToast(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                              margin: EdgeInsets.only(bottom: 32.0),
-                              decoration: BoxDecoration(
-                                color: Colors.greenAccent,
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12.0),
+                          if (Globals.debug) {
+                            showToast(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 32.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.greenAccent,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(12.0),
+                                  ),
+                                ),
+                                padding: EdgeInsets.all(6.0),
+                                child: Text(
+                                  "Tapped",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.0,
+                                  ),
                                 ),
                               ),
-                              padding: EdgeInsets.all(6.0),
-                              child: Text(
-                                "Tapped",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            ),
-                            context: context,
-                          );
+                              context: context,
+                            );
+                          }
                         },
                         child: Container(
                             padding: EdgeInsets.all(10.0),

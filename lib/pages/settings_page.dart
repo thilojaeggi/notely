@@ -46,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> enableDarkMode(bool dark) async {
+    Globals.isDark = dark;
     if (dark) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
           statusBarColor: Color(0xFF0d0d0d), // status bar color
@@ -99,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Row(
                     children: [
                       const Text(
-                        "Hell/Dark-Mode",
+                        "Light/Dark-Mode",
                         style: TextStyle(
                           fontSize: 23,
                         ),
@@ -118,40 +119,40 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            (kDebugMode) ? Card(
-                elevation: 3,
-                margin: const EdgeInsets.only(bottom: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-                  child: Row(
-                    children: [
-                      const Text(
-                        "Enable Debugging",
-                        style: TextStyle(
-                          fontSize: 23,
-                        ),
+            (kDebugMode)
+                ? Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                      child: Row(
+                        children: [
+                          const Text(
+                            "Demo Data",
+                            style: TextStyle(
+                              fontSize: 23,
+                            ),
+                          ),
+                          const Spacer(),
+                          Switch(
+                            activeColor: CupertinoColors.systemBlue,
+                            value: Globals.debug,
+                            onChanged: (value) {
+                              setState(() {
+                                Globals.debug = value;
+                              });
+                            },
+                          ),
+                        ],
                       ),
-                      const Spacer(),
-                      Switch(
-                        activeColor: CupertinoColors.systemBlue,
-                        value: Globals.debug,
-                        onChanged: (value) {
-                          setState(() {
-                            Globals.debug = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-            )
-            :
-            SizedBox.shrink(),
-            
+                    ),
+                  )
+                : SizedBox.shrink(),
+
             /*Card(
               elevation: 3,
               margin: const EdgeInsets.only(bottom: 10),

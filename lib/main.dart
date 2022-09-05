@@ -5,10 +5,9 @@ import 'package:Notely/config/Globals.dart' as Globals;
 import 'package:Notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +18,7 @@ import 'pages/login_page.dart';
 
 const storage = FlutterSecureStorage();
 const fetchNotifications = "fetchNotifications";
-
+String username = "", password = "";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -44,21 +43,21 @@ Future<void> main() async {
       ));
     }
   }
-
-  readSettings();
+  await readSettings();
   runApp(const Notely());
 }
 
 Future<void> readSettings() async {
   final prefs = await SharedPreferences.getInstance();
   Globals.gradeList = await prefs.getString("gradeList") ?? "[]";
+  username = await storage.read(key: "username") ?? "";
+  password = await storage.read(key: "password") ?? "";
 }
 
 Future<bool> isLoggedIn() async {
   final prefs = await SharedPreferences.getInstance();
   String school = await prefs.getString("school") ?? "".toLowerCase();
-  String username = await storage.read(key: "username") ?? "";
-  String password = await storage.read(key: "password") ?? "";
+
   bool isLoggedIn = false;
   if (username != "" && password != "" && school != "") {
     String url = Globals.apiBase +
@@ -114,6 +113,7 @@ class _NotelyState extends State<Notely> {
           controller.setTheme(savedTheme);
           if (controller.theme.data.brightness == Brightness.dark) {
             print("Dark theme");
+            Globals.isDark = true;
             SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle.dark.copyWith(
                     statusBarColor: Color(0xFF0d0d0d), // status bar color
@@ -122,6 +122,7 @@ class _NotelyState extends State<Notely> {
                     ));
           } else {
             print("Light theme");
+            Globals.isDark = false;
             SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
                 .copyWith(
                     statusBarColor:
@@ -158,7 +159,37 @@ class _NotelyState extends State<Notely> {
                           )
                         : const LoginPage();
                   } else {
-                    return SizedBox.shrink();
+                    if (username != "" && password != "") {
+                      return Material(
+                          child: Center(
+                              child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Melde an..",
+                            style: TextStyle(fontSize: 32.0),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          SpinKitDoubleBounce(
+                            size: 50,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Falls es länger Dauert überprüfe deine Internetverbindung.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 18.0),
+                          )
+                        ],
+                      )));
+                    } else {
+                      return SizedBox.shrink();
+                    }
                   }
                 }),
           ),
