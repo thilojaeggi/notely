@@ -53,9 +53,8 @@ dependencies:
   google_mobile_ads: ^2.0.0
   date_picker_timeline: ^1.2.3
   flutter_platform_alert: ^0.3.0
-  url_launcher: ^6.1.5
-  oauth2_client: ^2.4.1
   flutter_inappwebview: ^5.4.3+7
+  flutter_spinkit: ^5.1.0
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0
   flutter_test:
