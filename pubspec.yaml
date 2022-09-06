@@ -50,7 +50,6 @@ dependencies:
   intl: ^0.17.0
   flutter_local_notifications: ^9.7.0
   flutter_acrylic: ^1.0.0
-  google_mobile_ads: ^2.0.0
   date_picker_timeline: ^1.2.3
   flutter_platform_alert: ^0.3.0
   flutter_inappwebview: ^5.4.3+7
