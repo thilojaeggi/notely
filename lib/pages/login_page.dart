@@ -28,7 +28,6 @@ class _LoginPageState extends State<LoginPage> {
   InAppWebViewController? webViewController;
 
   String dropdownValue = 'KSSO';
-  String url = "";
 
   @override
   void initState() {
@@ -48,21 +47,18 @@ class _LoginPageState extends State<LoginPage> {
       },
       onLoadStart: (controller, url) async {
         print("onLoadStart $url");
-        setState(() {
-          this.url = url.toString();
-        });
       },
       onLoadStop: (controller, url) async {
         print("onLoadStop $url");
-        if (this
-            .url
+        if (url
+            .toString()
             .contains("https://www.schul-netz.com/mobile/login?mandant")) {
           print("gotologin");
           await headlessWebView?.webViewController.evaluateJavascript(
               source:
                   """document.querySelector('.mat-raised-button').click();""");
         }
-        if (this.url.contains("authorize.php")) {
+        if (url.toString().contains("authorize.php")) {
           print("authorize");
           await headlessWebView?.webViewController
               .evaluateJavascript(source: """
@@ -73,18 +69,13 @@ document.getElementById("passwort").value = "${_passwordController.text}";
 document.querySelector('.login-submit').click();
 """);
         }
-        setState(() {
-          this.url = url.toString();
-        });
       },
       onUpdateVisitedHistory: (controller, url, androidIsReload) async {
         print("onUpdateVisitedHistory $url");
 
-        setState(() {
-          this.url = url.toString();
-        });
-
-        if (this.url.contains("ttps://www.schul-netz.com/mobile/start")) {
+        if (url
+            .toString()
+            .contains("https://www.schul-netz.com/mobile/start")) {
           print("sucessfully authenticated for the first time");
           await headlessWebView?.dispose();
           setState(() {
