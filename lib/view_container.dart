@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:Notely/pages/timetable_page.dart';
+import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

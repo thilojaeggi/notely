@@ -1,4 +1,4 @@
-import 'package:Notely/pages/help_page.dart';
+import 'package:notely/pages/help_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';

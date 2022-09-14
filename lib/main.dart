@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:Notely/config/Globals.dart' as Globals;
-import 'package:Notely/view_container.dart';
+import 'package:notely/config/Globals.dart' as Globals;
+import 'package:notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
