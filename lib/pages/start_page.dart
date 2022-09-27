@@ -137,7 +137,7 @@ class _StartPageState extends State<StartPage> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
                                   child: Container(
-                                    height: 170,
+                                    height: 150,
                                     decoration: BoxDecoration(
                                         color: Colors.white10,
                                         borderRadius: BorderRadius.all(
