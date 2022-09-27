@@ -68,7 +68,7 @@ class _StartPageState extends State<StartPage> {
           _name = "Max Mustermann";
           _email = "u50365@ksso.ch";
         } else {
-          _name = _user['firstName'] + " " + _user['lastName'];
+          _name = _user['firstName'];
           _email = _user['email'];
         }
 
@@ -77,7 +77,7 @@ class _StartPageState extends State<StartPage> {
         }
       });
     }
-    await prefs.setString('name', _user['firstName'] + " " + _user['lastName']);
+    await prefs.setString('name', _user['firstName']);
     await prefs.setString('email', _user['email']);
     await prefs.setString('classes', jsonEncode(_classList));
   }
@@ -87,17 +87,13 @@ class _StartPageState extends State<StartPage> {
     super.initState();
     getExistingValues();
     getMe();
-    if (!Platform.isWindows) {
-      // _createBottomBannerAd();
-    }
+    if (!Platform.isWindows) {}
   }
 
   @override
   void dispose() {
     super.dispose();
-    if (!Platform.isWindows) {
-      //_bottomBannerAd.dispose();
-    }
+    if (!Platform.isWindows) {}
   }
 
   @override
@@ -110,46 +106,124 @@ class _StartPageState extends State<StartPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.all(6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Ich",
+                  const SizedBox(
+                    height: 18,
+                  ),
+                  Text(
+                    "Hey $_name!",
                     style: TextStyle(
-                      fontSize: 64,
+                      fontSize: 40,
                       fontWeight: FontWeight.w400,
                     ),
                     textAlign: TextAlign.start,
                   ),
                   const SizedBox(
-                    height: 5,
+                    height: 12,
                   ),
-                  Text(
-                    _name,
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w400,
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Container(
+                                    height: 170,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white10,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(18.0))),
+                                    child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Spacer(),
+                                          Text(
+                                            "Bald",
+                                            style: TextStyle(fontSize: 15.0),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            "4",
+                                            style: TextStyle(fontSize: 70.0),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            "Tests",
+                                            style: TextStyle(fontSize: 15.0),
+                                          ),
+                                          Spacer(),
+                                        ]),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color:
+                                            Color.fromARGB(255, 238, 131, 81),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(18.0))),
+                                    child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Spacer(),
+                                          Text(""),
+                                          Spacer(),
+                                          Text(
+                                            "4",
+                                            style: TextStyle(fontSize: 70.0),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            "Hausaufgaben",
+                                            style: TextStyle(fontSize: 15.0),
+                                          ),
+                                          Spacer(),
+                                        ]),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 49, 83, 248),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(18.0))),
+                              child: Column(children: [
+                                SizedBox(
+                                  height: 16.0,
+                                ),
+                                Text(
+                                  "Letzte Noten",
+                                  style: TextStyle(fontSize: 20.0),
+                                ),
+                                Spacer(),
+                              ]),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    _email,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  const Text(
-                    "Klassen:",
-                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400),
-                  ),
-                  for (var i = 0; i < _classList.length; i++)
-                    Text(
-                      _classList[i].toString(),
-                      style: const TextStyle(fontSize: 20),
-                    )
                 ],
               ),
             ),
