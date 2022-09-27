@@ -34,10 +34,10 @@ class _StartPageState extends State<StartPage> {
 
   Future<void> getExistingValues() async {
     final prefs = await SharedPreferences.getInstance();
+    _classList =
+        jsonDecode(prefs.getString('classes') ?? jsonEncode(List.empty()));
     if (mounted) {
       setState(() {
-        _classList =
-            jsonDecode(prefs.getString('classes') ?? jsonEncode(List.empty()));
         _name = prefs.getString('name') ?? "";
         _email = prefs.getString('email') ?? "";
       });
@@ -71,14 +71,15 @@ class _StartPageState extends State<StartPage> {
           _name = _user['firstName'];
           _email = _user['email'];
         }
+        _name = _name.split(' ').first;
 
         for (var schoolClass in _user['regularClasses']) {
           _classList.add(schoolClass['token']);
         }
       });
     }
-    await prefs.setString('name', _user['firstName']);
-    await prefs.setString('email', _user['email']);
+    await prefs.setString('name', _name);
+    await prefs.setString('email', _email);
     await prefs.setString('classes', jsonEncode(_classList));
   }
 
@@ -113,13 +114,16 @@ class _StartPageState extends State<StartPage> {
                   const SizedBox(
                     height: 18,
                   ),
-                  Text(
-                    "Hey $_name!",
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w400,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
+                    child: Text(
+                      "Hey $_name!",
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.start,
                     ),
-                    textAlign: TextAlign.start,
                   ),
                   const SizedBox(
                     height: 12,
