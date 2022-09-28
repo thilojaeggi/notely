@@ -52,7 +52,8 @@ dependencies:
   flutter_acrylic: ^1.0.0
   date_picker_timeline: ^1.2.3
   flutter_platform_alert: ^0.3.0
-  flutter_inappwebview: ^5.4.3+7
+  flutter_inappwebview:
+    git: https://github.com/CodeEagle/flutter_inappwebview
   flutter_spinkit: ^5.1.0
   boxy: ^2.0.6+2
 dev_dependencies:
