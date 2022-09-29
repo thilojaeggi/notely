@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import '../Models/Grade.dart';
-import '../config/Globals.dart' as Globals;
+import '../Globals.dart' as Globals;
 
 class GradesPage extends StatefulWidget {
   const GradesPage({Key? key}) : super(key: key);
@@ -91,6 +91,7 @@ class _GradesPageState extends State<GradesPage> {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
+        print(response.body);
         _gradeList = (json.decode(response.body) as List)
             .map((i) => Grade.fromJson(i))
             .toList();
