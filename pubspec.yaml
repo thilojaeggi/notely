@@ -55,7 +55,7 @@ dependencies:
   flutter_inappwebview:
     git: https://github.com/CodeEagle/flutter_inappwebview
   flutter_spinkit: ^5.1.0
-  boxy: ^2.0.6+2
+  device_info_plus: ^4.1.2
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0
   flutter_test:
