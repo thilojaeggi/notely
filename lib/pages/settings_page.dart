@@ -8,7 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../config/Globals.dart' as Globals;
+import '../Globals.dart' as Globals;
 import 'login_page.dart';
 
 class SettingsPage extends StatefulWidget {
