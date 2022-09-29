@@ -55,7 +55,7 @@ class _HelpPageState extends State<HelpPage> {
           topLeft: const Radius.circular(25.0),
           topRight: const Radius.circular(25.0),
         ),
-        color: Color.fromARGB(255, 36, 36, 36).withOpacity(0.95),
+        color: Color.fromARGB(255, 226, 226, 226).withOpacity(0.2),
       ),
       child: Padding(
           padding: EdgeInsets.all(8.0),
