@@ -6,15 +6,19 @@ class AuthTextField extends StatelessWidget {
   final TextEditingController editingController;
   final bool passwordField;
   final TextInputAction textInputAction;
+  final Color backgroundColor;
   const AuthTextField(
       {required this.icon,
       required this.hintText,
       required this.editingController,
       required this.passwordField,
-      required this.textInputAction});
+      required this.textInputAction,
+      required this.backgroundColor});
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Colors.transparent,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
