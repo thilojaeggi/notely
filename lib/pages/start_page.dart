@@ -6,19 +6,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../config/Globals.dart' as Globals;
+import '../Globals.dart' as Globals;
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   @override
   State<StartPage> createState() => _StartPageState();
@@ -153,17 +144,21 @@ class _StartPageState extends State<StartPage> {
                                           Spacer(),
                                           Text(
                                             "Bald",
-                                            style: TextStyle(fontSize: 15.0),
+                                            style: TextStyle(
+                                                fontSize: 15.0,
+                                                fontWeight: FontWeight.w600),
                                           ),
                                           Spacer(),
                                           Text(
                                             "4",
-                                            style: TextStyle(fontSize: 70.0),
+                                            style: TextStyle(fontSize: 80.0),
                                           ),
                                           Spacer(),
                                           Text(
                                             "Tests",
-                                            style: TextStyle(fontSize: 15.0),
+                                            style: TextStyle(
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.w600),
                                           ),
                                           Spacer(),
                                         ]),
@@ -188,12 +183,15 @@ class _StartPageState extends State<StartPage> {
                                           Spacer(),
                                           Text(
                                             "4",
-                                            style: TextStyle(fontSize: 70.0),
+                                            style: TextStyle(fontSize: 80.0),
                                           ),
                                           Spacer(),
                                           Text(
                                             "Hausaufgaben",
-                                            style: TextStyle(fontSize: 15.0),
+                                            style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                           Spacer(),
                                         ]),
@@ -208,6 +206,7 @@ class _StartPageState extends State<StartPage> {
                           child: Padding(
                             padding: const EdgeInsets.all(6.0),
                             child: Container(
+                              height: 150,
                               decoration: BoxDecoration(
                                   color: Color.fromARGB(255, 49, 83, 248),
                                   borderRadius:
@@ -217,10 +216,38 @@ class _StartPageState extends State<StartPage> {
                                   height: 16.0,
                                 ),
                                 Text(
-                                  "Letzte Noten",
+                                  "Neuste Noten",
                                   style: TextStyle(fontSize: 20.0),
                                 ),
-                                Spacer(),
+                                SizedBox(
+                                  height: 6.0,
+                                ),
+                                Expanded(
+                                  child: ListView.builder(
+                                      padding: const EdgeInsets.all(8),
+                                      itemCount: 100,
+                                      shrinkWrap: true,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return Container(
+                                          margin: EdgeInsets.only(top: 5.0),
+                                          width: double.infinity,
+                                          padding: EdgeInsets.all(14.0),
+                                          decoration: BoxDecoration(
+                                              color:
+                                                  Colors.white.withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(12)),
+                                          child: Row(
+                                            children: [
+                                              Text("Note: $index"),
+                                              const Spacer(),
+                                              Text("Geschichte"),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                ),
                               ]),
                             ),
                           ),
