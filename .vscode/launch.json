@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "schulnetz",
+            "name": "notely",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "schulnetz (profile mode)",
+            "name": "notely (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "schulnetz (release mode)",
+            "name": "notely (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
