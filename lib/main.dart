@@ -46,7 +46,9 @@ Future<void> main() async {
     }
   }
   await readSettings();
-  await getiPhoneModel();
+  if (Platform.isIOS) {
+    await getiPhoneModel();
+  }
   runApp(const Notely());
 }
 
