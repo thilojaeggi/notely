@@ -389,11 +389,13 @@ document.querySelector('.login-submit').click();
             ),
           ),
         ),
-        DynamicToastOverlay(
-          isVisible: toastIslandVisible,
-          isSuccess: toastSuccess,
-          toastMessage: toastMessage,
-        ),
+        (Globals.hasDynamicIsland)
+            ? DynamicToastOverlay(
+                isVisible: toastIslandVisible,
+                isSuccess: toastSuccess,
+                toastMessage: toastMessage,
+              )
+            : SizedBox.shrink(),
       ],
     );
   }
