@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../Globals.dart' as Globals;
+import '../Models/Grade.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -74,18 +76,43 @@ class _StartPageState extends State<StartPage> {
     await prefs.setString('classes', jsonEncode(_classList));
   }
 
+  Future<void> getGrades() async {
+    final prefs = await SharedPreferences.getInstance();
+    String school = await prefs.getString("school") ?? "ksso";
+    String url =
+        Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
+    if (Globals.debug) {
+      url = "https://api.mocki.io/v2/e3516d96/grades";
+    }
+    try {
+      await http.get(Uri.parse(url), headers: {
+        'Authorization': 'Bearer ' + Globals.accessToken,
+      }).then((response) {
+        print(response.body);
+        if (mounted) {
+          setState(() {
+            Globals.globalGradeList = (json.decode(response.body) as List)
+                .map((i) => Grade.fromJson(i))
+                .toList();
+          });
+        }
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   initState() {
     super.initState();
     getExistingValues();
     getMe();
-    if (!Platform.isWindows) {}
+    getGrades();
   }
 
   @override
   void dispose() {
     super.dispose();
-    if (!Platform.isWindows) {}
   }
 
   @override
@@ -123,6 +150,7 @@ class _StartPageState extends State<StartPage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        /*
                         Expanded(
                           flex: 2,
                           child: Column(
@@ -131,6 +159,7 @@ class _StartPageState extends State<StartPage> {
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
+                                  
                                   child: Container(
                                     height: 150,
                                     decoration: BoxDecoration(
@@ -164,7 +193,7 @@ class _StartPageState extends State<StartPage> {
                                         ]),
                                   ),
                                 ),
-                              ),
+                              ), 
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
@@ -200,55 +229,104 @@ class _StartPageState extends State<StartPage> {
                               ),
                             ],
                           ),
-                        ),
+                        ),*/
                         Expanded(
                           flex: 4,
                           child: Padding(
                             padding: const EdgeInsets.all(6.0),
-                            child: Container(
-                              height: 150,
-                              decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 49, 83, 248),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(18.0))),
-                              child: Column(children: [
-                                SizedBox(
-                                  height: 16.0,
-                                ),
-                                Text(
-                                  "Neuste Noten",
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                                SizedBox(
-                                  height: 6.0,
-                                ),
-                                Expanded(
-                                  child: ListView.builder(
-                                      padding: const EdgeInsets.all(8),
-                                      itemCount: 100,
-                                      shrinkWrap: true,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return Container(
-                                          margin: EdgeInsets.only(top: 5.0),
-                                          width: double.infinity,
-                                          padding: EdgeInsets.all(14.0),
-                                          decoration: BoxDecoration(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(18.0),
+                              child: Container(
+                                color: Color.fromARGB(255, 49, 83, 248),
+                                height: 300,
+                                child: Column(children: [
+                                  SizedBox(
+                                    height: 16.0,
+                                  ),
+                                  Text(
+                                    "Neueste Noten",
+                                    style: TextStyle(fontSize: 20.0),
+                                  ),
+                                  Expanded(
+                                    child: ListView.builder(
+                                        padding: const EdgeInsets.only(
+                                            left: 10.0, right: 10.0),
+                                        itemCount:
+                                            Globals.globalGradeList.length,
+                                        shrinkWrap: true,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return Container(
+                                            margin: (index == 99)
+                                                ? EdgeInsets.only(bottom: 9.0)
+                                                : (index == 0)
+                                                    ? EdgeInsets.only(
+                                                        top: 8.0, bottom: 3.0)
+                                                    : EdgeInsets.only(
+                                                        bottom: 3.0),
+                                            width: double.infinity,
+                                            padding: EdgeInsets.all(12.0),
+                                            decoration: BoxDecoration(
                                               color:
                                                   Colors.white.withOpacity(0.2),
-                                              borderRadius:
-                                                  BorderRadius.circular(12)),
-                                          child: Row(
-                                            children: [
-                                              Text("Note: $index"),
-                                              const Spacer(),
-                                              Text("Geschichte"),
-                                            ],
-                                          ),
-                                        );
-                                      }),
-                                ),
-                              ]),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: (index == 0)
+                                                    ? Radius.circular(12.0)
+                                                    : Radius.circular(5.0),
+                                                topRight: (index == 0)
+                                                    ? Radius.circular(12.0)
+                                                    : Radius.circular(5.0),
+                                                bottomLeft: (index ==
+                                                        Globals.globalGradeList
+                                                                .length -
+                                                            1)
+                                                    ? Radius.circular(12.0)
+                                                    : Radius.circular(5.0),
+                                                bottomRight: (index ==
+                                                        Globals.globalGradeList
+                                                                .length -
+                                                            1)
+                                                    ? Radius.circular(12.0)
+                                                    : Radius.circular(5.0),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    "Note: " +
+                                                        Globals
+                                                            .globalGradeList[
+                                                                index]
+                                                            .mark
+                                                            .toString(),
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w400),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                    child: AutoSizeText(
+                                                  Globals.globalGradeList[index]
+                                                      .title
+                                                      .toString(),
+                                                  style:
+                                                      TextStyle(fontSize: 15),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                )),
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                  ),
+                                ]),
+                              ),
                             ),
                           ),
                         ),
