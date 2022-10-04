@@ -37,7 +37,6 @@ class _GradesPageState extends State<GradesPage> {
       Future.delayed(Duration(milliseconds: 250)).then((value) async {
         await Scrollable.ensureVisible(keyContext,
             duration: Duration(milliseconds: 1000));
-        //  HapticFeedback.mediumImpact();
       });
     }
   }
@@ -52,34 +51,7 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
-  void getExistingData() {
-    /*final prefs = await SharedPreferences.getInstance();
-    targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;*/
-    if (Globals.gradeList.isNotEmpty) {
-      _gradeList = (json.decode(Globals.gradeList) as List)
-          .map((i) => Grade.fromJson(i))
-          .toList();
-    }
-    if (mounted) {
-      setState(() {
-        _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
-        for (var i = 0; i < _groupedCoursesMap.length; i++) {
-          double combinedGrade = 0;
-          double combinedWeight = 0;
-          for (var grade in _groupedCoursesMap.values.elementAt(i)) {
-            combinedGrade = combinedGrade + (grade.mark * grade.weight);
-            combinedWeight += grade.weight;
-          }
-          _averageGradeMap.addAll({
-            _groupedCoursesMap.keys.elementAt(i):
-                (combinedGrade / combinedWeight).toStringAsFixed(3)
-          });
-        }
-      });
-    }
-  }
-
-  Future<void> getData() async {
+  Future<void> getGrades() async {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
     String url =
@@ -124,9 +96,7 @@ class _GradesPageState extends State<GradesPage> {
   @override
   initState() {
     super.initState();
-    getExistingData();
-    getData();
-    print(Globals.accessToken);
+    getGrades();
   }
 
   Widget _buildGradeCard(BuildContext context, int index) {
