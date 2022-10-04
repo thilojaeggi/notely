@@ -32,16 +32,16 @@ class _DynamicToastOverlayState extends State<DynamicToastOverlay> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(
-            height: 11,
+            height: 11.2,
           ),
           AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOutBack,
-              width: 126,
-              height: widget.isVisible ? 87 : 37,
+              width: 125.3,
+              height: widget.isVisible ? 87 : 36.9,
               decoration: BoxDecoration(
                 color: Colors.black,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(18.5),
               ),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0, top: 2.0),
