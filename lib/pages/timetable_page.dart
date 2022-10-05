@@ -40,7 +40,6 @@ class _TimetablePageState extends State<TimetablePage> {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
-        print(response.body);
         if (mounted) {
           setState(() {
             _eventList = (json.decode(response.body) as List)
