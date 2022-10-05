@@ -63,7 +63,6 @@ class _GradesPageState extends State<GradesPage> {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
-        print(response.body);
         _gradeList = (json.decode(response.body) as List)
             .map((i) => Grade.fromJson(i))
             .toList();
