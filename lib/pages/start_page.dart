@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:notely/Models/Exam.dart';
+import 'package:notely/pages/exams_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -88,7 +91,6 @@ class _StartPageState extends State<StartPage> {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
-        print(response.body);
         if (mounted) {
           setState(() {
             Globals.globalGradeList = (json.decode(response.body) as List)
@@ -102,12 +104,57 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
+  Future<void> getExams() async {
+    final prefs = await SharedPreferences.getInstance();
+    String school = await prefs.getString("school") ?? "ksso";
+    String url =
+        Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/exams";
+
+    int newExamCount = 0;
+    List<Exam> newExamsList = List.empty(growable: true);
+    try {
+      await http.get(Uri.parse(url), headers: {
+        'Authorization': 'Bearer ' + Globals.accessToken,
+      }).then((response) {
+        final data = jsonDecode(response.body);
+        for (Map<String, dynamic> i in data) {
+          DateTime tempDate =
+              new DateFormat("yyyy-MM-dd").parse(i["startDate"]);
+          if (tempDate.isAfter(DateTime.now())) {
+            print(Exam.fromJson(i).startDate);
+            newExamsList.add(Exam.fromJson(i));
+            if (tempDate
+                .isBefore(DateTime.now().add(const Duration(days: 14)))) {
+              if (mounted) {
+                setState(() {
+                  newExamCount++;
+                });
+              }
+            }
+          }
+        }
+        newExamsList.sort((a, b) {
+          return DateTime.parse(a.startDate ?? "")
+              .compareTo(DateTime.parse(b.startDate ?? ""));
+        });
+        setState(() {
+          Globals.upcomingExams = newExamCount;
+          Globals.globalExamsList = newExamsList;
+        });
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   initState() {
     super.initState();
     getExistingValues();
     getMe();
     getGrades();
+    getExams();
+    print(Globals.globalExamsList.length.toString());
   }
 
   @override
@@ -150,7 +197,6 @@ class _StartPageState extends State<StartPage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        /*
                         Expanded(
                           flex: 2,
                           child: Column(
@@ -159,41 +205,56 @@ class _StartPageState extends State<StartPage> {
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
-                                  
-                                  child: Container(
-                                    height: 150,
-                                    decoration: BoxDecoration(
+                                  child: InkWell(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (context) => ExamsPage());
+                                    },
+                                    customBorder: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                    ),
+                                    child: Container(
+                                      height: 150,
+                                      decoration: BoxDecoration(
                                         color: Colors.white10,
+                                        border: Border.all(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            width: 2.0),
                                         borderRadius: BorderRadius.all(
-                                            Radius.circular(18.0))),
-                                    child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "Bald",
-                                            style: TextStyle(
-                                                fontSize: 15.0,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          Spacer(),
-                                          Text(
-                                            "4",
-                                            style: TextStyle(fontSize: 80.0),
-                                          ),
-                                          Spacer(),
-                                          Text(
-                                            "Tests",
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          Spacer(),
-                                        ]),
+                                            Radius.circular(18.0)),
+                                      ),
+                                      child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Spacer(),
+                                            Text(
+                                              "Bald",
+                                              style: TextStyle(
+                                                  fontSize: 18.0,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                            Spacer(),
+                                            Text(
+                                              Globals.upcomingExams.toString(),
+                                              style: TextStyle(fontSize: 80.0),
+                                            ),
+                                            Spacer(),
+                                            Text(
+                                              "Tests",
+                                              style: TextStyle(
+                                                  fontSize: 18.0,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                            Spacer(),
+                                          ]),
+                                    ),
                                   ),
                                 ),
-                              ), 
+                              ), /*
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
@@ -226,10 +287,10 @@ class _StartPageState extends State<StartPage> {
                                         ]),
                                   ),
                                 ),
-                              ),
+                              ),*/
                             ],
                           ),
-                        ),*/
+                        ),
                         Expanded(
                           flex: 4,
                           child: Padding(
@@ -237,15 +298,24 @@ class _StartPageState extends State<StartPage> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(18.0),
                               child: Container(
-                                color: Color.fromARGB(255, 49, 83, 248),
                                 height: 300,
+                                decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 49, 83, 248),
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  border: Border.all(
+                                      color: Colors.blue.withOpacity(0.5),
+                                      width: 2.0),
+                                ),
                                 child: Column(children: [
                                   SizedBox(
                                     height: 16.0,
                                   ),
                                   Text(
                                     "Neueste Noten",
-                                    style: TextStyle(fontSize: 20.0),
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                   Expanded(
                                     child: ListView.builder(
@@ -305,6 +375,7 @@ class _StartPageState extends State<StartPage> {
                                                             .toString(),
                                                     style: TextStyle(
                                                         fontSize: 16,
+                                                        color: Colors.white,
                                                         fontWeight:
                                                             FontWeight.w400),
                                                   ),
@@ -314,8 +385,10 @@ class _StartPageState extends State<StartPage> {
                                                   Globals.globalGradeList[index]
                                                       .title
                                                       .toString(),
-                                                  style:
-                                                      TextStyle(fontSize: 15),
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.white,
+                                                  ),
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
