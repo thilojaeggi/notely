@@ -89,7 +89,6 @@ class _GradesPageState extends State<GradesPage> {
       });
     }
     prefs.setString("gradeList", json.encode(_gradeList));
-    Globals.gradeList = json.encode(_gradeList);
   }
 
   @override
