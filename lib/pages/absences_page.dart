@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../config/Globals.dart' as Globals;
+import '../Globals.dart' as Globals;
 import '../Models/Absence.dart';
-import '../config/Globals.dart';
+import '../Globals.dart';
 
 class AbsencesPage extends StatefulWidget {
   const AbsencesPage({Key? key}) : super(key: key);

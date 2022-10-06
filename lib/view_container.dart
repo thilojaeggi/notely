@@ -1,14 +1,14 @@
 import 'dart:ui';
 
-import 'package:Notely/pages/timetable_page.dart';
+import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../config/Globals.dart' as Globals;
+import 'Globals.dart' as Globals;
 
-import 'config/Globals.dart';
+import 'Globals.dart';
 import 'pages/absences_page.dart';
 import 'pages/grades_page.dart';
 import 'pages/settings_page.dart';

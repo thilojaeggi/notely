@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Event.dart';
-import '../config/Globals.dart' as Globals;
+import '../Globals.dart' as Globals;
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({Key? key}) : super(key: key);
@@ -40,7 +40,6 @@ class _TimetablePageState extends State<TimetablePage> {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
-        print(response.body);
         if (mounted) {
           setState(() {
             _eventList = (json.decode(response.body) as List)

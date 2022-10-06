@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:Notely/config/Globals.dart' as Globals;
-import 'package:Notely/view_container.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
+import 'package:notely/Globals.dart' as Globals;
+import 'package:notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -44,14 +46,26 @@ Future<void> main() async {
     }
   }
   await readSettings();
+  if (Platform.isIOS) {
+    await getiPhoneModel();
+  }
   runApp(const Notely());
 }
 
 Future<void> readSettings() async {
   final prefs = await SharedPreferences.getInstance();
-  Globals.gradeList = await prefs.getString("gradeList") ?? "[]";
   username = await storage.read(key: "username") ?? "";
   password = await storage.read(key: "password") ?? "";
+}
+
+Future<void> getiPhoneModel() async {
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+  if (iosInfo.utsname.machine == 'iPhone15,2' ||
+      iosInfo.utsname.machine == 'iPhone15,3' ||
+      kDebugMode) {
+    Globals.hasDynamicIsland = true;
+  }
 }
 
 Future<bool> isLoggedIn() async {
