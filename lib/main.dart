@@ -54,7 +54,6 @@ Future<void> main() async {
 
 Future<void> readSettings() async {
   final prefs = await SharedPreferences.getInstance();
-  Globals.gradeList = await prefs.getString("gradeList") ?? "[]";
   username = await storage.read(key: "username") ?? "";
   password = await storage.read(key: "password") ?? "";
 }
