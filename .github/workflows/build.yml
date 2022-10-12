@@ -2,8 +2,8 @@ name: Build Android aab
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 jobs:
   build:
