@@ -27,7 +27,7 @@ jobs:
       - name: Create the Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" > release.keystore.asc
-          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch release.keystore.asc > app/upload.keystore
+          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch release.keystore.asc > $RUNNER_TEMP/app/upload.keystore
           
       - name: Get packages          
         run: flutter pub get
@@ -36,7 +36,7 @@ jobs:
         run: flutter build appbundle --release
         
       - name: Sign Android App Bundle
-        run: jarsigner -keystore app/upload.keystore -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEYSTORE_PASSWORD_ALIAS }} -sigalg SHA256withRSA -digestalg SHA-256 -signedjar build/app/outputs/bundle/release/app-release-signed.aab build/app/outputs/bundle/release/*.aab upload
+        run: jarsigner -keystore $RUNNER_TEMP/app/upload.keystore -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEYSTORE_PASSWORD_ALIAS }} -sigalg SHA256withRSA -digestalg SHA-256 -signedjar build/app/outputs/bundle/release/app-release-signed.aab build/app/outputs/bundle/release/*.aab upload
       
       - name: Upload aab to GitHub        
         uses: actions/upload-artifact@v3
