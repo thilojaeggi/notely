@@ -102,15 +102,20 @@ It's currently only compatible with schools within the canton of Solothurn. (KSS
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
 Flutter and Dart need to be installed.
 
 ### Installation
+
+You can download & install Notely from either the App Store, Google Play Store or F-Droid.
+
+[![App Store](https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg)](https://apps.apple.com/ch/app/notely-kaschuso/id1633030820)
+[![Google Play](https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=ch.thilojaeggi.notely)
+[![F-Droid](https://gitlab.com/fdroid/artwork/-/raw/master/badge/get-it-on-en-us.png)](https://f-droid.org/en/packages/ch.thilojaeggi.notely)
+
 
 1. Clone the repo
    ```sh
