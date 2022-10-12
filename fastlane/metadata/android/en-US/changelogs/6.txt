@@ -1,0 +1,4 @@
+* Completely redesigned Start Page
+* New view of upcoming Exams
+* Improve loading times
+* Bugfixes

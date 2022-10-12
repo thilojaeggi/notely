@@ -1,0 +1,10 @@
+<i>Notely</i> is a cross-platform app for the commonly used swiss school platform "Schulnetz" which allows you to see your grades, timetable and absences. It's currently only compatible with schools within the canton of Solothurn. (KSSO, GIBS, KBS, etc..)
+
+<br><b>Features:</b></p>
+
+* Google Material UI
+* Lightweight
+* Fast
+* Cross-platform
+* Allows you to view your upcoming Exams, timetable, grades and absences.
+* Stay signed in

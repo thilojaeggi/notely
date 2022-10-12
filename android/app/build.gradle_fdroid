@@ -53,15 +53,21 @@ android {
 
     signingConfigs {
     }
+    flavorDimensions "deploy"
 
-    buildTypes {
-        release {
+        productFlavors {
+            fdroid {
+                dimension "deploy"
+            }
         }
-        debug {
-            signingConfig signingConfigs.debug
-        }
-    }
 
+        android.applicationVariants.all { variant ->
+            if (variant.flavorName == "fdroid") {
+                variant.outputs.all { output ->
+                    output.outputFileName = "app-fdroid-release.apk"
+                }
+            }
+        }
 
 }
 
