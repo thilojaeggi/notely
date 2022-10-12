@@ -2,7 +2,7 @@ name: notely
 description: A new Flutter project.
 publish_to: 'none'
 
-version: 1.1.0+7
+version: 1.0.8+7
 environment:
   sdk: ">=2.17.5 <3.0.0"
 
@@ -18,7 +18,6 @@ dependencies:
   rename: ^2.0.1
   flutter_secure_storage: ^6.0.0
   page_transition: ^2.0.9
-  flutter_native_splash: ^2.2.4
   day_night_switcher: ^0.2.0+1
   package_info_plus: ^1.4.2
   fl_toast: ^3.1.0

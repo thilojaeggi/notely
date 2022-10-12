@@ -23,7 +23,6 @@ const fetchNotifications = "fetchNotifications";
 String username = "", password = "";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
 

@@ -25,7 +25,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/thilojaeggi/Notely">
-    <img src="https://raw.githubusercontent.com/thilojaeggi/Notely/main/assets/notely.png" alt="Logo" width="128" height="128">
+    <img src="https://raw.githubusercontent.com/thilojaeggi/Notely/main/fastlane/metadata/android/en-US/images/icon.png" alt="Logo" width="128" height="128">
   </a>
 
 <h3 align="center">Notely</h3>
@@ -71,7 +71,11 @@
   </ol>
 </details>
 
+You can download & install Notely from either the App Store, Google Play Store or F-Droid.
 
+<a href="https://apps.apple.com/ch/app/notely-kaschuso/id1633030820"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Logo" width="200"></a>
+<a href="https://play.google.com/store/apps/details?id=ch.thilojaeggi.notely"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Logo" width="200"></a>
+<a href="https://f-droid.org/en/packages/ch.thilojaeggi.notely"><img src="https://gitlab.com/fdroid/artwork/-/raw/master/badge/get-it-on-en-us.png" alt="Logo" width="200"></a>
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
@@ -102,15 +106,16 @@ It's currently only compatible with schools within the canton of Solothurn. (KSS
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
 Flutter and Dart need to be installed.
 
 ### Installation
+
+
+
 
 1. Clone the repo
    ```sh
