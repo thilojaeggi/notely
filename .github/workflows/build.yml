@@ -29,6 +29,9 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" > release.keystore.asc
           gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch release.keystore.asc > $RUNNER_TEMP/app/upload.keystore
           
+      - name: Output Direcotry ls
+        run: ls $RUNNER_TEMP/
+        
       - name: Get packages          
         run: flutter pub get
         
