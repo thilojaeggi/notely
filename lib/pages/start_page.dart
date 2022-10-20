@@ -254,7 +254,7 @@ class _StartPageState extends State<StartPage> {
                                     ),
                                   ),
                                 ),
-                              ), /*
+                              ), 
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
@@ -287,7 +287,7 @@ class _StartPageState extends State<StartPage> {
                                         ]),
                                   ),
                                 ),
-                              ),*/
+                              ),
                             ],
                           ),
                         ),
