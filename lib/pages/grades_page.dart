@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -51,50 +52,43 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
-  Future<void> getGrades() async {
+  Future<List<Grade>> getGradesFromAPI() async {
+    var cacheManager =
+        new CacheManager(Config("notely", stalePeriod: Duration(days: 7)));
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
     String url =
         Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
-    if (Globals.debug) {
-      url = "https://api.mocki.io/v2/e3516d96/grades";
-    }
-    try {
-      await http.get(Uri.parse(url), headers: {
+    var response = await cacheManager.getSingleFile(
+      url,
+      headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
-      }).then((response) {
-        _gradeList = (json.decode(response.body) as List)
-            .map((i) => Grade.fromJson(i))
-            .toList();
-      });
-    } catch (e) {
-      print(e.toString());
-    }
-    if (mounted) {
-      setState(() {
-        _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
-        for (var i = 0; i < _groupedCoursesMap.length; i++) {
-          double combinedGrade = 0;
-          double combinedWeight = 0;
-          for (var grade in _groupedCoursesMap.values.elementAt(i)) {
-            combinedGrade = combinedGrade + (grade.mark * grade.weight);
-            combinedWeight += grade.weight;
-          }
+      },
+    );
+    String jsonString = await response.readAsString();
+    var gradeList = (json.decode(jsonString) as List)
+        .map((i) => Grade.fromJson(i))
+        .toList();
 
-          _averageGradeMap.addAll({
-            _groupedCoursesMap.keys.elementAt(i):
-                (combinedGrade / combinedWeight).toStringAsFixed(3)
-          });
-        }
+    var groupedCoursesMap = gradeList.groupBy((m) => m.subject);
+    for (var i = 0; i < groupedCoursesMap.length; i++) {
+      double combinedGrade = 0;
+      double combinedWeight = 0;
+      for (var grade in groupedCoursesMap.values.elementAt(i)) {
+        combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
+        combinedWeight += grade.weight!;
+      }
+      _averageGradeMap.addAll({
+        groupedCoursesMap.keys.elementAt(i):
+            (combinedGrade / combinedWeight).toStringAsFixed(3)
       });
     }
-    prefs.setString("gradeList", json.encode(_gradeList));
+    return gradeList;
   }
 
   @override
   initState() {
     super.initState();
-    getGrades();
   }
 
   Widget _buildGradeCard(BuildContext context, int index) {
@@ -378,15 +372,23 @@ class _GradesPageState extends State<GradesPage> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-              controller: _scrollController,
-              shrinkWrap: true,
-              itemCount: _groupedCoursesMap.length,
-              itemBuilder: (BuildContext ctxt, int index) {
-                return _buildGradeCard(
-                  ctxt,
-                  index,
-                );
+          child: FutureBuilder(
+              future: getGradesFromAPI(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return ListView.builder(
+                      controller: _scrollController,
+                      shrinkWrap: true,
+                      itemCount: _groupedCoursesMap.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return _buildGradeCard(
+                          ctxt,
+                          index,
+                        );
+                      });
+                } else {
+                  return CircularProgressIndicator();
+                }
               }),
         ),
       ],
