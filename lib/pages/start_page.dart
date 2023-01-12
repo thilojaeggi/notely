@@ -254,7 +254,7 @@ class _StartPageState extends State<StartPage> {
                                     ),
                                   ),
                                 ),
-                              ), 
+                              ),
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(6.0),
@@ -265,26 +265,27 @@ class _StartPageState extends State<StartPage> {
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(18.0))),
                                     child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Spacer(),
-                                          Text(""),
-                                          Spacer(),
-                                          Text(
-                                            "4",
-                                            style: TextStyle(fontSize: 80.0),
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Spacer(),
+                                        Text(""),
+                                        Spacer(),
+                                        Text(
+                                          "4",
+                                          style: TextStyle(fontSize: 80.0),
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          "Hausaufgaben",
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                          Spacer(),
-                                          Text(
-                                            "Hausaufgaben",
-                                            style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          Spacer(),
-                                        ]),
+                                        ),
+                                        Spacer(),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

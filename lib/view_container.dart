@@ -92,8 +92,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
             .substring(trimmedString.indexOf("#") + 1)
             .replaceAll("access_token=", "");
         Globals.accessToken = trimmedString;
-        print(accessToken);
-      } else {}
+      }
     });
   }
 
@@ -158,6 +157,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
               itemCount: _pages.length,
               onPageChanged: (index) {
                 changeDestination(index);
+                _selectedIndex = index;
               },
               itemBuilder: (BuildContext context, int index) {
                 return _pages[index];
