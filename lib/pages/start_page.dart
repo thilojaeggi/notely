@@ -93,8 +93,12 @@ class _StartPageState extends State<StartPage> {
       }).then((response) {
         if (mounted) {
           setState(() {
-            Globals.globalGradeList = (json.decode(response.body) as List)
-                .map((i) => Grade.fromJson(i))
+            // Deecode the JSON to globalGradeList and only show 7 grades at the max and show the latest first
+            Globals.globalGradeList = jsonDecode(response.body)
+                .map<Grade>((json) => Grade.fromJson(json))
+                .toList()
+                .reversed
+                .take(7)
                 .toList();
           });
         }
