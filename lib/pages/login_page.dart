@@ -134,30 +134,28 @@ class _LoginPageState extends State<LoginPage> {
         storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
         Globals.accessToken = trimmedString;
-        Globals.hasDynamicIsland
-            ? await showIslandToast(true, "", 1000)
-            : showToast(
-                alignment: Alignment.bottomCenter,
-                duration: Duration(seconds: 1),
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 32.0),
-                  decoration: BoxDecoration(
-                    color: Colors.greenAccent,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(12.0),
-                    ),
-                  ),
-                  padding: EdgeInsets.all(6.0),
-                  child: Text(
-                    "Erfolgreich angemeldet",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-                context: context,
-              );
+        showToast(
+          alignment: Alignment.bottomCenter,
+          duration: Duration(seconds: 1),
+          child: Container(
+            margin: EdgeInsets.only(bottom: 32.0),
+            decoration: BoxDecoration(
+              color: Colors.greenAccent,
+              borderRadius: BorderRadius.all(
+                Radius.circular(12.0),
+              ),
+            ),
+            padding: EdgeInsets.all(6.0),
+            child: Text(
+              "Erfolgreich angemeldet",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+              ),
+            ),
+          ),
+          context: context,
+        );
         Navigator.pushReplacement(
           context,
           PageTransition(
@@ -178,29 +176,27 @@ class _LoginPageState extends State<LoginPage> {
                     "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F" +
                         dropdownValue.toLowerCase())));
       } else {
-        Globals.hasDynamicIsland
-            ? await showIslandToast(false, "", 1000)
-            : showToast(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 32.0),
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(12.0),
-                    ),
-                  ),
-                  padding: EdgeInsets.all(6.0),
-                  child: Text(
-                    "Etwas ist schiefgelaufen",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-                context: context,
-              );
+        showToast(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            margin: EdgeInsets.only(bottom: 32.0),
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.all(
+                Radius.circular(12.0),
+              ),
+            ),
+            padding: EdgeInsets.all(6.0),
+            child: Text(
+              "Etwas ist schiefgelaufen",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+              ),
+            ),
+          ),
+          context: context,
+        );
         setState(() {
           _loginHasBeenPressed = false;
         });
@@ -394,13 +390,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-        (Globals.hasDynamicIsland)
-            ? DynamicToastOverlay(
-                isVisible: toastIslandVisible,
-                isSuccess: toastSuccess,
-                toastMessage: toastMessage,
-              )
-            : SizedBox.shrink(),
+        SizedBox.shrink(),
       ],
     );
   }
