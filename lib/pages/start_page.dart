@@ -37,6 +37,7 @@ class _StartPageState extends State<StartPage> {
         Uri.parse(url),
         headers: {'Authorization': 'Bearer ${Globals.accessToken}'},
       );
+      print(response.body);
 
       if (response.statusCode == 200) {
         final student = Student.fromJson(jsonDecode(response.body));
@@ -56,9 +57,7 @@ class _StartPageState extends State<StartPage> {
     String school = await prefs.getString("school") ?? "ksso";
     String url =
         Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
-    if (Globals.debug) {
-      url = "https://api.mocki.io/v2/e3516d96/grades";
-    }
+
     try {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
