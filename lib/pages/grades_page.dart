@@ -19,9 +19,6 @@ class GradesPage extends StatefulWidget {
 }
 
 class _GradesPageState extends State<GradesPage> {
-  List<Grade> _gradeList = List.empty(growable: true);
-  Map _groupedCoursesMap = Map();
-  Map _averageGradeMap = Map();
   Color goodEnough = Colors.orange;
   Color good = Colors.blueAccent;
   Color bad = Colors.redAccent;
@@ -51,53 +48,55 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
-  Future<void> getGrades() async {
+  Future<Map<String, dynamic>> getGrades() async {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
     String url =
         Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
-    if (Globals.debug) {
-      url = "https://api.mocki.io/v2/e3516d96/grades";
-    }
+    debugPrint(url);
+    debugPrint(Globals.accessToken);
     try {
-      await http.get(Uri.parse(url), headers: {
+      final response = await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
-      }).then((response) {
-        _gradeList = (json.decode(response.body) as List)
-            .map((i) => Grade.fromJson(i))
-            .toList();
       });
+      final gradeList = (json.decode(response.body) as List)
+          .map((i) => Grade.fromJson(i))
+          .toList();
+      prefs.setString("gradeList", json.encode(gradeList));
+      final groupedCoursesMap = gradeList.groupBy((m) => m.subject);
+      final averageGradeMap = {};
+      for (var i = 0; i < groupedCoursesMap.length; i++) {
+        double combinedGrade = 0;
+        double combinedWeight = 0;
+        for (var grade in groupedCoursesMap.values.elementAt(i)) {
+          combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
+          combinedWeight += grade.weight!;
+        }
+        averageGradeMap.addAll({
+          groupedCoursesMap.keys.elementAt(i):
+              (combinedGrade / combinedWeight).toStringAsFixed(3)
+        });
+      }
+      return {
+        'groupedCoursesMap': groupedCoursesMap,
+        'averageGradeMap': averageGradeMap,
+      };
     } catch (e) {
       print(e.toString());
+      return {
+        'groupedCoursesMap': {},
+        'averageGradeMap': {},
+      };
     }
-    if (mounted) {
-      setState(() {
-        _groupedCoursesMap = _gradeList.groupBy((m) => m.subject);
-        for (var i = 0; i < _groupedCoursesMap.length; i++) {
-          double combinedGrade = 0;
-          double combinedWeight = 0;
-          for (var grade in _groupedCoursesMap.values.elementAt(i)) {
-            combinedGrade = combinedGrade + (grade.mark * grade.weight);
-            combinedWeight += grade.weight;
-          }
-
-          _averageGradeMap.addAll({
-            _groupedCoursesMap.keys.elementAt(i):
-                (combinedGrade / combinedWeight).toStringAsFixed(3)
-          });
-        }
-      });
-    }
-    prefs.setString("gradeList", json.encode(_gradeList));
   }
 
   @override
   initState() {
     super.initState();
-    getGrades();
   }
 
-  Widget _buildGradeCard(BuildContext context, int index) {
+  Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,
+      Map averageGradeMap) {
     final GlobalKey expansionTileKey = GlobalKey();
 
     return Card(
@@ -120,7 +119,7 @@ class _GradesPageState extends State<GradesPage> {
           title: Padding(
             padding: const EdgeInsets.all(5),
             child: Text(
-              _groupedCoursesMap.keys.elementAt(index),
+              groupedCoursesMap.keys.elementAt(index),
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
@@ -128,7 +127,7 @@ class _GradesPageState extends State<GradesPage> {
             ),
           ),
           trailing: Text(
-            "Ø " + _averageGradeMap.values.elementAt(index),
+            "Ø " + averageGradeMap.values.elementAt(index),
             style: const TextStyle(fontSize: 20),
           ),
           children: [
@@ -140,22 +139,15 @@ class _GradesPageState extends State<GradesPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      /* Padding(
-                        padding: const EdgeInsets.only(left: 7.0),
-                        child: Text(
-                          "Note benötigt für Ø $targetGrade: ",
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                      ),*/
                       for (var i = 0;
-                          i < _groupedCoursesMap.values.elementAt(index).length;
+                          i < groupedCoursesMap.values.elementAt(index).length;
                           i++)
                         Card(
                           elevation: 3,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(7),
                           ),
-                          shadowColor: gradeColor(_groupedCoursesMap.values
+                          shadowColor: gradeColor(groupedCoursesMap.values
                               .elementAt(index)[i]
                               .mark
                               .toDouble()),
@@ -173,7 +165,7 @@ class _GradesPageState extends State<GradesPage> {
                                         fit: BoxFit.scaleDown,
                                         alignment: Alignment.topLeft,
                                         child: Text(
-                                          _groupedCoursesMap.values
+                                          groupedCoursesMap.values
                                               .elementAt(index)[i]
                                               .title,
                                           style: const TextStyle(
@@ -186,12 +178,12 @@ class _GradesPageState extends State<GradesPage> {
                                       width: 10,
                                     ),
                                     Text(
-                                      _groupedCoursesMap.values
+                                      groupedCoursesMap.values
                                           .elementAt(index)[i]
                                           .mark
                                           .toString(),
                                       style: TextStyle(
-                                          color: gradeColor(_groupedCoursesMap
+                                          color: gradeColor(groupedCoursesMap
                                               .values
                                               .elementAt(index)[i]
                                               .mark
@@ -206,12 +198,12 @@ class _GradesPageState extends State<GradesPage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      "Gewichtung: ${_groupedCoursesMap.values.elementAt(index)[i].weight}",
+                                      "Gewichtung: ${groupedCoursesMap.values.elementAt(index)[i].weight}",
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                     Text(
                                       DateFormat("dd.MM.yyyy").format(
-                                          DateTime.parse(_groupedCoursesMap
+                                          DateTime.parse(groupedCoursesMap
                                               .values
                                               .elementAt(index)[i]
                                               .date)),
@@ -294,7 +286,7 @@ class _GradesPageState extends State<GradesPage> {
                                     ),
                                   ),
                                   gradient: LinearGradient(
-                                      colors: (_groupedCoursesMap.values
+                                      colors: (groupedCoursesMap.values
                                                   .elementAt(index)
                                                   .toList()
                                                   .length >
@@ -302,13 +294,12 @@ class _GradesPageState extends State<GradesPage> {
                                           ? [
                                               for (var i = 0;
                                                   i <
-                                                      _groupedCoursesMap.values
+                                                      groupedCoursesMap.values
                                                           .elementAt(index)
                                                           .length;
                                                   i++)
                                                 gradeColor(List.from(
-                                                        _groupedCoursesMap
-                                                            .values
+                                                        groupedCoursesMap.values
                                                             .elementAt(index))
                                                     .reversed
                                                     .toList()[i]
@@ -317,14 +308,14 @@ class _GradesPageState extends State<GradesPage> {
                                             ]
                                           : [
                                               gradeColor(List.from(
-                                                      _groupedCoursesMap.values
+                                                      groupedCoursesMap.values
                                                           .elementAt(index))
                                                   .reversed
                                                   .toList()[0]
                                                   .mark!
                                                   .toDouble()),
                                               gradeColor(List.from(
-                                                      _groupedCoursesMap.values
+                                                      groupedCoursesMap.values
                                                           .elementAt(index))
                                                   .reversed
                                                   .toList()[0]
@@ -334,13 +325,13 @@ class _GradesPageState extends State<GradesPage> {
                                   spots: [
                                     for (var i = 0;
                                         i <
-                                            _groupedCoursesMap.values
+                                            groupedCoursesMap.values
                                                 .elementAt(index)
                                                 .length;
                                         i++)
                                       FlSpot(
                                         i.toDouble(),
-                                        List.from(_groupedCoursesMap.values
+                                        List.from(groupedCoursesMap.values
                                                 .elementAt(index))
                                             .reversed
                                             .toList()[i]
@@ -378,15 +369,35 @@ class _GradesPageState extends State<GradesPage> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-              controller: _scrollController,
-              shrinkWrap: true,
-              itemCount: _groupedCoursesMap.length,
-              itemBuilder: (BuildContext ctxt, int index) {
-                return _buildGradeCard(
-                  ctxt,
-                  index,
-                );
+          child: FutureBuilder<Map<String, dynamic>>(
+              future: getGrades(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                } else {
+                  final groupedCoursesMap =
+                      snapshot.data?['groupedCoursesMap'] ?? {};
+                  final averageGradeMap =
+                      snapshot.data?['averageGradeMap'] ?? {};
+                  return ListView.builder(
+                      controller: _scrollController,
+                      shrinkWrap: true,
+                      itemCount: groupedCoursesMap.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        return _buildGradeCard(
+                          ctxt,
+                          index,
+                          groupedCoursesMap,
+                          averageGradeMap,
+                        );
+                      });
+                }
               }),
         ),
       ],
