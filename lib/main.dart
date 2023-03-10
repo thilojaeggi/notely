@@ -23,80 +23,49 @@ const fetchNotifications = "fetchNotifications";
 String username = "", password = "";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isAndroid) {
-    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
-
-    var swAvailable = await AndroidWebViewFeature.isFeatureSupported(
-        AndroidWebViewFeature.SERVICE_WORKER_BASIC_USAGE);
-    var swInterceptAvailable = await AndroidWebViewFeature.isFeatureSupported(
-        AndroidWebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
-
-    if (swAvailable && swInterceptAvailable) {
-      AndroidServiceWorkerController serviceWorkerController =
-          AndroidServiceWorkerController.instance();
-
-      await serviceWorkerController
-          .setServiceWorkerClient(AndroidServiceWorkerClient(
-        shouldInterceptRequest: (request) async {
-          print(request);
-          return null;
-        },
-      ));
-    }
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
-  await readSettings();
-  if (Platform.isIOS) {
-    await getiPhoneModel();
-  }
+
   runApp(const Notely());
 }
 
-Future<void> readSettings() async {
+Future<bool> login() async {
   final prefs = await SharedPreferences.getInstance();
-  username = await storage.read(key: "username") ?? "";
-  password = await storage.read(key: "password") ?? "";
-}
+  final school = prefs.getString("school")?.toLowerCase() ?? '';
+  final username = await storage.read(key: "username") ?? "";
+  final password = await storage.read(key: "password") ?? "";
 
-Future<void> getiPhoneModel() async {
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-  if (iosInfo.utsname.machine == 'iPhone15,2' ||
-      iosInfo.utsname.machine == 'iPhone15,3' ||
-      kDebugMode) {
-    Globals.hasDynamicIsland = true;
+  if (username.isEmpty || password.isEmpty || school.isEmpty) {
+    return false;
   }
-}
 
-Future<bool> isLoggedIn() async {
-  final prefs = await SharedPreferences.getInstance();
-  String school = await prefs.getString("school") ?? "".toLowerCase();
+  final url = '${Globals.apiBase}$school/authorize.php';
+  final response = await http.post(Uri.parse(url), body: {
+    'login': username,
+    'passwort': password,
+    'response_type': 'token',
+    'client_id': 'cj79FSz1JQvZKpJY',
+    'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
+  });
 
-  bool isLoggedIn = false;
-  if (username != "" && password != "" && school != "") {
-    String url = Globals.apiBase +
-        school.toLowerCase() +
-        "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl";
-    print(url);
-    await http.post(Uri.parse(url), body: {
-      "login": username,
-      "passwort": password,
-    }).then((response) async {
-      print(response.statusCode);
-      if (response.statusCode == 302 && response.headers['location'] != null) {
-        String locationHeader = response.headers['location'].toString();
-        var trimmedString =
-            locationHeader.substring(0, locationHeader.indexOf('&'));
-        trimmedString = trimmedString
-            .substring(trimmedString.indexOf("#") + 1)
-            .replaceAll("access_token=", "");
-        Globals.accessToken = trimmedString;
-        isLoggedIn = true;
-      } else {
-        isLoggedIn = false;
-      }
-    });
+  if (response.statusCode == 302 && response.headers['location'] != null) {
+    final locationHeader = response.headers['location'].toString();
+    final trimmedString = locationHeader
+        .substring(locationHeader.indexOf('#') + 1)
+        .split('&')
+        .firstWhere(
+          (element) => element.startsWith('access_token='),
+          orElse: () => '',
+        )
+        .replaceAll('access_token=', '');
+
+    Globals.accessToken = trimmedString;
+    Globals.school = school;
+    return true;
+  } else {
+    return false;
   }
-  return isLoggedIn;
 }
 
 class Notely extends StatefulWidget {
@@ -162,7 +131,7 @@ class _NotelyState extends State<Notely> {
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
             home: FutureBuilder<bool>(
-                future: isLoggedIn(),
+                future: login(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return snapshot.data ?? false

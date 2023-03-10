@@ -3,10 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../Globals.dart' as Globals;
+import '../Models/Exam.dart';
 
 class ExamsPage extends StatefulWidget {
-  const ExamsPage({Key? key}) : super(key: key);
-
+  const ExamsPage({Key? key, required this.examList}) : super(key: key);
+  final List<Exam> examList;
   @override
   State<ExamsPage> createState() => _ExamsPageState();
 }
@@ -56,7 +57,7 @@ class _ExamsPageState extends State<ExamsPage> {
           Expanded(
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: Globals.globalExamsList.length,
+              itemCount: widget.examList.length,
               itemBuilder: (BuildContext ctxt, int index) {
                 return Card(
                   elevation: 3,
@@ -78,7 +79,7 @@ class _ExamsPageState extends State<ExamsPage> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  Globals.globalExamsList[index].text
+                                  widget.examList[index].text
                                       .toString(),
                                   style: const TextStyle(
                                       fontSize: 18,
@@ -91,7 +92,7 @@ class _ExamsPageState extends State<ExamsPage> {
                             ),
                             Text(
                               DateFormat("dd.MM.yyyy").format(DateTime.parse(
-                                  Globals.globalExamsList[index].startDate
+                                  widget.examList[index].startDate
                                       .toString())),
                               style: const TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w500),
@@ -105,7 +106,7 @@ class _ExamsPageState extends State<ExamsPage> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  Globals.globalExamsList[index].courseName
+                                  widget.examList[index].courseName
                                       .toString(),
                                   style: const TextStyle(
                                       fontSize: 14,

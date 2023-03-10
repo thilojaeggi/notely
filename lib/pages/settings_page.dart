@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mailto/mailto.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../Globals.dart' as Globals;
 import 'login_page.dart';
 
@@ -119,115 +121,49 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            (kDebugMode)
-                ? Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-                      child: Row(
-                        children: [
-                          const Text(
-                            "Demo Data",
-                            style: TextStyle(
-                              fontSize: 23,
-                            ),
-                          ),
-                          const Spacer(),
-                          Switch(
-                            activeColor: CupertinoColors.systemBlue,
-                            value: Globals.debug,
-                            onChanged: (value) {
-                              setState(() {
-                                Globals.debug = value;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-
-            /*Card(
-              elevation: 3,
-              margin: const EdgeInsets.only(bottom: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 0.0, bottom: 6.0, top: 6.0),
-                child: ListTile(
-                  leading: Text(
-                    "Zielnote",
-                    style: TextStyle(
-                      fontSize: 23,
-                    ),
-                  ),
-                  trailing: SizedBox(
-                    width: 40,
-                    child: TextField(
-                      maxLines: 1,
-                      controller: targetGradeController,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.all(8.0),
-                        enabledBorder: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(5),
-                          ),
-                          borderSide: BorderSide(color: Colors.grey, width: 1),
-                        ),
-                        focusedBorder: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(5),
-                          ),
-                          borderSide:
-                              BorderSide(color: Colors.grey, width: 1.5),
+            GestureDetector(
+              onTap: () {
+                final Uri emailLaunchUri = Uri(
+                  scheme: 'mailto',
+                  path: 'thilo.jaeggi@ksso.ch',
+                  query:
+                    'subject=Notely Problem ' + Globals.school
+                    + '&body=Dein Problem: '
+                  
+                );
+                launchUrl(emailLaunchUri);
+              },
+              child: Card(
+                elevation: 3,
+                margin: const EdgeInsets.only(bottom: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Text(
+                        "Support",
+                        style: TextStyle(
+                          fontSize: 23,
                         ),
                       ),
-                      keyboardType: Platform.isIOS
-                          ? TextInputType.numberWithOptions(
-                              signed: true, decimal: true)
-                          : TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                        TextInputFormatter.withFunction((oldValue, newValue) {
-                          final TextSelection newSelection = newValue.selection;
-                          String truncated = newValue.text;
-                          final double? value = double.tryParse(newValue.text);
-                          if (value == null) {
-                            return TextEditingValue(
-                              text: truncated,
-                              selection: newSelection,
-                            );
-                          }
-                          if (value > maxInputValue || value == 0) {
-                            truncated = "6";
-                          }
-                          setTargetGrade(double.parse(truncated));
-
-                          return TextEditingValue(
-                              text: truncated, selection: newSelection);
-                        }),
-                      ],
-                    ),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(Icons.mail),
+                      )
+                    ],
                   ),
                 ),
               ),
-            ),*/
+            ),
             GestureDetector(
               onTap: () async {
                 const storage = FlutterSecureStorage();
                 final prefs = await SharedPreferences.getInstance();
-
                 await prefs.clear();
                 await storage.deleteAll();
                 Navigator.pushReplacement(
@@ -289,8 +225,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(bottom: 5),
-                    child: const Text(
-                      "2022 © Thilo Jaeggi",
+                    child: Text(
+                      "${DateTime.now().year.toString()} © Thilo Jaeggi",
                       style: TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
                     ),
                   ),
