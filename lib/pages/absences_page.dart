@@ -96,7 +96,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                 ? Colors.blue
                                 : Colors.red,
                         child: Container(
-                          padding: EdgeInsets.all(10.0),
+                            padding: EdgeInsets.only(left:7.0,right:7.0, top: 2.0, bottom: 2.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
