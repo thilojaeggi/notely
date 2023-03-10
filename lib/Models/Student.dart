@@ -4,9 +4,9 @@
 
 import 'dart:convert';
 
-Student StudentFromJson(String str) => Student.fromJson(json.decode(str));
+Student StudentFromJson(String? str) => Student.fromJson(json.decode(str!));
 
-String StudentToJson(Student data) => json.encode(data.toJson());
+String? StudentToJson(Student data) => json.encode(data.toJson());
 
 class Student {
   Student({
@@ -93,46 +93,46 @@ class Student {
     this.invoiceMail,
   });
 
-  String id;
-  String idNr;
+  String? id;
+  String? idNr;
   dynamic externalKey;
   dynamic registerNr;
-  String lastName;
-  String firstName;
+  String? lastName;
+  String? firstName;
   dynamic fullFirstName;
   dynamic letterSalutation;
   bool loginActive;
   bool loginAd;
   dynamic username;
   dynamic initialPassword;
-  String gender;
+  String? gender;
   DateTime birthday;
-  String street;
+  String? street;
   dynamic addressLine2;
   dynamic postOfficeBox;
   dynamic canton;
   dynamic country;
-  String zip;
-  String city;
+  String? zip;
+  String? city;
   dynamic schoolMunicipality;
   dynamic residencePermit;
   dynamic studentCategory;
-  String nationality;
+  String? nationality;
   dynamic nationality2;
-  String hometown;
+  String? hometown;
   dynamic hometown2;
   dynamic nativeLanguage;
   dynamic nativeLanguage2;
   dynamic residence;
   dynamic socialSecurityNumber;
-  String phone;
-  String mobile;
+  String? phone;
+  String? mobile;
   dynamic phoneOffice;
-  String email;
-  String emailPrivate;
+  String? email;
+  String? emailPrivate;
   dynamic confession;
   dynamic remark;
-  String profil1;
+  String? profil1;
   dynamic profil2;
   DateTime entryDate;
   dynamic exitDate;
@@ -357,9 +357,9 @@ class RegularClass {
     required this.semester,
   });
 
-  String id;
-  String token;
-  String semester;
+  String? id;
+  String? token;
+  String? semester;
 
   factory RegularClass.fromJson(Map<String, dynamic> json) => RegularClass(
         id: json["id"],
