@@ -27,11 +27,13 @@ class _StartPageState extends State<StartPage> {
   final Random random = Random();
   List<Exam> _examList = <Exam>[];
 
-   Future<Student?> getMe() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<Student?> getMe() async {
     print(Globals.accessToken);
-    // Use string interpolation
-    final url = "${Globals.apiBase}${Globals.school}/rest/v1/me";
+    final prefs = await SharedPreferences.getInstance();
+
+   String school = await prefs.getString("school") ?? "ksso";
+
+    final url = "${Globals.apiBase}${school.toLowerCase()}/rest/v1/me";
 
     try {
       final response = await http.get(
@@ -40,12 +42,8 @@ class _StartPageState extends State<StartPage> {
       );
       print(response.body);
 
-      if (response.statusCode == 200) {
-        final student = Student.fromJson(jsonDecode(response.body));
-        return student;
-      } else {
-        print('Error getting student: ${response.statusCode}');
-      }
+      final student = Student.fromJson(jsonDecode(response.body));
+      return student;
     } catch (e) {
       print('Error getting student: $e');
     }
@@ -173,7 +171,8 @@ class _StartPageState extends State<StartPage> {
                                         context: context,
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
-                                        builder: (context) => ExamsPage(examList: _examList));
+                                        builder: (context) =>
+                                            ExamsPage(examList: _examList));
                                   },
                                   customBorder: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(18.0),
@@ -246,7 +245,7 @@ class _StartPageState extends State<StartPage> {
                                   ),
                                 ),
                               ),
-                            ),/*
+                            ), /*
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.all(6.0),
