@@ -48,23 +48,23 @@ flutter_icons:
 flutter:
   uses-material-design: true
   fonts:
-    - family: WorkSans
+    - family: Poppins
       fonts:
-        - asset: fonts/WorkSans-Thin.ttf
+        - asset: fonts/Poppins-Thin.ttf
           weight: 100
-        - asset: fonts/WorkSans-ExtraLight.ttf
+        - asset: fonts/Poppins-ExtraLight.ttf
           weight: 200
-        - asset: fonts/WorkSans-Light.ttf
+        - asset: fonts/Poppins-Light.ttf
           weight: 300
-        - asset: fonts/WorkSans-Regular.ttf
+        - asset: fonts/Poppins-Regular.ttf
           weight: 400
-        - asset: fonts/WorkSans-Medium.ttf
+        - asset: fonts/Poppins-Medium.ttf
           weight: 500
-        - asset: fonts/WorkSans-SemiBold.ttf
+        - asset: fonts/Poppins-SemiBold.ttf
           weight: 600
-        - asset: fonts/WorkSans-Bold.ttf
+        - asset: fonts/Poppins-Bold.ttf
           weight: 700
-        - asset: fonts/WorkSans-ExtraBold.ttf
+        - asset: fonts/Poppins-ExtraBold.ttf
           weight: 800
-        - asset: fonts/WorkSans-Black.ttf
+        - asset: fonts/Poppins-Black.ttf
           weight: 900
