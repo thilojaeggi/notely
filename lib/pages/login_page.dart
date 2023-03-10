@@ -134,6 +134,7 @@ class _LoginPageState extends State<LoginPage> {
         storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
         Globals.accessToken = trimmedString;
+        Globals.school = dropdownValue.toLowerCase();
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),
