@@ -98,7 +98,6 @@ class _GradesPageState extends State<GradesPage> {
   Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,
       Map averageGradeMap) {
     final GlobalKey expansionTileKey = GlobalKey();
-
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 10, left: 10.0, right: 10.0),
@@ -121,14 +120,14 @@ class _GradesPageState extends State<GradesPage> {
             child: Text(
               groupedCoursesMap.keys.elementAt(index),
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
           trailing: Text(
             "Ø " + averageGradeMap.values.elementAt(index),
-            style: const TextStyle(fontSize: 20),
+            style: const TextStyle(fontSize: 22),
           ),
           children: [
             Padding(
