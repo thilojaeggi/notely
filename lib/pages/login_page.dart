@@ -286,6 +286,7 @@ class _LoginPageState extends State<LoginPage> {
                               'GIBS Grenchen': 'GIBSGR',
                               'GIBS Olten': 'GIBSOL',
                               'Kanti Olten': 'KSOL',
+                              'KBS Olten': 'KBSOL',
                             }
                                 .map((description, value) {
                                   return MapEntry(
