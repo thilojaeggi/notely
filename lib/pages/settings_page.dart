@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mailto/mailto.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../Globals.dart' as Globals;
 import 'login_page.dart';
 
@@ -120,6 +122,45 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             GestureDetector(
+              onTap: () {
+                final Uri emailLaunchUri = Uri(
+                  scheme: 'mailto',
+                  path: 'thilo.jaeggi@ksso.ch',
+                  queryParameters: {
+                    'subject': 'Notely Problem ' + Globals.school,
+                    'body': 'Dein Problem: '
+                  },
+                );
+                launchUrl(emailLaunchUri);
+              },
+              child: Card(
+                elevation: 3,
+                margin: const EdgeInsets.only(bottom: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Text(
+                        "Support",
+                        style: TextStyle(
+                          fontSize: 23,
+                        ),
+                      ),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(Icons.mail),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
               onTap: () async {
                 const storage = FlutterSecureStorage();
                 final prefs = await SharedPreferences.getInstance();
@@ -185,7 +226,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(bottom: 5),
-                    child:  Text(
+                    child: Text(
                       "${DateTime.now().year.toString()} © Thilo Jaeggi",
                       style: TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
                     ),
