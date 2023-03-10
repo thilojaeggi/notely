@@ -28,8 +28,6 @@ class _StartPageState extends State<StartPage> {
   List<Exam> _examList = <Exam>[];
 
   Future<Student?> getMe() async {
-
-
     final url = "${Globals.apiBase}${Globals.school.toLowerCase()}/rest/v1/me";
 
     try {
@@ -285,7 +283,7 @@ class _StartPageState extends State<StartPage> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(18.0),
                             child: Container(
-                              height: 290,
+                              height: 300,
                               decoration: BoxDecoration(
                                 color: Color.fromARGB(255, 49, 83, 248),
                                 borderRadius: BorderRadius.circular(18.0),
@@ -327,9 +325,10 @@ class _StartPageState extends State<StartPage> {
                                             itemBuilder: (BuildContext context,
                                                 int index) {
                                               return Container(
-                                                margin: (index == 99)
+                                                margin: (index ==
+                                                        gradeList.length - 1)
                                                     ? EdgeInsets.only(
-                                                        bottom: 9.0)
+                                                        bottom: 11.0)
                                                     : (index == 0)
                                                         ? EdgeInsets.only(
                                                             top: 8.0,
