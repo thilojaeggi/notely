@@ -185,8 +185,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(bottom: 5),
-                    child: const Text(
-                      "2022 © Thilo Jaeggi",
+                    child:  Text(
+                      "${DateTime.now().year.toString()} © Thilo Jaeggi",
                       style: TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
                     ),
                   ),
