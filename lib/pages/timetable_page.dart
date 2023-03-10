@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:date_picker_timeline/date_picker_widget.dart';
 import 'package:fl_toast/fl_toast.dart';
@@ -20,12 +21,33 @@ class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
   DateTime today = DateTime.now();
   List<Event> _eventList = List.empty(growable: true);
+  List<double> itemPositions = [];
+
+// Define start and end of the day as DateTime objects
+  final startOfDay = DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day, 0, 0);
+  final endOfDay = DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day, 23, 59);
+
+  // Define variables to calculate the position of the line
+  final now = DateTime.now();
+  late double currentTime;
 
   @override
   initState() {
     super.initState();
     getData();
+    final totalDuration = endOfDay.difference(startOfDay).inMinutes;
+    currentTime = now.difference(startOfDay).inMinutes / totalDuration;
   }
+
+double calculateItemHeight(DateTime startTime, DateTime endTime,
+    DateTime minStartTime, DateTime maxEndTime, double minHeight) {
+  final itemDuration = endTime.difference(startTime).inMinutes;
+  final dayDuration = maxEndTime.difference(minStartTime).inMinutes;
+  final itemHeight = itemDuration / dayDuration;
+  return max(itemHeight * minHeight, minHeight);
+}
 
   void getData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -89,6 +111,7 @@ class _TimetablePageState extends State<TimetablePage> {
         ),
         DatePicker(
           DateTime.now(),
+          height: 90,
           initialSelectedDate: today,
           selectionColor: Globals.isDark
               ? Color.fromARGB(255, 46, 46, 46)
@@ -107,113 +130,142 @@ class _TimetablePageState extends State<TimetablePage> {
         ),
         Expanded(
           child: (_eventList.length != 0)
-              ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _eventList.length,
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    Event event = _eventList[index];
-                    return Card(
-                      elevation: 3,
-                      margin: const EdgeInsets.only(
-                          top: 5, bottom: 5, left: 10.0, right: 10.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () {
-                          if (Globals.debug) {
-                            showToast(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                margin: EdgeInsets.only(bottom: 32.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.greenAccent,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(12.0),
-                                  ),
-                                ),
-                                padding: EdgeInsets.all(6.0),
-                                child: Text(
-                                  "Tapped",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
+              ? Stack(
+                  children: [
+                    ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _eventList.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          Event event = _eventList[index];
+                          return LayoutBuilder(builder: (BuildContext context,
+                              BoxConstraints constraints) {
+                                
+                            return Card(
+                              elevation: 3,
+                              margin: const EdgeInsets.only(
+                                  top: 5, bottom: 5, left: 10.0, right: 10.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              context: context,
-                            );
-                          }
-                        },
-                        child: Container(
-                            padding: EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        event.courseName.toString(),
-                                        textAlign: TextAlign.start,
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                      Text(
-                                        event.teachers!.first.toString(),
-                                        textAlign: TextAlign.start,
-                                        style: const TextStyle(
-                                          fontSize: 18,
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onTap: () {
+                                  if (Globals.debug) {
+                                    showToast(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        margin: EdgeInsets.only(bottom: 32.0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.greenAccent,
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(12.0),
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.all(6.0),
+                                        child: Text(
+                                          "Tapped",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0,
+                                          ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  event.roomToken.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      event.startDate!.substring(
-                                          event.startDate!.length - 5),
-                                      style: TextStyle(fontSize: 18.0),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Text(
-                                      "-",
-                                      style: TextStyle(fontSize: 18.0),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Text(
-                                      event.endDate!
-                                          .substring(
-                                              event.startDate!.length - 5)
-                                          .toString(),
-                                      style: TextStyle(fontSize: 18.0),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )),
+                                      context: context,
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                    padding: EdgeInsets.only(
+                                        left: 7.0,
+                                        right: 7.0,
+                                        top: 2.0,
+                                        bottom: 2.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                event.courseName.toString(),
+                                                textAlign: TextAlign.start,
+                                                style: const TextStyle(
+                                                    fontSize: 23,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                              Text(
+                                                event.teachers!.first
+                                                    .toString(),
+                                                textAlign: TextAlign.start,
+                                                style: const TextStyle(
+                                                  fontSize: 17,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          event.roomToken.toString(),
+                                          style: const TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              event.startDate!.substring(
+                                                  event.startDate!.length - 5),
+                                              style: TextStyle(fontSize: 18.0),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Text(
+                                              "-",
+                                              style: TextStyle(fontSize: 18.0),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Text(
+                                              event.endDate!
+                                                  .substring(
+                                                      event.startDate!.length -
+                                                          5)
+                                                  .toString(),
+                                              style: TextStyle(
+                                                fontSize: 18.0,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    )),
+                              ),
+                            );
+                          });
+                        }),
+                    Positioned(
+                      top: currentTime * 200,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 1,
+                        color: Colors.red,
                       ),
-                    );
-                  })
+                    ),
+                  ],
+                )
               : Center(
                   child: Text(
                     "Keine Lektionen eingetragen",
