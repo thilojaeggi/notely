@@ -126,10 +126,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 final Uri emailLaunchUri = Uri(
                   scheme: 'mailto',
                   path: 'thilo.jaeggi@ksso.ch',
-                  queryParameters: {
-                    'subject': 'Notely Problem ' + Globals.school,
-                    'body': 'Dein Problem: '
-                  },
+                  query:
+                    'subject=Notely Problem ' + Globals.school
+                    + '&body=Dein Problem: '
+                  
                 );
                 launchUrl(emailLaunchUri);
               },
@@ -164,7 +164,6 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () async {
                 const storage = FlutterSecureStorage();
                 final prefs = await SharedPreferences.getInstance();
-
                 await prefs.clear();
                 await storage.deleteAll();
                 Navigator.pushReplacement(
