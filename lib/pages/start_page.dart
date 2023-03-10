@@ -28,12 +28,9 @@ class _StartPageState extends State<StartPage> {
   List<Exam> _examList = <Exam>[];
 
   Future<Student?> getMe() async {
-    print(Globals.accessToken);
-    final prefs = await SharedPreferences.getInstance();
 
-   String school = await prefs.getString("school") ?? "ksso";
 
-    final url = "${Globals.apiBase}${school.toLowerCase()}/rest/v1/me";
+    final url = "${Globals.apiBase}${Globals.school.toLowerCase()}/rest/v1/me";
 
     try {
       final response = await http.get(
