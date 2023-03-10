@@ -142,7 +142,10 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                   : (_absenceList.elementAt(index).status ==
                                           "e")
                                       ? 'Entschuldigt'
-                                      : "Offen",
+                                      : (_absenceList.elementAt(index).status ==
+                                              "o")
+                                          ? "Offen"
+                                          : "Fehler",
                               style: const TextStyle(
                                 fontSize: 20,
                               ),
