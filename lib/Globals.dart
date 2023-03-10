@@ -7,6 +7,5 @@ String school = "";
 String accessToken = "";
 bool debug = false;
 bool isDark = true;
-List<Grade> globalGradeList = List.empty(growable: true);
 List<Exam> globalExamsList = List.empty(growable: true);
 int upcomingExams = 0;
