@@ -32,6 +32,8 @@ dependencies:
   device_info_plus: ^4.1.2
   auto_size_text: ^3.0.0
   flutter_cache_manager: ^3.3.0
+  mailto: ^2.0.0
+  url_launcher: ^6.1.10
 dev_dependencies:
   flutter_launcher_icons: ^0.10.0
   flutter_test:
