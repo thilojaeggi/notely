@@ -16,48 +16,33 @@ class AbsencesPage extends StatefulWidget {
 }
 
 class _AbsencesPageState extends State<AbsencesPage> {
-  List<dynamic> _absenceList = List.empty(growable: true);
 
-  void getExistingData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String absences = await prefs.getString("absences") ?? "[]";
-    setState(() {
-      _absenceList = (json.decode(absences) as List)
-          .map((i) => Absence.fromJson(i))
-          .toList();
-    });
-  }
-
-  Future<void> getData() async {
+  Future<List<Absence?>> getAbsences() async {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
     String url = Globals.apiBase +
         school.toLowerCase() +
         "/rest/v1" +
         "/me/absencenotices";
-    print(url);
+    List<Absence> absenceList = <Absence>[];
     try {
       await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer $accessToken',
       }).then((response) {
-        setState(() {
-          _absenceList = (json.decode(response.body) as List)
-              .reversed
-              .map((i) => Absence.fromJson(i))
-              .toList();
-        });
+        absenceList = (json.decode(response.body) as List)
+            .reversed
+            .map((i) => Absence.fromJson(i))
+            .toList();
       });
     } catch (e) {
       print(e.toString());
     }
-    prefs.setString("absences", jsonEncode(_absenceList));
+    return absenceList;
   }
 
   @override
   initState() {
     super.initState();
-    getExistingData();
-    getData();
     print(accessToken);
   }
 
@@ -79,85 +64,109 @@ class _AbsencesPageState extends State<AbsencesPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _absenceList.length,
-              itemBuilder: (BuildContext ctxt, int index) {
-                return Card(
-                  elevation: 3,
-                  margin: const EdgeInsets.only(
-                      bottom: 10, left: 10.0, right: 10.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  shadowColor: (_absenceList.elementAt(index).status == "nz" ||
-                          _absenceList.elementAt(index).status == "e")
-                      ? Colors.blue
-                      : Colors.red,
-                  child: Container(
-                    padding: EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  _absenceList[index].course.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Text(
-                              DateFormat("dd.MM.yyyy").format(
-                                  DateTime.parse(_absenceList[index].date)),
-                              style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.w500),
-                            ),
-                          ],
+            child: FutureBuilder<List<Absence?>>(
+                future: getAbsences(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Center(
+                      child: Text("Error"),
+                    );
+                  }
+                  List<Absence?>? absenceList = snapshot.data;
+                  print(snapshot.data);
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: absenceList!.length,
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      return Card(
+                        elevation: 3,
+                        margin: const EdgeInsets.only(
+                            bottom: 10, left: 10.0, right: 10.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _absenceList[index].hourFrom.toString() +
-                                  " - " +
-                                  _absenceList[index].hourTo.toString(),
-                              style: const TextStyle(
-                                fontSize: 16,
+                        clipBehavior: Clip.antiAlias,
+                        shadowColor:
+                            (absenceList.elementAt(index)!.status == "nz" ||
+                                    absenceList.elementAt(index)!.status == "e")
+                                ? Colors.blue
+                                : Colors.red,
+                        child: Container(
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        absenceList[index]!.course.toString(),
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  Text(
+                                    DateFormat("dd.MM.yyyy").format(
+                                        DateTime.parse(
+                                            absenceList[index]!.date!)),
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              (_absenceList.elementAt(index).status == "nz")
-                                  ? 'Nicht zählend'
-                                  : (_absenceList.elementAt(index).status ==
-                                          "e")
-                                      ? 'Entschuldigt'
-                                      : (_absenceList.elementAt(index).status ==
-                                              "o")
-                                          ? "Offen"
-                                          : "Unbekannt",
-                              style: const TextStyle(
-                                fontSize: 20,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    absenceList[index]!.hourFrom.toString() +
+                                        " - " +
+                                        absenceList[index]!.hourTo.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    (absenceList.elementAt(index)!.status ==
+                                            "nz")
+                                        ? 'Nicht zählend'
+                                        : (absenceList
+                                                    .elementAt(index)!
+                                                    .status ==
+                                                "e")
+                                            ? 'Entschuldigt'
+                                            : (absenceList
+                                                        .elementAt(index)!
+                                                        .status ==
+                                                    "o")
+                                                ? "Offen"
+                                                : "Unbekannt",
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                      );
+                    },
+                  );
+                }),
           ),
         ],
       ),
