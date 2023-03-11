@@ -23,6 +23,8 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  final double cardHeight = 150; // Define the height for the cards
+
   final List<String> hellos = ["Hoi", "Sali", "Ciao", "Hallo", "Salut", "Hey"];
   final Random random = Random();
   List<Exam> _examList = <Exam>[];
@@ -145,265 +147,306 @@ class _StartPageState extends State<StartPage> {
                         );
                       }),
                 ),
-                const SizedBox(
-                  height: 12,
-                ),
                 IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: InkWell(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (context) =>
-                                            ExamsPage(examList: _examList));
-                                  },
-                                  customBorder: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                  ),
-                                  child: Container(
-                                    height: 150,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white10,
-                                      border: Border.all(
-                                          color: Colors.grey.withOpacity(0.5),
-                                          width: 2.0),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(18.0)),
-                                    ),
-                                    child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Spacer(),
-                                          Text(
-                                            "Bald",
-                                            style: TextStyle(
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          Spacer(),
-                                          FutureBuilder<List<Exam>>(
-                                              future: getExams(),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  );
-                                                } else if (snapshot.hasError) {
-                                                  return const Center(
-                                                    child: Text("Error"),
-                                                  );
-                                                }
-                                                List<Exam>? examList =
-                                                    snapshot.data;
-                                                int examCount = 0;
-                                                for (var exam in examList!) {
-                                                  if (exam.startDate.isAfter(
-                                                      DateTime.now())) {
-                                                    if (exam.startDate.isBefore(
-                                                        DateTime.now().add(
-                                                            const Duration(
-                                                                days: 14)))) {
-                                                      examCount++;
-                                                    }
-                                                  }
-                                                }
-                                                return Text(
-                                                  examCount.toString(),
-                                                  style:
-                                                      TextStyle(fontSize: 80.0),
-                                                );
-                                              }),
-                                          Spacer(),
-                                          Text(
-                                            "Tests",
-                                            style: TextStyle(
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          Spacer(),
-                                        ]),
-                                  ),
-                                ),
-                              ),
-                            ), /*
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(6.0),
+                  child: Container(
+                    width: double.infinity,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          flex: 8,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: cardHeight,
+                                width: double.infinity,
                                 child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Color.fromARGB(255, 238, 131, 81),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(18.0))),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Spacer(),
-                                      Text(""),
-                                      Spacer(),
-                                      Text(
-                                        "4",
-                                        style: TextStyle(fontSize: 80.0),
+                                  child: Card(
+                                    elevation: 3.0,
+                                    shadowColor: Colors.grey.withOpacity(0.3),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (context) =>
+                                                ExamsPage(examList: _examList));
+                                      },
+                                      customBorder: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(18.0),
                                       ),
-                                      Spacer(),
-                                      Text(
-                                        "Hausaufgaben",
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          FittedBox(
+                                            child: Text(
+                                              'Bald',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            fit: BoxFit.scaleDown,
+                                          ),
+                                          FittedBox(
+                                            child: Text(
+                                              '69',
+                                              style: TextStyle(
+                                                fontSize: 48,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            fit: BoxFit.scaleDown,
+                                          ),
+                                          FittedBox(
+                                            child: Text(
+                                              'Tests',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            fit: BoxFit.scaleDown,
+                                          ),
+                                        ],
                                       ),
-                                      Spacer(),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),*/
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18.0),
-                            child: Container(
-                              height: 300,
-                              decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 49, 83, 248),
-                                borderRadius: BorderRadius.circular(18.0),
-                                border: Border.all(
-                                    color: Colors.blue.withOpacity(0.5),
-                                    width: 2.0),
-                              ),
-                              child: Column(children: [
-                                SizedBox(
-                                  height: 16.0,
-                                ),
-                                Text(
-                                  "Neueste Noten",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                    color: Colors.white,
+                              SizedBox(
+                                height: cardHeight,
+                                width: double.infinity,
+                                child: Card(
+                                  elevation: 3.0,
+                                  shadowColor: Colors.grey.withOpacity(0.3),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (context) =>
+                                              ExamsPage(examList: _examList));
+                                    },
+                                    customBorder: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          FittedBox(
+                                            child: Text(
+                                              '8',
+                                              style: TextStyle(
+                                                fontSize: 48,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            fit: BoxFit.scaleDown,
+                                          ),
+                                          FittedBox(
+                                            child: Text(
+                                              'Hausaufgaben',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            fit: BoxFit.scaleDown,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                Expanded(
-                                  child: FutureBuilder<List<Grade>?>(
-                                      future: getGrades(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        } else if (snapshot.hasError) {
-                                          return const Center(
-                                            child: Text("Error"),
-                                          );
-                                        }
-                                        List<Grade>? gradeList = snapshot.data;
-                                        return ListView.builder(
-                                            padding: const EdgeInsets.only(
-                                                left: 10.0, right: 10.0),
-                                            itemCount: gradeList!.length,
-                                            shrinkWrap: true,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              return Container(
-                                                margin: (index ==
-                                                        gradeList.length - 1)
-                                                    ? EdgeInsets.only(
-                                                        bottom: 11.0)
-                                                    : (index == 0)
-                                                        ? EdgeInsets.only(
-                                                            top: 8.0,
-                                                            bottom: 3.0)
-                                                        : EdgeInsets.only(
-                                                            bottom: 3.0),
-                                                width: double.infinity,
-                                                padding: EdgeInsets.all(12.0),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.2),
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft: (index == 0)
-                                                        ? Radius.circular(12.0)
-                                                        : Radius.circular(5.0),
-                                                    topRight: (index == 0)
-                                                        ? Radius.circular(12.0)
-                                                        : Radius.circular(5.0),
-                                                    bottomLeft: (index ==
-                                                            gradeList!.length -
-                                                                1)
-                                                        ? Radius.circular(12.0)
-                                                        : Radius.circular(5.0),
-                                                    bottomRight: (index ==
-                                                            gradeList.length -
-                                                                1)
-                                                        ? Radius.circular(12.0)
-                                                        : Radius.circular(5.0),
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Flexible(
-                                                      child: Text(
-                                                        "Note: " +
-                                                            gradeList[index]
-                                                                .mark
-                                                                .toString(),
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w400),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                        child: AutoSizeText(
-                                                      gradeList[index]
-                                                          .title
-                                                          .toString(),
-                                                      style: TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors.white,
-                                                      ),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    )),
-                                                  ],
-                                                ),
-                                              );
-                                            });
-                                      }),
-                                ),
-                              ]),
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          flex: 16,
+                          child: SizedBox(
+                              height: cardHeight * 2,
+                              child: Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Color.fromARGB(255, 49, 83, 248),
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 8.0),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Neueste Noten",
+                                              style: TextStyle(
+                                                fontSize: 20.0,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child:
+                                                  FutureBuilder<List<Grade>?>(
+                                                      future: getGrades(),
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return const Center(
+                                                            child:
+                                                                CircularProgressIndicator(),
+                                                          );
+                                                        } else if (snapshot
+                                                            .hasError) {
+                                                          return const Center(
+                                                            child:
+                                                                Text("Error"),
+                                                          );
+                                                        }
+                                                        List<Grade>? gradeList =
+                                                            snapshot.data;
+                                                        return ListView.builder(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 10.0,
+                                                                    right:
+                                                                        10.0),
+                                                            itemCount:
+                                                                gradeList!
+                                                                    .length,
+                                                            shrinkWrap: true,
+                                                            itemBuilder:
+                                                                (BuildContext
+                                                                        context,
+                                                                    int index) {
+                                                              return Container(
+                                                                margin: (index ==
+                                                                        gradeList.length -
+                                                                            1)
+                                                                    ? EdgeInsets.only(
+                                                                        bottom:
+                                                                            10.0)
+                                                                    : (index ==
+                                                                            0)
+                                                                        ? EdgeInsets.only(
+                                                                            top:
+                                                                                8.0,
+                                                                            bottom:
+                                                                                3.0)
+                                                                        : EdgeInsets.only(
+                                                                            bottom:
+                                                                                3.0),
+                                                                width: double
+                                                                    .infinity,
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .all(
+                                                                            12.0),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white
+                                                                      .withOpacity(
+                                                                          0.2),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .only(
+                                                                    topLeft: (index ==
+                                                                            0)
+                                                                        ? Radius.circular(
+                                                                            8.0)
+                                                                        : Radius.circular(
+                                                                            4.0),
+                                                                    topRight: (index ==
+                                                                            0)
+                                                                        ? Radius.circular(
+                                                                            8.0)
+                                                                        : Radius.circular(
+                                                                            4.0),
+                                                                    bottomLeft: (index ==
+                                                                            gradeList!.length -
+                                                                                1)
+                                                                        ? Radius.circular(
+                                                                            8.0)
+                                                                        : Radius.circular(
+                                                                            4.0),
+                                                                    bottomRight: (index ==
+                                                                            gradeList.length -
+                                                                                1)
+                                                                        ? Radius.circular(
+                                                                            8.0)
+                                                                        : Radius.circular(
+                                                                            4.0),
+                                                                  ),
+                                                                ),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceBetween,
+                                                                  children: [
+                                                                    Expanded(
+                                                                        child:
+                                                                            AutoSizeText(
+                                                                      gradeList[
+                                                                              index]
+                                                                          .title
+                                                                          .toString(),
+                                                                      style:
+                                                                          TextStyle(
+                                                                        height:
+                                                                            1.0,
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                      maxLines:
+                                                                          1,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                    )),
+                                                                    Flexible(
+                                                                      child:
+                                                                          Text(
+                                                                        "Note: " +
+                                                                            gradeList[index].mark.toString(),
+                                                                        style: TextStyle(
+                                                                            height:
+                                                                                1.0,
+                                                                            fontSize:
+                                                                                16,
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontWeight: FontWeight.w400),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            });
+                                                      }),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ))),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
