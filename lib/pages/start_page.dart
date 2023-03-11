@@ -178,7 +178,7 @@ class _StartPageState extends State<StartPage> {
                                       },
                                       customBorder: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(18.0),
+                                            BorderRadius.circular(8.0),
                                       ),
                                       child: Column(
                                         mainAxisAlignment:
@@ -233,7 +233,7 @@ class _StartPageState extends State<StartPage> {
                                               ExamsPage(examList: _examList));
                                     },
                                     customBorder: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0),
+                                      borderRadius: BorderRadius.circular(8.0),
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
