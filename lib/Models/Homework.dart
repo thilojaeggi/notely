@@ -2,7 +2,7 @@ class Homework {
   final String id;
   final String lessonName;
   final String title;
-  final String description;
+  final String details;
   final DateTime dueDate;
   final bool isDone;
 
@@ -10,7 +10,7 @@ class Homework {
     required this.id,
     required this.lessonName,
     required this.title,
-    required this.description,
+    required this.details,
     required this.dueDate,
     required this.isDone,
   });
@@ -19,7 +19,7 @@ class Homework {
     String? id,
     String? lessonName,
     String? title,
-    String? description,
+    String? details,
     DateTime? dueDate,
     bool? isDone,
   }) {
@@ -27,7 +27,7 @@ class Homework {
       id: id ?? this.id,
       lessonName: lessonName ?? this.lessonName,
       title: title ?? this.title,
-      description: description ?? this.description,
+      details: details ?? this.details,
       dueDate: dueDate ?? this.dueDate,
       isDone: isDone ?? this.isDone,
     );
@@ -38,7 +38,7 @@ class Homework {
       'id': id,
       'lesson_name': lessonName,
       'title': title,
-      'description': description,
+      'details': details,
       'due_date': dueDate.toIso8601String(),
       'is_done': isDone ? 1 : 0,
     };
@@ -49,7 +49,7 @@ class Homework {
       id: map['id'] as String,
       lessonName: map['lesson_name'] as String,
       title: map['title'] as String,
-      description: map['description'] as String,
+      details: map['details'] as String,
       dueDate: DateTime.parse(
         map['due_date'] as String,
       ),
