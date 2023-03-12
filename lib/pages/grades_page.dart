@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
@@ -22,8 +22,8 @@ class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
   Color good = Colors.blueAccent;
   Color bad = Colors.redAccent;
-  late double targetGrade;
-
+  late Future<Map<String, dynamic>> _gradesDataFuture;
+  double lowestGradePoints = 0;
   final ScrollController _scrollController = ScrollController();
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
@@ -72,14 +72,28 @@ class _GradesPageState extends State<GradesPage> {
           combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
           combinedWeight += grade.weight!;
         }
+
         averageGradeMap.addAll({
           groupedCoursesMap.keys.elementAt(i):
               (combinedGrade / combinedWeight).toStringAsFixed(3)
         });
       }
+      final lowestAverages = averageGradeMap.values
+          .map((value) => double.parse(value))
+          .toList()
+        ..sort();
+      final numLowest = min(5, averageGradeMap.length);
+      final lowestValues = lowestAverages.take(numLowest).toList();
+      double lowestGradePoints = 0;
+
+      for (var i = 0; i < lowestValues.length; i++) {
+        lowestGradePoints += lowestValues[i];
+      }
+      lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
       return {
         'groupedCoursesMap': groupedCoursesMap,
         'averageGradeMap': averageGradeMap,
+        'lowestGradePoints': lowestGradePoints,
       };
     } catch (e) {
       print(e.toString());
@@ -93,6 +107,12 @@ class _GradesPageState extends State<GradesPage> {
   @override
   initState() {
     super.initState();
+    _gradesDataFuture = getGrades();
+    _initStateAsync();
+  }
+
+  Future<void> _initStateAsync() async {
+    setState(() {});
   }
 
   Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,
@@ -356,20 +376,71 @@ class _GradesPageState extends State<GradesPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 8.0),
-          child: Text(
-            "Noten",
-            style: TextStyle(
-              fontSize: 64,
-              fontWeight: FontWeight.w400,
-            ),
-            textAlign: TextAlign.start,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                "Noten",
+                style: TextStyle(
+                  fontSize: 64,
+                  fontWeight: FontWeight.w400,
+                ),
+                textAlign: TextAlign.start,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              (Globals.school == "ksso")
+                  ? FutureBuilder<Map<String, dynamic>>(
+                      future: _gradesDataFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              'Error: ${snapshot.error}',
+                            ),
+                          );
+                        }
+
+                        final double lowestGradePoints =
+                            snapshot.data?['lowestGradePoints'];
+                        return Padding(
+                          padding:
+                              const EdgeInsets.only(right: 10.0, bottom: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text("KSSO Punkte"),
+                              Text(
+                                "${lowestGradePoints.toString()}",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w400,
+                                  color: lowestGradePoints >= 19
+                                      ? Colors.green
+                                      : Colors.red,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            ],
+                          ),
+                        );
+                      })
+                  : SizedBox.shrink(),
+            ],
           ),
         ),
         Expanded(
           child: FutureBuilder<Map<String, dynamic>>(
-              future: getGrades(),
+              future: _gradesDataFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -384,6 +455,7 @@ class _GradesPageState extends State<GradesPage> {
                       snapshot.data?['groupedCoursesMap'] ?? {};
                   final averageGradeMap =
                       snapshot.data?['averageGradeMap'] ?? {};
+
                   return ListView.builder(
                       controller: _scrollController,
                       shrinkWrap: true,
