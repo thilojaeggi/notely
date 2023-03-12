@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:date_picker_timeline/date_picker_widget.dart';
-import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -158,16 +157,20 @@ class _TimetablePageState extends State<TimetablePage> {
                                     // Get data of TextFields
                                     TextEditingController titleController =
                                         TextEditingController();
-                                    TextEditingController
-                                        descriptionController =
+                                    TextEditingController detailsController =
                                         TextEditingController();
                                     return AlertDialog(
-                                      title: Text("Event bearbeiten"),
+                                      title: Text("Hausaufgabe eintragen"),
                                       content: Container(
-                                        height: 150,
-                                        width: 300,
+                                        height: 200,
+                                        width: 450,
                                         child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
+                                            Text(
+                                              "Titel",
+                                            ),
                                             TextField(
                                               style: TextStyle(
                                                 color: Theme.of(context)
@@ -176,26 +179,28 @@ class _TimetablePageState extends State<TimetablePage> {
                                                     .color,
                                               ),
                                               decoration: const InputDecoration(
-                                                border: UnderlineInputBorder(),
-                                                labelStyle: TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                                labelText: 'Titel',
+                                                contentPadding:
+                                                    EdgeInsets.all(8.0),
+                                                isDense: true,
+                                                border: OutlineInputBorder(),
                                               ),
                                               controller: titleController,
                                             ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              "Details",
+                                            ),
                                             TextField(
+                                              maxLines: 4,
                                               decoration: InputDecoration(
-                                                labelStyle: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyText1!
-                                                      .color,
-                                                ),
-                                                border: UnderlineInputBorder(),
-                                                labelText: 'Details (optional)',
+                                                contentPadding:
+                                                    EdgeInsets.all(8.0),
+                                                isDense: true,
+                                                border: OutlineInputBorder(),
                                               ),
-                                              controller: descriptionController,
+                                              controller: detailsController,
                                             ),
                                           ],
                                         ),
@@ -212,15 +217,31 @@ class _TimetablePageState extends State<TimetablePage> {
                                           onPressed: () async {
                                             // Get text of TextFields
                                             String title = titleController.text;
-                                            String description =
-                                                descriptionController.text;
+                                            String details = detailsController
+                                                .text
+                                                .trimRight();
                                             DateTime startDate = DateTime.parse(
                                                 event.startDate!);
+
+                                            if (title.isEmpty &&
+                                                details.isEmpty) {
+                                              title = "Kein Titel";
+                                              details = "Keine Details";
+                                            }
+
+                                            if (title.isEmpty) {
+                                              title = "Kein Titel";
+                                            }
+
+                                            if (details.isEmpty) {
+                                              details = "Keine Details";
+                                            }
+
                                             Homework homework = Homework(
                                               id: event.id!,
                                               lessonName: event.courseName!,
                                               title: title,
-                                              description: description,
+                                              details: details,
                                               dueDate: startDate,
                                               isDone: false,
                                             );
@@ -295,27 +316,29 @@ class _TimetablePageState extends State<TimetablePage> {
                                     ),
                                     Expanded(
                                       flex: 12,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            event.courseName.toString(),
-                                            textAlign: TextAlign.start,
-                                            style: const TextStyle(
-                                                fontSize: 21,
-                                                height: 1.1,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          Text(
-                                            event.teachers!.first.toString(),
-                                            textAlign: TextAlign.start,
-                                            style: const TextStyle(
-                                              fontSize: 17,
-                                              height: 1.2,
+                                      child: Container(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              event.courseName.toString(),
+                                              textAlign: TextAlign.start,
+                                              style: const TextStyle(
+                                                  fontSize: 21,
+                                                  height: 1.1,
+                                                  fontWeight: FontWeight.w600),
                                             ),
-                                          ),
-                                        ],
+                                            Text(
+                                              event.teachers!.first.toString(),
+                                              textAlign: TextAlign.start,
+                                              style: const TextStyle(
+                                                fontSize: 17,
+                                                height: 1.2,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     SizedBox(
