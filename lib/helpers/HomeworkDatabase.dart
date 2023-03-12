@@ -37,13 +37,7 @@ class HomeworkDatabase {
   }
 
   onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion == 1) {
-      // Change column description to details
-      await db.execute('''
-        ALTER TABLE homework
-        RENAME COLUMN description TO details
-      ''');
-    }
+    if (oldVersion == 1) {}
   }
 
   Future<Homework> create(Homework homework) async {

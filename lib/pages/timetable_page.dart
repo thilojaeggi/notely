@@ -251,13 +251,30 @@ class _TimetablePageState extends State<TimetablePage> {
                                                   .create(homework);
                                             } catch (e) {
                                               showToast(
-                                                  child: Container(
-                                                      color: Colors.black,
-                                                      child:
-                                                          Text(e.toString())),
-                                                  context: context);
+                                                alignment:
+                                                    Alignment.bottomCenter,
+                                                child: Container(
+                                                  margin: EdgeInsets.only(
+                                                      bottom: 32.0),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.redAccent,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                      Radius.circular(12.0),
+                                                    ),
+                                                  ),
+                                                  padding: EdgeInsets.all(6.0),
+                                                  child: Text(
+                                                    "Etwas ist schiefgelaufen",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16.0,
+                                                    ),
+                                                  ),
+                                                ),
+                                                context: context,
+                                              );
                                             }
-
                                             Navigator.of(context).pop();
                                           },
                                         ),
