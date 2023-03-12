@@ -19,7 +19,8 @@ class HomeworkDatabase {
     final String dbPath = await getDatabasesPath();
     final String path = join(dbPath, 'notely.db');
 
-    return await openDatabase(path, version: 1, onCreate: _createDb);
+    return await openDatabase(path,
+        version: 2, onCreate: _createDb, onUpgrade: onUpgrade);
   }
 
   Future<void> _createDb(Database db, int version) async {
@@ -33,6 +34,16 @@ class HomeworkDatabase {
         is_done INTEGER NOT NULL DEFAULT 0
       )
     ''');
+  }
+
+  onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion == 1) {
+      // Change column description to details
+      await db.execute('''
+        ALTER TABLE homework
+        RENAME COLUMN description TO details
+      ''');
+    }
   }
 
   Future<Homework> create(Homework homework) async {
