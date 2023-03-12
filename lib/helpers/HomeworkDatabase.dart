@@ -28,7 +28,7 @@ class HomeworkDatabase {
         id TEXT NOT NULL PRIMARY KEY,
         lesson_name TEXT NOT NULL,
         title TEXT NOT NULL,
-        description TEXT NOT NULL,
+        details TEXT NOT NULL,
         due_date TEXT NOT NULL,
         is_done INTEGER NOT NULL DEFAULT 0
       )
