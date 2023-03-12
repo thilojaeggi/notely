@@ -20,13 +20,14 @@ class _ExamsPageState extends State<ExamsPage> {
 
   @override
   Widget build(BuildContext context) {
+    List examList = widget.examList;
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: new BoxDecoration(
         color: Theme.of(context).canvasColor.withOpacity(0.95),
         borderRadius: new BorderRadius.only(
-          topLeft: const Radius.circular(25.0),
-          topRight: const Radius.circular(25.0),
+          topLeft: const Radius.circular(16.0),
+          topRight: const Radius.circular(16.0),
         ),
       ),
       child: Column(
@@ -57,7 +58,7 @@ class _ExamsPageState extends State<ExamsPage> {
           Expanded(
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: widget.examList.length,
+              itemCount: examList.length,
               itemBuilder: (BuildContext ctxt, int index) {
                 return Card(
                   elevation: 3,
@@ -79,8 +80,7 @@ class _ExamsPageState extends State<ExamsPage> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  widget.examList[index].text
-                                      .toString(),
+                                  examList[index].text.toString(),
                                   style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500),
@@ -92,8 +92,7 @@ class _ExamsPageState extends State<ExamsPage> {
                             ),
                             Text(
                               DateFormat("dd.MM.yyyy").format(DateTime.parse(
-                                  widget.examList[index].startDate
-                                      .toString())),
+                                  examList[index].startDate.toString())),
                               style: const TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w500),
                             ),
@@ -106,8 +105,7 @@ class _ExamsPageState extends State<ExamsPage> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  widget.examList[index].courseName
-                                      .toString(),
+                                  examList[index].courseName.toString(),
                                   style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500),
