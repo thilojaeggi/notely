@@ -1,4 +1,8 @@
-/*class HomeworkDatabase {
+import 'package:notely/Models/Homework.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+class HomeworkDatabase {
   static final HomeworkDatabase instance = HomeworkDatabase._init();
 
   static Database? _database;
@@ -13,28 +17,20 @@
 
   Future<Database> _initDb() async {
     final String dbPath = await getDatabasesPath();
-    final String path = join(dbPath, 'homework.db');
+    final String path = join(dbPath, 'notely.db');
 
     return await openDatabase(path, version: 1, onCreate: _createDb);
   }
 
   Future<void> _createDb(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE lessons(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        time TEXT NOT NULL
-      )
-    ''');
-
-    await db.execute('''
       CREATE TABLE homework(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        lesson_id INTEGER NOT NULL,
+        id TEXT NOT NULL PRIMARY KEY,
+        lesson_name TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         due_date TEXT NOT NULL,
-        FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+        is_done INTEGER NOT NULL DEFAULT 0
       )
     ''');
   }
@@ -42,14 +38,20 @@
   Future<Homework> create(Homework homework) async {
     final db = await instance.database;
     final id = await db.insert('homework', homework.toMap());
-    return homework.copy(id: id);
+    return homework.copyWith(id: id.toString());
   }
 
   Future<List<Homework>> readAll() async {
     final db = await instance.database;
     final orderBy = 'due_date ASC';
     final result = await db.query('homework', orderBy: orderBy);
-    return result.map(Homework.fromMap).toList();
+    return result.map((map) => Homework.fromMap(map)).toList();
+  }
+
+  Future<Homework> readHomework(String id) async {
+    final db = await instance.database;
+    final result = await db.query('homework', where: 'id = ?', whereArgs: [id]);
+    return Homework.fromMap(result.first);
   }
 
   Future<void> update(Homework homework) async {
@@ -58,9 +60,8 @@
         where: 'id = ?', whereArgs: [homework.id]);
   }
 
-  Future<void> delete(int id) async {
+  Future<void> delete(String id) async {
     final db = await instance.database;
     await db.delete('homework', where: 'id = ?', whereArgs: [id]);
   }
 }
-*/
