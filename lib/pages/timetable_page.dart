@@ -6,6 +6,8 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:notely/Models/Homework.dart';
+import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Event.dart';
 import '../Globals.dart' as Globals;
@@ -67,6 +69,9 @@ class _TimetablePageState extends State<TimetablePage> {
             _eventList = (json.decode(response.body) as List)
                 .map((i) => Event.fromJson(i))
                 .toList();
+            _eventList.forEach((element) {
+              print(element.id);
+            });
           });
         }
       });
@@ -129,153 +134,206 @@ class _TimetablePageState extends State<TimetablePage> {
           },
         ),
         Expanded(
-          child: (_eventList.length != 0)
-              ? Stack(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: _eventList.length,
-                          itemBuilder: (BuildContext ctxt, int index) {
-                            Event event = _eventList[index];
-                            return LayoutBuilder(builder: (BuildContext context,
-                                BoxConstraints constraints) {
-                              return Card(
-                                elevation: 3,
-                                margin: const EdgeInsets.only(
-                                    top: 5, bottom: 5, left: 10.0, right: 10.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                child: InkWell(
-                                  onTap: () {
-                                    if (Globals.debug) {
-                                      showToast(
-                                        alignment: Alignment.bottomCenter,
-                                        child: Container(
-                                          margin: EdgeInsets.only(bottom: 32.0),
-                                          decoration: BoxDecoration(
-                                            color: Colors.greenAccent,
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(12.0),
+          child: (_eventList.isNotEmpty)
+              ? ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _eventList.length,
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    Event event = _eventList[index];
+                    return LayoutBuilder(builder:
+                        (BuildContext context, BoxConstraints constraints) {
+                      return Card(
+                        elevation: 3,
+                        margin: const EdgeInsets.only(
+                            top: 5, bottom: 5, left: 10.0, right: 10.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    // Get data of TextFields
+                                    TextEditingController titleController =
+                                        TextEditingController();
+                                    TextEditingController
+                                        descriptionController =
+                                        TextEditingController();
+                                    return AlertDialog(
+                                      title: Text("Event bearbeiten"),
+                                      content: Container(
+                                        height: 150,
+                                        width: 300,
+                                        child: Column(
+                                          children: [
+                                            TextField(
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyText1!
+                                                    .color,
+                                              ),
+                                              decoration: const InputDecoration(
+                                                border: UnderlineInputBorder(),
+                                                labelStyle: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                                labelText: 'Titel',
+                                              ),
+                                              controller: titleController,
                                             ),
-                                          ),
-                                          padding: EdgeInsets.all(6.0),
-                                          child: Text(
-                                            "Tapped",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16.0,
+                                            TextField(
+                                              decoration: InputDecoration(
+                                                labelStyle: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyText1!
+                                                      .color,
+                                                ),
+                                                border: UnderlineInputBorder(),
+                                                labelText: 'Details (optional)',
+                                              ),
+                                              controller: descriptionController,
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                        context: context,
-                                      );
-                                    }
-                                  },
-                                  child: Container(
-                                      padding: EdgeInsets.only(
-                                          left: 7.0,
-                                          right: 7.0,
-                                          top: 2.0,
-                                          bottom: 2.0),
-                                      child: Row(
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          child: Text("Abbrechen"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text("Speichern"),
+                                          onPressed: () async {
+                                            // Get text of TextFields
+                                            String title = titleController.text;
+                                            String description =
+                                                descriptionController.text;
+                                            DateTime startDate = DateTime.parse(
+                                                event.startDate!);
+                                            Homework homework = Homework(
+                                              id: event.id!,
+                                              lessonName: event.courseName!,
+                                              title: title,
+                                              description: description,
+                                              dueDate: startDate,
+                                              isDone: false,
+                                            );
+
+                                            await HomeworkDatabase.instance
+                                                .create(homework);
+
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(12),
+                              child: IntrinsicHeight(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: Column(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                            MainAxisAlignment.center,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  event.courseName.toString(),
-                                                  textAlign: TextAlign.start,
-                                                  style: const TextStyle(
-                                                      fontSize: 23,
-                                                      height: 1.1,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                                Text(
-                                                  event.teachers!.first
-                                                      .toString(),
-                                                  textAlign: TextAlign.start,
-                                                  style: const TextStyle(
-                                                    fontSize: 17,
-                                                    height: 1.2,
-                                                  ),
-                                                ),
-                                              ],
+                                          Text(
+                                            event.startDate!.substring(
+                                                event.startDate!.length - 5),
+                                            style: TextStyle(
+                                                fontSize: 18.0,
+                                                fontWeight: FontWeight.w600),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          Opacity(
+                                            opacity: 0.75,
+                                            child: Text(
+                                              event.endDate!
+                                                  .substring(
+                                                      event.endDate!.length - 5)
+                                                  .toString(),
+                                              style: TextStyle(
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              textAlign: TextAlign.center,
                                             ),
                                           ),
-                                          SizedBox(
-                                            width: 5,
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 9.0,
+                                    ),
+                                    Container(
+                                      width: 2,
+                                      height: double.infinity,
+                                      color: (DateTime.now().isAfter(
+                                                  DateTime.parse(
+                                                      event.startDate!)) &&
+                                              DateTime.now().isBefore(
+                                                  DateTime.parse(
+                                                      event.endDate!)))
+                                          ? Colors.blue
+                                          : Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 9.0,
+                                    ),
+                                    Expanded(
+                                      flex: 12,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            event.courseName.toString(),
+                                            textAlign: TextAlign.start,
+                                            style: const TextStyle(
+                                                fontSize: 21,
+                                                height: 1.1,
+                                                fontWeight: FontWeight.w600),
                                           ),
                                           Text(
-                                            event.roomToken.toString(),
+                                            event.teachers!.first.toString(),
+                                            textAlign: TextAlign.start,
                                             style: const TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Column(
-                                            children: [
-                                              Text(
-                                                event.startDate!.substring(
-                                                    event.startDate!.length -
-                                                        5),
-                                                style:
-                                                    TextStyle(fontSize: 18.0),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              Text(
-                                                "-",
-                                                style:
-                                                    TextStyle(fontSize: 18.0),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              Text(
-                                                event.endDate!
-                                                    .substring(event
-                                                            .startDate!.length -
-                                                        5)
-                                                    .toString(),
-                                                style: TextStyle(
-                                                  fontSize: 18.0,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ],
+                                              fontSize: 17,
+                                              height: 1.2,
+                                            ),
                                           ),
                                         ],
-                                      )),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      event.roomToken.toString(),
+                                      style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            });
-                          }),
-                    ),
-                    Positioned(
-                      top: currentTime * 200,
-                      left: 0,
-                      child: Container(
-                        height: 5,
-                        width: 200,
-                        decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.only(
-                              bottomRight: Radius.circular(12.0),
-                              topRight: Radius.circular(12.0),
+                              ),
                             )),
-                      ),
-                    ),
-                  ],
-                )
+                      );
+                    });
+                  })
               : Center(
                   child: Text(
                     "Keine Lektionen eingetragen",
