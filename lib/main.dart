@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notely/Globals.dart' as Globals;
 import 'package:notely/view_container.dart';
@@ -16,29 +14,30 @@ import 'package:http/http.dart' as http;
 
 import 'config/CustomScrollBehavior.dart';
 import 'config/style.dart';
+import 'helpers/HomeworkDatabase.dart';
 import 'pages/login_page.dart';
 
 const storage = FlutterSecureStorage();
 const fetchNotifications = "fetchNotifications";
-String username = "", password = "";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await HomeworkDatabase.instance.database;
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
-
   runApp(const Notely());
 }
 
 Future<bool> login() async {
   final prefs = await SharedPreferences.getInstance();
   final school = prefs.getString("school")?.toLowerCase() ?? '';
-  final username = await storage.read(key: "username") ?? "";
-  final password = await storage.read(key: "password") ?? "";
+  final username = await storage.read(key: "username") ?? '';
+  final password = await storage.read(key: "password") ?? '';
 
   if (username.isEmpty || password.isEmpty || school.isEmpty) {
     return false;
   }
+  print("Found login data");
 
   final url = '${Globals.apiBase}$school/authorize.php';
   final response = await http.post(Uri.parse(url), body: {
@@ -63,9 +62,8 @@ Future<bool> login() async {
     Globals.accessToken = trimmedString;
     Globals.school = school;
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 class Notely extends StatefulWidget {
@@ -76,9 +74,11 @@ class Notely extends StatefulWidget {
 }
 
 class _NotelyState extends State<Notely> {
+  late Future<bool> isLoggedIn;
   @override
   void initState() {
     super.initState();
+    isLoggedIn = login();
   }
 
   @override
@@ -131,48 +131,48 @@ class _NotelyState extends State<Notely> {
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
             home: FutureBuilder<bool>(
-                future: login(),
+                future: isLoggedIn,
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return snapshot.data ?? false
-                        ? ScrollConfiguration(
-                            child: const ViewContainerWidget(),
-                            behavior: CustomScrollBehavior(),
-                          )
-                        : const LoginPage();
-                  } else {
-                    if (username != "" && password != "") {
-                      return Material(
-                          child: Center(
-                              child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Melde an..",
-                            style: TextStyle(fontSize: 32.0),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SpinKitDoubleBounce(
-                            size: 50,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "Falls es länger Dauert überprüfe deine Internetverbindung.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 18.0),
-                          )
-                        ],
-                      )));
-                    } else {
-                      return SizedBox.shrink();
-                    }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Material(
+                        child: Center(
+                            child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Melde an..",
+                          style: TextStyle(fontSize: 32.0),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SpinKitDoubleBounce(
+                          size: 50,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "Falls es länger Dauert überprüfe deine Internetverbindung.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18.0),
+                        )
+                      ],
+                    )));
+                  } else if (snapshot.hasError) {
+                    return const Center(
+                      child: Text("Error, versuche es spter erneut!"),
+                    );
                   }
+                  bool loggedIn = snapshot.data ?? false;
+                  return loggedIn
+                      ? ScrollConfiguration(
+                          child: const ViewContainerWidget(),
+                          behavior: CustomScrollBehavior(),
+                        )
+                      : const LoginPage();
                 }),
           ),
         ),
