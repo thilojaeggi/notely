@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'Globals.dart' as Globals;
 
-import 'Globals.dart';
 import 'pages/absences_page.dart';
 import 'pages/grades_page.dart';
 import 'pages/settings_page.dart';

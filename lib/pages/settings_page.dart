@@ -1,10 +1,7 @@
 import 'package:day_night_switcher/day_night_switcher.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mailto/mailto.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';

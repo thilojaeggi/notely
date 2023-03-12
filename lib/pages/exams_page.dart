@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../Globals.dart' as Globals;
 import '../Models/Exam.dart';
 
 class ExamsPage extends StatefulWidget {

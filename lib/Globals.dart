@@ -1,7 +1,5 @@
 import 'package:notely/Models/Exam.dart';
 
-import 'Models/Grade.dart';
-
 String apiBase = "https://kaschuso.so.ch/public/";
 String school = "";
 String accessToken = "";

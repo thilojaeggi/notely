@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/Models/Homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 

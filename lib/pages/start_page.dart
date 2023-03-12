@@ -1,18 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:notely/Models/Exam.dart';
 import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/pages/exams_page.dart';
 import 'package:notely/pages/homework_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../Globals.dart' as Globals;
 import '../Models/Grade.dart';
@@ -52,16 +49,6 @@ class _StartPageState extends State<StartPage> {
     }
 
     return null;
-  }
-
-  void setHomework() async {
-    HomeworkDatabase.instance.create(Homework(
-        id: "Test",
-        lessonName: "Mathematik",
-        title: "Aufgaben 16-20",
-        description: "Genau lösen",
-        dueDate: DateTime.now(),
-        isDone: true));
   }
 
   Future<List<Grade>> getGrades() async {
