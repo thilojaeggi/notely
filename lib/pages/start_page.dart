@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:notely/Models/Exam.dart';
+import 'package:notely/Models/Homework.dart';
+import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/pages/exams_page.dart';
+import 'package:notely/pages/homework_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -25,10 +28,13 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   // Make cards half approx. height of screen
   double get cardHeight => MediaQuery.of(context).size.height / 5;
+  late Future<List<Homework>> homeworkFuture;
+  List<Homework> homeworkList = <Homework>[];
 
   final List<String> hellos = ["Hoi", "Sali", "Ciao", "Hallo", "Salut", "Hey"];
   final Random random = Random();
   List<Exam> _examList = <Exam>[];
+  List<Homework> _homeworkList = <Homework>[];
 
   Future<Student?> getMe() async {
     final url = "${Globals.apiBase}${Globals.school.toLowerCase()}/rest/v1/me";
@@ -38,7 +44,6 @@ class _StartPageState extends State<StartPage> {
         Uri.parse(url),
         headers: {'Authorization': 'Bearer ${Globals.accessToken}'},
       );
-      print(response.body);
 
       final student = Student.fromJson(jsonDecode(response.body));
       return student;
@@ -47,6 +52,16 @@ class _StartPageState extends State<StartPage> {
     }
 
     return null;
+  }
+
+  void setHomework() async {
+    HomeworkDatabase.instance.create(Homework(
+        id: "Test",
+        lessonName: "Mathematik",
+        title: "Aufgaben 16-20",
+        description: "Genau lösen",
+        dueDate: DateTime.now(),
+        isDone: true));
   }
 
   Future<List<Grade>> getGrades() async {
@@ -84,6 +99,10 @@ class _StartPageState extends State<StartPage> {
         'Authorization': 'Bearer ' + Globals.accessToken,
       }).then((response) {
         examsList = ExamFromJson(response.body);
+        examsList = examsList
+            .where((exam) => exam.startDate
+                .isAfter(DateTime.now().subtract(Duration(days: 1))))
+            .toList();
         examsList.sort((a, b) {
           return a.startDate.compareTo(b.startDate);
         });
@@ -95,9 +114,16 @@ class _StartPageState extends State<StartPage> {
     return examsList;
   }
 
+  Future<List<Homework>> getHomework() async {
+    List<Homework> homeworkList = await HomeworkDatabase.instance.readAll();
+    _homeworkList = homeworkList;
+    return homeworkList;
+  }
+
   @override
   initState() {
     super.initState();
+    homeworkFuture = getHomework();
   }
 
   @override
@@ -192,16 +218,46 @@ class _StartPageState extends State<StartPage> {
                                             ),
                                             fit: BoxFit.scaleDown,
                                           ),
-                                          FittedBox(
-                                            child: Text(
-                                              '69',
-                                              style: TextStyle(
-                                                fontSize: 48,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            fit: BoxFit.scaleDown,
-                                          ),
+                                          FutureBuilder<List<Exam>>(
+                                              future: getExams(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  );
+                                                } else if (snapshot.hasError) {
+                                                  return const Center(
+                                                    child: Text("Error"),
+                                                  );
+                                                }
+                                                List<Exam> exams =
+                                                    snapshot.data!;
+                                                int examCount = 0;
+                                                for (var exam in exams) {
+                                                  if (exam.startDate.isAfter(
+                                                      DateTime.now())) {
+                                                    if (exam.startDate.isBefore(
+                                                        DateTime.now().add(
+                                                            const Duration(
+                                                                days: 14)))) {
+                                                      examCount++;
+                                                    }
+                                                  }
+                                                }
+                                                return FittedBox(
+                                                  child: Text(
+                                                    examCount.toString(),
+                                                    style: TextStyle(
+                                                      fontSize: 48,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  fit: BoxFit.scaleDown,
+                                                );
+                                              }),
                                           FittedBox(
                                             child: Text(
                                               'Tests',
@@ -230,8 +286,8 @@ class _StartPageState extends State<StartPage> {
                                           context: context,
                                           isScrollControlled: true,
                                           backgroundColor: Colors.transparent,
-                                          builder: (context) =>
-                                              ExamsPage(examList: _examList));
+                                          builder: (context) => HomeworkPage(
+                                              homeworkList: _homeworkList));
                                     },
                                     customBorder: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8.0),
@@ -242,16 +298,41 @@ class _StartPageState extends State<StartPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
-                                          FittedBox(
-                                            child: Text(
-                                              '8',
-                                              style: TextStyle(
-                                                fontSize: 48,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            fit: BoxFit.scaleDown,
-                                          ),
+                                          FutureBuilder<List<Homework>>(
+                                              future: homeworkFuture,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  );
+                                                } else if (snapshot.hasError) {
+                                                  return const Center(
+                                                    child: Text("Error"),
+                                                  );
+                                                }
+                                                List<Homework> homework =
+                                                    snapshot.data!;
+                                                int homeworkCount = 0;
+                                                for (var homeworkItem
+                                                    in homework) {
+                                                  if (!homeworkItem.isDone) {
+                                                    homeworkCount++;
+                                                  }
+                                                }
+                                                return FittedBox(
+                                                  child: Text(
+                                                    homeworkCount.toString(),
+                                                    style: TextStyle(
+                                                      fontSize: 48,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  fit: BoxFit.scaleDown,
+                                                );
+                                              }),
                                           FittedBox(
                                             child: Text(
                                               'Hausaufgaben',
@@ -338,7 +419,7 @@ class _StartPageState extends State<StartPage> {
                                                                             1)
                                                                     ? EdgeInsets.only(
                                                                         bottom:
-                                                                            10.0)
+                                                                            11.0)
                                                                     : (index ==
                                                                             0)
                                                                         ? EdgeInsets.only(
@@ -377,17 +458,17 @@ class _StartPageState extends State<StartPage> {
                                                                         : Radius.circular(
                                                                             4.0),
                                                                     bottomLeft: (index ==
-                                                                            gradeList!.length -
+                                                                            gradeList.length -
                                                                                 1)
                                                                         ? Radius.circular(
-                                                                            8.0)
+                                                                            6.0)
                                                                         : Radius.circular(
                                                                             4.0),
                                                                     bottomRight: (index ==
                                                                             gradeList.length -
                                                                                 1)
                                                                         ? Radius.circular(
-                                                                            8.0)
+                                                                            6.0)
                                                                         : Radius.circular(
                                                                             4.0),
                                                                   ),
@@ -398,40 +479,48 @@ class _StartPageState extends State<StartPage> {
                                                                           .spaceBetween,
                                                                   children: [
                                                                     Expanded(
+                                                                        flex: 3,
                                                                         child:
                                                                             AutoSizeText(
-                                                                      gradeList[
-                                                                              index]
-                                                                          .title
-                                                                          .toString(),
-                                                                      style:
-                                                                          TextStyle(
-                                                                        height:
-                                                                            1.0,
-                                                                        fontSize:
-                                                                            15,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                      maxLines:
-                                                                          1,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                    )),
-                                                                    Flexible(
+                                                                          gradeList[index]
+                                                                              .title
+                                                                              .toString(),
+                                                                          style:
+                                                                              TextStyle(
+                                                                            height:
+                                                                                1.0,
+                                                                            fontSize:
+                                                                                15,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                          maxLines:
+                                                                              1,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis,
+                                                                        )),
+                                                                    Spacer(
+                                                                      flex: 1,
+                                                                    ),
+                                                                    Expanded(
+                                                                      flex: 2,
                                                                       child:
                                                                           Text(
                                                                         "Note: " +
                                                                             gradeList[index].mark.toString(),
-                                                                        style: TextStyle(
-                                                                            height:
-                                                                                1.0,
-                                                                            fontSize:
-                                                                                16,
-                                                                            color:
-                                                                                Colors.white,
-                                                                            fontWeight: FontWeight.w400),
+                                                                        style:
+                                                                            TextStyle(
+                                                                          height:
+                                                                              1.0,
+                                                                          fontSize:
+                                                                              16,
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontWeight:
+                                                                              FontWeight.w400,
+                                                                        ),
+                                                                        textAlign:
+                                                                            TextAlign.left,
                                                                       ),
                                                                     ),
                                                                   ],
