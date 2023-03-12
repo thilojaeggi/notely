@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/Models/Homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -108,11 +111,6 @@ class _GradesPageState extends State<GradesPage> {
   initState() {
     super.initState();
     _gradesDataFuture = getGrades();
-    _initStateAsync();
-  }
-
-  Future<void> _initStateAsync() async {
-    setState(() {});
   }
 
   Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,
@@ -122,7 +120,7 @@ class _GradesPageState extends State<GradesPage> {
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 10, left: 10.0, right: 10.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(6),
       ),
       clipBehavior: Clip.antiAlias,
       shadowColor: Colors.transparent.withOpacity(0.5),
@@ -164,7 +162,7 @@ class _GradesPageState extends State<GradesPage> {
                         Card(
                           elevation: 3,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           shadowColor: gradeColor(groupedCoursesMap.values
                               .elementAt(index)[i]
@@ -216,9 +214,31 @@ class _GradesPageState extends State<GradesPage> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      "Gewichtung: ${groupedCoursesMap.values.elementAt(index)[i].weight}",
-                                      style: const TextStyle(fontSize: 16),
+                                    Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 4.5),
+                                          child: Opacity(
+                                            opacity: 0.7,
+                                            child: Icon(
+                                              FontAwesome5.weight_hanging,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 5.0),
+                                          child: Text(
+                                            "${groupedCoursesMap.values.elementAt(index)[i].weight}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     Text(
                                       DateFormat("dd.MM.yyyy").format(
@@ -226,7 +246,9 @@ class _GradesPageState extends State<GradesPage> {
                                               .values
                                               .elementAt(index)[i]
                                               .date)),
-                                      style: const TextStyle(fontSize: 16),
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -418,7 +440,7 @@ class _GradesPageState extends State<GradesPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("KSSO Punkte"),
+                              Text("Promotionspunkte"),
                               Text(
                                 "${lowestGradePoints.toString()}",
                                 style: TextStyle(
