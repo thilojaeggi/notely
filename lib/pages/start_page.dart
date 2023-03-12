@@ -23,7 +23,8 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
-  final double cardHeight = 150; // Define the height for the cards
+  // Make cards half approx. height of screen
+  double get cardHeight => MediaQuery.of(context).size.height / 5;
 
   final List<String> hellos = ["Hoi", "Sali", "Ciao", "Hallo", "Salut", "Hey"];
   final Random random = Random();
