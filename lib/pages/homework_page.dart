@@ -152,6 +152,8 @@ class _HomeworkPageState extends State<HomeworkPage> {
                             scale: 1.7,
                             child: Checkbox(
                                 value: homework.isDone,
+                                fillColor: MaterialStateProperty.all(
+                                    Theme.of(context).primaryColor),
                                 // Rounded checkbox
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4),
