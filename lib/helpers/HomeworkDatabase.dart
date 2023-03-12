@@ -64,4 +64,9 @@ class HomeworkDatabase {
     final db = await instance.database;
     await db.delete('homework', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<void> deleteAll() async {
+    final db = await instance.database;
+    await db.delete('homework');
+  }
 }
