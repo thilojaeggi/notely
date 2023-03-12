@@ -181,7 +181,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                 filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
-                  selectedItemColor: Colors.blue[400],
+                  selectedItemColor: Colors.blueAccent,
                   backgroundColor: Colors.grey.withOpacity(0.1),
                   elevation: 0,
                   items: const <BottomNavigationBarItem>[
