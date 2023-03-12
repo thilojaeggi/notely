@@ -144,30 +144,30 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                 ),
                               ),
                             ),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Transform.scale(
+                                scale: 1.7,
+                                child: Checkbox(
+                                    value: homework.isDone,
+                                    fillColor: MaterialStateProperty.all(
+                                        Theme.of(context).primaryColor),
+                                    // Rounded checkbox
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    onChanged: (newVal) async {
+                                      Homework updatedHomework =
+                                          homework.copyWith(isDone: newVal!);
+                                      await HomeworkDatabase.instance
+                                          .update(updatedHomework);
+                                      setState(() {
+                                        homeworkList[index] = updatedHomework;
+                                      });
+                                    }),
+                              ),
+                            ),
                           ],
-                        ),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: Transform.scale(
-                            scale: 1.7,
-                            child: Checkbox(
-                                value: homework.isDone,
-                                fillColor: MaterialStateProperty.all(
-                                    Theme.of(context).primaryColor),
-                                // Rounded checkbox
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                onChanged: (newVal) async {
-                                  Homework updatedHomework =
-                                      homework.copyWith(isDone: newVal!);
-                                  await HomeworkDatabase.instance
-                                      .update(updatedHomework);
-                                  setState(() {
-                                    homeworkList[index] = updatedHomework;
-                                  });
-                                }),
-                          ),
                         ),
                       ],
                     ),
