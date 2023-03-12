@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:date_picker_timeline/date_picker_widget.dart';
+import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -236,18 +237,26 @@ class _TimetablePageState extends State<TimetablePage> {
                                             if (details.isEmpty) {
                                               details = "Keine Details";
                                             }
+                                            try {
+                                              Homework homework = Homework(
+                                                id: event.id!,
+                                                lessonName: event.courseName!,
+                                                title: title,
+                                                details: details,
+                                                dueDate: startDate,
+                                                isDone: false,
+                                              );
 
-                                            Homework homework = Homework(
-                                              id: event.id!,
-                                              lessonName: event.courseName!,
-                                              title: title,
-                                              details: details,
-                                              dueDate: startDate,
-                                              isDone: false,
-                                            );
-
-                                            await HomeworkDatabase.instance
-                                                .create(homework);
+                                              await HomeworkDatabase.instance
+                                                  .create(homework);
+                                            } catch (e) {
+                                              showToast(
+                                                  child: Container(
+                                                      color: Colors.black,
+                                                      child:
+                                                          Text(e.toString())),
+                                                  context: context);
+                                            }
 
                                             Navigator.of(context).pop();
                                           },
