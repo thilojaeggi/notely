@@ -29,7 +29,6 @@ Future<void> main() async {
     for (final entry in oldData.entries) {
       await storage.write(key: entry.key, value: entry.value);
     }
-    await oldStorage.deleteAll();
   }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
