@@ -2,7 +2,6 @@
 
 <br><b>Features:</b></p>
 
-* Google Material UI
 * Lightweight
 * Fast
 * Cross-platform
