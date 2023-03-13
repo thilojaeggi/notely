@@ -4,8 +4,12 @@ import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 
 class HomeworkPage extends StatefulWidget {
-  const HomeworkPage({Key? key, required this.homeworkList}) : super(key: key);
+  const HomeworkPage(
+      {Key? key, required this.homeworkList, required this.callBack})
+      : super(key: key);
   final List<Homework> homeworkList;
+  final Function callBack;
+
   @override
   State<HomeworkPage> createState() => _HomeworkPageState();
 }
@@ -38,15 +42,20 @@ class _HomeworkPageState extends State<HomeworkPage> {
             padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
             child: Row(
               children: [
-                const Text(
-                  "Hausaufgaben",
-                  style: TextStyle(
-                    fontSize: 46,
-                    fontWeight: FontWeight.w400,
+                Expanded(
+                  child: FittedBox(
+                    // Make text full width
+                    fit: BoxFit.scaleDown,
+                    child: const Text(
+                      "Hausaufgaben",
+                      style: TextStyle(
+                        fontSize: 46,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.start,
+                    ),
                   ),
-                  textAlign: TextAlign.start,
                 ),
-                const Spacer(),
                 IconButton(
                   onPressed: () {
                     Navigator.pop(context);
@@ -168,10 +177,12 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                                       isDone: newVal!);
                                               await HomeworkDatabase.instance
                                                   .update(updatedHomework);
+
                                               setState(() {
                                                 homeworkList[index] =
                                                     updatedHomework;
                                               });
+                                              widget.callBack(homeworkList);
                                             }),
                                       ),
                                     ),
