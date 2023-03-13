@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
+import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -158,7 +159,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             GestureDetector(
               onTap: () async {
-                const storage = FlutterSecureStorage();
+                final storage = SecureStorage();
+
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
                 await storage.deleteAll();

@@ -4,6 +4,7 @@ import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:notely/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'Globals.dart' as Globals;
@@ -71,7 +72,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
 
   Future<void> getAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
-    const storage = FlutterSecureStorage();
+    final storage = SecureStorage();
     String school = prefs.getString("school") ?? "ksso";
     String username = await storage.read(key: "username") as String;
     String password = await storage.read(key: "password") as String;
