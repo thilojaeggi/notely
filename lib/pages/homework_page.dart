@@ -103,7 +103,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                       ),
                                     ),
                                     SizedBox(
-                                      width: 20,
+                                      width: 10,
                                     ),
                                     Text(
                                       DateFormat("dd.MM.yyyy").format(
@@ -114,6 +114,24 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                         fontSize: 20,
                                         fontWeight: FontWeight.w500,
                                       ),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        await HomeworkDatabase.instance
+                                            .delete(homework.id);
+                                        setState(() {
+                                          homeworkList.removeAt(index);
+                                        });
+                                        widget.callBack(homeworkList);
+                                      },
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      iconSize: 32,
                                     ),
                                   ],
                                 ),
@@ -156,7 +174,10 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                         ),
                                       ),
                                     ),
-                                    Align(
+                                    
+                                  ],
+                                ),
+                                Align(
                                       alignment: Alignment.bottomRight,
                                       child: Transform.scale(
                                         scale: 1.7,
@@ -186,8 +207,6 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                             }),
                                       ),
                                     ),
-                                  ],
-                                ),
                               ],
                             ),
                           ),
