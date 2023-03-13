@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:notely/Globals.dart' as Globals;
+import 'package:notely/secure_storage.dart';
 import 'package:notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,11 +18,19 @@ import 'config/style.dart';
 import 'helpers/HomeworkDatabase.dart';
 import 'pages/login_page.dart';
 
-const storage = FlutterSecureStorage();
-const fetchNotifications = "fetchNotifications";
+const oldStorage = FlutterSecureStorage();
+final storage = SecureStorage();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HomeworkDatabase.instance.database;
+  final oldData = await oldStorage.readAll();
+
+  if (oldData.isNotEmpty) {
+    for (final entry in oldData.entries) {
+      await storage.write(key: entry.key, value: entry.value);
+    }
+    await oldStorage.deleteAll();
+  }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
