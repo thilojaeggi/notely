@@ -487,10 +487,10 @@ class _StartPageState extends State<StartPage> {
                                                                               TextOverflow.ellipsis,
                                                                         )),
                                                                     Spacer(
-                                                                      flex: 1,
+                                                                      flex: 2,
                                                                     ),
                                                                     Expanded(
-                                                                      flex: 2,
+                                                                      flex: 3,
                                                                       child:
                                                                           Text(
                                                                         "Note: " +
