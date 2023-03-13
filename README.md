@@ -25,7 +25,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/thilojaeggi/Notely">
-    <img src="https://raw.githubusercontent.com/thilojaeggi/Notely/main/fastlane/metadata/android/en-US/images/icon.png" alt="Logo" width="128" height="128">
+    <img src="https://raw.githubusercontent.com/thilojaeggi/Notely/develop/fastlane/metadata/android/en-US/images/icon.png" alt="Logo" width="128" height="128">
   </a>
 
 <h3 align="center">Notely</h3>
