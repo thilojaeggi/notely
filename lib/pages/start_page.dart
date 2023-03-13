@@ -26,12 +26,16 @@ class _StartPageState extends State<StartPage> {
   // Make cards half approx. height of screen
   double get cardHeight => MediaQuery.of(context).size.height / 5;
   late Future<List<Homework>> homeworkFuture;
+  late Future<List<Grade>> gradeFuture;
+  late Future<Student?> studentFuture;
+
   List<Homework> homeworkList = <Homework>[];
 
   final List<String> hellos = ["Hoi", "Sali", "Ciao", "Hallo", "Salut", "Hey"];
   final Random random = Random();
   List<Exam> _examList = <Exam>[];
   List<Homework> _homeworkList = <Homework>[];
+  int randomHelloIndex = 0;
 
   Future<Student?> getMe() async {
     final url = "${Globals.apiBase}${Globals.school.toLowerCase()}/rest/v1/me";
@@ -74,6 +78,12 @@ class _StartPageState extends State<StartPage> {
     return gradeList;
   }
 
+  void homeworkCallback(List<Homework> homework) {
+    setState(() {
+      homeworkList = homework;
+    });
+  }
+
   Future<List<Exam>> getExams() async {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
@@ -111,6 +121,9 @@ class _StartPageState extends State<StartPage> {
   initState() {
     super.initState();
     homeworkFuture = getHomework();
+    gradeFuture = getGrades();
+    studentFuture = getMe();
+    randomHelloIndex = random.nextInt(hellos.length);
   }
 
   @override
@@ -120,7 +133,6 @@ class _StartPageState extends State<StartPage> {
 
   @override
   Widget build(BuildContext context) {
-    int randomHelloIndex = random.nextInt(hellos.length);
     return SafeArea(
         child: Container(
       width: double.infinity,
@@ -139,7 +151,7 @@ class _StartPageState extends State<StartPage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0),
                   child: FutureBuilder<Student?>(
-                      future: getMe(),
+                      future: studentFuture,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -149,7 +161,7 @@ class _StartPageState extends State<StartPage> {
                           );
                         }
                         Student? student = snapshot.data;
-                        print(student);
+
                         String? firstName = student?.firstName?.split(' ')[0];
                         return Text(
                           "${hellos[randomHelloIndex]} ${firstName ?? "..."}!",
@@ -274,7 +286,8 @@ class _StartPageState extends State<StartPage> {
                                           isScrollControlled: true,
                                           backgroundColor: Colors.transparent,
                                           builder: (context) => HomeworkPage(
-                                              homeworkList: _homeworkList));
+                                              homeworkList: _homeworkList,
+                                              callBack: homeworkCallback));
                                     },
                                     customBorder: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8.0),
@@ -365,7 +378,7 @@ class _StartPageState extends State<StartPage> {
                                             Expanded(
                                               child:
                                                   FutureBuilder<List<Grade>?>(
-                                                      future: getGrades(),
+                                                      future: gradeFuture,
                                                       builder:
                                                           (context, snapshot) {
                                                         if (snapshot
