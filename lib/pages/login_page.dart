@@ -130,8 +130,8 @@ class _LoginPageState extends State<LoginPage> {
             .substring(trimmedString.indexOf("#") + 1)
             .replaceAll("access_token=", "");
         final prefs = await SharedPreferences.getInstance();
-        storage.write(key: "username", value: _usernameController.text);
-        storage.write(key: "password", value: _passwordController.text);
+        await storage.write(key: "username", value: _usernameController.text);
+        await storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
         Globals.accessToken = trimmedString;
         Globals.school = dropdownValue.toLowerCase();
