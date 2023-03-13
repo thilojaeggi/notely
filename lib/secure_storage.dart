@@ -10,6 +10,11 @@ class SecureStorage {
       : _storage = FlutterSecureStorage(
           iOptions: const IOSOptions(
             accessibility: KeychainAccessibility.first_unlock,
+            accountName: 'notely',
+          ),
+          aOptions: const AndroidOptions(
+            sharedPreferencesName: 'notely',
+            encryptedSharedPreferences: true,
           ),
         );
 
