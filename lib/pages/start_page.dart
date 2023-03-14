@@ -72,11 +72,8 @@ class _StartPageState extends State<StartPage> {
             .take(7)
             .toList();
         // If grades prefs is empty store response.body (this is used for notification comparison)
-        if (prefs.getString("grades") == null ||
-            prefs.getString("grades") == "" ||
-            prefs.getString("grades") == "[]") {
-          await prefs.setString("grades", jsonEncode(gradeList));
-        }
+
+        await prefs.setString("grades", jsonEncode(gradeList));
       });
     } catch (e) {
       print(e.toString());

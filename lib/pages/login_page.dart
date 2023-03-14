@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -133,6 +134,9 @@ class _LoginPageState extends State<LoginPage> {
         await storage.write(key: "username", value: _usernameController.text);
         await storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
+        await FirebaseMessaging.instance
+            .subscribeToTopic("newGradeNotification");
+
         Globals.accessToken = trimmedString;
         Globals.school = dropdownValue.toLowerCase();
         showToast(
