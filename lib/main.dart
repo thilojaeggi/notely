@@ -80,6 +80,25 @@ void setUpNotifications() async {
 Future<void> handleBackgroundNotifications(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
   print(message.data["type"]);
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'generalNotification',
+    'Generell',
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: false,
+  );
+  const DarwinNotificationDetails darwinPlatformChannelSpecifics =
+      DarwinNotificationDetails(
+    sound: 'default',
+  );
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: darwinPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(0, "Background triggered",
+      "Background notif was triggered", platformChannelSpecifics);
   if (message.data["type"] == "general") {
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
@@ -91,8 +110,13 @@ Future<void> handleBackgroundNotifications(RemoteMessage message) async {
       priority: Priority.high,
       showWhen: false,
     );
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
+    const DarwinNotificationDetails darwinPlatformChannelSpecifics =
+        DarwinNotificationDetails(
+      sound: 'default',
+    );
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: darwinPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(0, message.notification!.title,
         message.notification!.body, platformChannelSpecifics);
   } else if (message.data["type"] == "getGrades") {
