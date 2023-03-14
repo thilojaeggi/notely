@@ -174,7 +174,7 @@ Future<bool> login() async {
     return true;
   }
 
-  await FirebaseMessaging.instance.unsubscribeFromTopic("getGrades");
+  await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
   return false;
 }
 
