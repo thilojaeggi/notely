@@ -73,7 +73,7 @@ void setUpNotifications() async {
         android: AndroidInitializationSettings('ic_stat_school')),
   );
 
-  FirebaseMessaging.onBackgroundMessage(handleBackgroundNotifications);
+  // FirebaseMessaging.onBackgroundMessage(handleBackgroundNotifications);
 }
 
 @pragma('vm:entry-point')
@@ -170,11 +170,11 @@ Future<bool> login() async {
     Globals.accessToken = trimmedString;
     Globals.school = school;
     print("Logged in");
-    await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
+    // await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
     return true;
   }
 
-  await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
+  //await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
   return false;
 }
 
