@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notely/Globals.dart' as Globals;
 import 'package:notely/secure_storage.dart';
 import 'package:notely/view_container.dart';
@@ -12,7 +15,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:firebase_core/firebase_core.dart';
+import 'Models/Grade.dart';
+import 'firebase_options.dart';
 import 'config/CustomScrollBehavior.dart';
 import 'config/style.dart';
 import 'helpers/HomeworkDatabase.dart';
@@ -20,20 +25,115 @@ import 'pages/login_page.dart';
 
 const oldStorage = FlutterSecureStorage();
 final storage = SecureStorage();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HomeworkDatabase.instance.database;
-  final oldData = await oldStorage.readAll();
 
+  setUpNotifications();
+
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
+  }
+  runApp(const Notely());
+}
+
+void migrateSecureStorage() async {
+  final oldData = await oldStorage.readAll();
   if (oldData.isNotEmpty) {
     for (final entry in oldData.entries) {
       await storage.write(key: entry.key, value: entry.value);
     }
   }
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
-  }
-  runApp(const Notely());
+}
+
+void setUpNotifications() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  print('User granted permission: ${settings.authorizationStatus}');
+  // Initialize the local notifications plugin
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  await flutterLocalNotificationsPlugin.initialize(
+    InitializationSettings(
+        android: AndroidInitializationSettings('ic_stat_school')),
+  );
+
+  FirebaseMessaging.onBackgroundMessage(handleBackgroundNotifications);
+}
+
+@pragma('vm:entry-point')
+Future<void> handleBackgroundNotifications(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+          'newGradeNotification', 'Benachrichtigung bei neuer Note',
+          importance: Importance.max, priority: Priority.high, showWhen: false);
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  final storage = SecureStorage();
+  final prefs = await SharedPreferences.getInstance();
+  // Get values fromm prefs and securestorage
+  final school = prefs.getString("school") ?? "ksso";
+  final username = await storage.read(key: "username") ?? '';
+  final password = await storage.read(key: "password") ?? '';
+  // Check if values are empty and exit if so
+  if (username.isEmpty || password.isEmpty || school.isEmpty) return;
+  // Get access token first
+  await http.post(
+      Uri.parse(Globals.apiBase +
+          school.toLowerCase() +
+          "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
+      body: {
+        "login": username,
+        "passwort": password,
+      }).then((response) async {
+    if (response.statusCode == 302) {
+      String locationHeader = response.headers['location'].toString();
+      var accessToken =
+          locationHeader.substring(0, locationHeader.indexOf('&'));
+      accessToken = accessToken
+          .substring(accessToken.indexOf("#") + 1)
+          .replaceAll("access_token=", "");
+      // Get grades from api
+      String url =
+          "${Globals.apiBase}${school.toLowerCase()}/rest/v1/me/grades";
+
+      try {
+        // If we got the access token get the grades from the api
+        await http.get(Uri.parse(url), headers: {
+          'Authorization': 'Bearer ' + accessToken,
+        }).then((response) async {
+          // If new grades are more than the old ones send a notification
+          if (jsonDecode(response.body).length <=
+              jsonDecode(prefs.getString("grades") ?? "[]").length) return;
+          print("trying to send notif");
+          await flutterLocalNotificationsPlugin.show(0, "Neue Note",
+              "Es ist eine neue Note verfügbar!", platformChannelSpecifics);
+          // Store the new grade list as string in prefs for the next time we check
+          await prefs.setString("grades", response.body);
+        });
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+  });
 }
 
 Future<bool> login() async {
@@ -69,8 +169,12 @@ Future<bool> login() async {
 
     Globals.accessToken = trimmedString;
     Globals.school = school;
+    print("Logged in");
+    await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
     return true;
   }
+
+  await FirebaseMessaging.instance.unsubscribeFromTopic("getGrades");
   return false;
 }
 
