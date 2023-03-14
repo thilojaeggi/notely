@@ -79,61 +79,81 @@ void setUpNotifications() async {
 @pragma('vm:entry-point')
 Future<void> handleBackgroundNotifications(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-          'newGradeNotification', 'Benachrichtigung bei neuer Note',
-          importance: Importance.max, priority: Priority.high, showWhen: false);
-  const NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
-  final storage = SecureStorage();
-  final prefs = await SharedPreferences.getInstance();
-  // Get values fromm prefs and securestorage
-  final school = prefs.getString("school") ?? "ksso";
-  final username = await storage.read(key: "username") ?? '';
-  final password = await storage.read(key: "password") ?? '';
-  // Check if values are empty and exit if so
-  if (username.isEmpty || password.isEmpty || school.isEmpty) return;
-  // Get access token first
-  await http.post(
-      Uri.parse(Globals.apiBase +
-          school.toLowerCase() +
-          "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
-      body: {
-        "login": username,
-        "passwort": password,
-      }).then((response) async {
-    if (response.statusCode == 302) {
-      String locationHeader = response.headers['location'].toString();
-      var accessToken =
-          locationHeader.substring(0, locationHeader.indexOf('&'));
-      accessToken = accessToken
-          .substring(accessToken.indexOf("#") + 1)
-          .replaceAll("access_token=", "");
-      // Get grades from api
-      String url =
-          "${Globals.apiBase}${school.toLowerCase()}/rest/v1/me/grades";
-
-      try {
-        // If we got the access token get the grades from the api
-        await http.get(Uri.parse(url), headers: {
-          'Authorization': 'Bearer ' + accessToken,
+  print(message.data["type"]);
+  if (message.data["type"] == "general") {
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'generalNotification',
+      'Generell',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(0, message.notification!.title,
+        message.notification!.body, platformChannelSpecifics);
+  } else if (message.data["type"] == "getGrades") {
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+            'newGradeNotification', 'Benachrichtigung bei neuer Note',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: false);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    final storage = SecureStorage();
+    final prefs = await SharedPreferences.getInstance();
+    // Get values fromm prefs and securestorage
+    final school = prefs.getString("school") ?? "ksso";
+    final username = await storage.read(key: "username") ?? '';
+    final password = await storage.read(key: "password") ?? '';
+    // Check if values are empty and exit if so
+    if (username.isEmpty || password.isEmpty || school.isEmpty) return;
+    // Get access token first
+    await http.post(
+        Uri.parse(Globals.apiBase +
+            school.toLowerCase() +
+            "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
+        body: {
+          "login": username,
+          "passwort": password,
         }).then((response) async {
-          // If new grades are more than the old ones send a notification
-          if (jsonDecode(response.body).length <=
-              jsonDecode(prefs.getString("grades") ?? "[]").length) return;
-          print("trying to send notif");
-          await flutterLocalNotificationsPlugin.show(0, "Neue Note",
-              "Es ist eine neue Note verfügbar!", platformChannelSpecifics);
-          // Store the new grade list as string in prefs for the next time we check
-          await prefs.setString("grades", response.body);
-        });
-      } catch (e) {
-        print(e.toString());
+      if (response.statusCode == 302) {
+        String locationHeader = response.headers['location'].toString();
+        var accessToken =
+            locationHeader.substring(0, locationHeader.indexOf('&'));
+        accessToken = accessToken
+            .substring(accessToken.indexOf("#") + 1)
+            .replaceAll("access_token=", "");
+        // Get grades from api
+        String url =
+            "${Globals.apiBase}${school.toLowerCase()}/rest/v1/me/grades";
+
+        try {
+          // If we got the access token get the grades from the api
+          await http.get(Uri.parse(url), headers: {
+            'Authorization': 'Bearer ' + accessToken,
+          }).then((response) async {
+            // If new grades are more than the old ones send a notification
+            if (jsonDecode(response.body).length <=
+                jsonDecode(prefs.getString("grades") ?? "[]").length) return;
+            print("trying to send notif");
+            await flutterLocalNotificationsPlugin.show(0, "Neue Note",
+                "Es ist eine neue Note verfügbar!", platformChannelSpecifics);
+            // Store the new grade list as string in prefs for the next time we check
+            await prefs.setString("grades", response.body);
+          });
+        } catch (e) {
+          print(e.toString());
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 Future<bool> login() async {
