@@ -23,7 +23,6 @@ dependencies:
   fl_toast: ^3.1.0
   dropdown_button2: ^1.6.2
   intl: ^0.17.0
-  flutter_local_notifications: ^11.0.1
   flutter_acrylic: ^1.0.0
   date_picker_timeline: ^1.2.3
   flutter_platform_alert: ^0.3.0
@@ -36,6 +35,9 @@ dependencies:
   url_launcher: ^6.1.10
   fluttericon: ^2.0.0
   sqflite: ^2.2.5
+  firebase_messaging: ^14.2.6
+  firebase_core: ^2.7.1
+  flutter_local_notifications: ^13.0.0
 dev_dependencies:
   flutter_launcher_icons: "^0.12.0"
   flutter_test:
