@@ -1,4 +1,5 @@
 import 'package:day_night_switcher/day_night_switcher.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -165,6 +166,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 await prefs.clear();
                 await storage.deleteAll();
                 await HomeworkDatabase.instance.deleteAll();
+                await FirebaseMessaging.instance
+                    .unsubscribeFromTopic("newGradeNotification");
+
                 Navigator.pushReplacement(
                     context,
                     PageTransition(
