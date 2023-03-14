@@ -75,7 +75,7 @@ class _StartPageState extends State<StartPage> {
         if (prefs.getString("grades") == null ||
             prefs.getString("grades") == "" ||
             prefs.getString("grades") == "[]") {
-          await prefs.setString("grades", jsonDecode(response.body));
+          await prefs.setString("grades", jsonEncode(gradeList));
         }
       });
     } catch (e) {
