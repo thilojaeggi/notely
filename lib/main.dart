@@ -104,6 +104,11 @@ Future<void> main() async {
   print(FirebaseMessaging.instance.getToken());
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Print the Firebase Messaging token
+  FirebaseMessaging.instance.getToken().then((String? token) {
+    assert(token != null);
+    print('Push Messaging token: $token');
+  });
 
   if (!kIsWeb) {
     await setupFlutterNotifications();
