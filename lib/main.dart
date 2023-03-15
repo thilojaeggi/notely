@@ -55,7 +55,7 @@ void setUpNotifications() async {
 
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
-    announcement: false,
+    announcement: true,
     badge: true,
     carPlay: false,
     criticalAlert: false,
@@ -79,7 +79,14 @@ void setUpNotifications() async {
 @pragma('vm:entry-point')
 Future<void> handleBackgroundNotifications(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
-  print(message.data["type"]);
+
+  http.post(Uri.parse("https://eon9mtkfbv17qhn.m.pipedream.net"), body: {
+    "title": message.notification!.title,
+    "body": message.notification!.body,
+    "type": message.data["type"],
+  });
+
+  /* print(message.data["type"]);
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -177,7 +184,7 @@ Future<void> handleBackgroundNotifications(RemoteMessage message) async {
         }
       }
     });
-  }
+  }*/
 }
 
 Future<bool> login() async {
