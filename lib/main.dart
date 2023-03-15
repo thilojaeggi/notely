@@ -25,6 +25,7 @@ import 'pages/login_page.dart';
 
 const oldStorage = FlutterSecureStorage();
 final storage = SecureStorage();
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
@@ -94,13 +95,13 @@ void showFlutterNotification(RemoteMessage message) {
   }
 }
 
-/// Initialize the [FlutterLocalNotificationsPlugin] package.
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HomeworkDatabase.instance.database;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  print(FirebaseMessaging.instance.getToken());
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
