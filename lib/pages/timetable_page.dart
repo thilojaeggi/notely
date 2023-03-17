@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:date_picker_timeline/date_picker_widget.dart';
+import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:horizontal_center_date_picker/datepicker_controller.dart';
+import 'package:horizontal_center_date_picker/horizontal_date_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:notely/Models/Homework.dart';
@@ -24,6 +26,8 @@ class _TimetablePageState extends State<TimetablePage> {
   DateTime today = DateTime.now();
   List<Event> _eventList = List.empty(growable: true);
   List<double> itemPositions = [];
+    DatePickerController _datePickerController = DatePickerController();
+
 
 // Define start and end of the day as DateTime objects
   final startOfDay = DateTime(
@@ -91,30 +95,17 @@ class _TimetablePageState extends State<TimetablePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Plan",
+                "Stundenplan",
                 style: TextStyle(
-                  fontSize: 64,
+                  fontSize: 52,
                   fontWeight: FontWeight.w400,
                 ),
                 textAlign: TextAlign.start,
               ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  DateFormat('dd.MM.yyyy').format(today).toString(),
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const Spacer(),
             ],
           ),
         ),
-        DatePicker(
+        /*DatePicker(
           DateTime.now(),
           height: 90,
           initialSelectedDate: today,
@@ -132,6 +123,24 @@ class _TimetablePageState extends State<TimetablePage> {
             });
             getData();
           },
+        ),*/
+        CalendarTimeline(
+          initialDate: today,
+          firstDate: DateTime.now(),
+          lastDate: DateTime(DateTime.now().year, 12, 31).add(Duration(days: 60)),
+          onDateSelected: (date) {
+            setState(() {
+              today = date;
+            });
+            getData();
+          },
+          leftMargin: 20,
+          monthColor: Colors.blueGrey,
+          dayColor: Theme.of(context).textTheme.headlineLarge!.color,
+          activeDayColor: Colors.white,
+          activeBackgroundDayColor: Colors.blueAccent,
+          dotsColor: Color(0xFF333A47),
+          locale: 'de',
         ),
         Expanded(
           child: (_eventList.isNotEmpty)
@@ -326,7 +335,7 @@ class _TimetablePageState extends State<TimetablePage> {
                                       width: 9.0,
                                     ),
                                     Container(
-                                      width: 2,
+                                      width: 3,
                                       height: double.infinity,
                                       color: (DateTime.now().isAfter(
                                                   DateTime.parse(
