@@ -165,7 +165,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
                 await storage.deleteAll();
-                await HomeworkDatabase.instance.deleteAll();
                 await FirebaseMessaging.instance
                     .unsubscribeFromTopic("newGradeNotification");
 
