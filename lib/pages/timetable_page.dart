@@ -4,8 +4,6 @@ import 'dart:math';
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:horizontal_center_date_picker/datepicker_controller.dart';
-import 'package:horizontal_center_date_picker/horizontal_date_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:notely/Models/Homework.dart';
@@ -26,8 +24,6 @@ class _TimetablePageState extends State<TimetablePage> {
   DateTime today = DateTime.now();
   List<Event> _eventList = List.empty(growable: true);
   List<double> itemPositions = [];
-    DatePickerController _datePickerController = DatePickerController();
-
 
 // Define start and end of the day as DateTime objects
   final startOfDay = DateTime(
@@ -127,7 +123,8 @@ class _TimetablePageState extends State<TimetablePage> {
         CalendarTimeline(
           initialDate: today,
           firstDate: DateTime.now(),
-          lastDate: DateTime(DateTime.now().year, 12, 31).add(Duration(days: 60)),
+          lastDate:
+              DateTime(DateTime.now().year, 12, 31).add(Duration(days: 60)),
           onDateSelected: (date) {
             setState(() {
               today = date;
@@ -170,6 +167,9 @@ class _TimetablePageState extends State<TimetablePage> {
                                     TextEditingController detailsController =
                                         TextEditingController();
                                     return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(16.0))),
                                       title: Text("Hausaufgabe eintragen"),
                                       content: Container(
                                         height: 200,
