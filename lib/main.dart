@@ -29,10 +29,11 @@ const oldStorage = FlutterSecureStorage();
 final storage = SecureStorage();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
   print('Handling a background message ${message.messageId}');
   RemoteNotification? notification = message.notification;
-  if (message.contentAvailable) {
+  if (message.contentAvailable || message.from == "/topics/newGradeNotification") {
     final storage = SecureStorage();
     final prefs = await SharedPreferences.getInstance();
     // Get values fromm prefs and securestorage
@@ -72,8 +73,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             print("trying to send notif");
             flutterLocalNotificationsPlugin.show(
               notification.hashCode,
-              "Neue Note",
-              "Es ist eine neue Note verfügbar!",
+              "Notely",
+              "Neue Note!",
               NotificationDetails(
                 android: AndroidNotificationDetails(
                   channel.id,
@@ -132,13 +133,14 @@ Future<void> setupFlutterNotifications() async {
   isFlutterLocalNotificationsInitialized = true;
 }
 
-
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await migrateSecureStorage();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  await messaging.requestPermission();
 
   await HomeworkDatabase.instance.database;
   // Set the background messaging handler early on, as a named top-level function
@@ -149,7 +151,6 @@ Future<void> main() async {
     await setupFlutterNotifications();
   }
   await FirebaseMessaging.instance.subscribeToTopic("all");
-   
 
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
@@ -231,7 +232,9 @@ class _NotelyState extends State<Notely> {
 
     String school = prefs.getString("school") ?? "";
 
-    if (lastVersionCode == null || lastVersionCode < currentVersionCode || kDebugMode) {
+    if (lastVersionCode == null ||
+        lastVersionCode < currentVersionCode ||
+        kDebugMode) {
       // The app was updated, show a modal popup
       showModalBottomSheet<void>(
           context: context,

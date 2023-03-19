@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -57,9 +58,11 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       getAccessToken();
+      await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
+
     }
   }
 
