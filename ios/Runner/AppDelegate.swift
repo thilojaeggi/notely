@@ -1,5 +1,7 @@
 import UIKit
 import Flutter
+import Firebase
+import FirebaseMessaging
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -7,12 +9,10 @@ import Flutter
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    FirebaseApp.configure()
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-
-  func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
-        print("did receive remote notification \(userInfo)")
-    }
+    
 
 }

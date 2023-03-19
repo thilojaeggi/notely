@@ -1,19 +1,19 @@
 PODS:
   - device_info_plus (0.0.1):
     - Flutter
-  - Firebase/CoreOnly (10.3.0):
-    - FirebaseCore (= 10.3.0)
-  - Firebase/Messaging (10.3.0):
+  - Firebase/CoreOnly (10.6.0):
+    - FirebaseCore (= 10.6.0)
+  - Firebase/Messaging (10.6.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 10.3.0)
-  - firebase_core (2.7.1):
-    - Firebase/CoreOnly (= 10.3.0)
+    - FirebaseMessaging (~> 10.6.0)
+  - firebase_core (2.8.0):
+    - Firebase/CoreOnly (= 10.6.0)
     - Flutter
   - firebase_messaging (14.2.6):
-    - Firebase/Messaging (= 10.3.0)
+    - Firebase/Messaging (= 10.6.0)
     - firebase_core
     - Flutter
-  - FirebaseCore (10.3.0):
+  - FirebaseCore (10.6.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/Logger (~> 7.8)
@@ -24,7 +24,7 @@ PODS:
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
-  - FirebaseMessaging (10.3.0):
+  - FirebaseMessaging (10.6.0):
     - FirebaseCore (~> 10.0)
     - FirebaseInstallations (~> 10.0)
     - GoogleDataTransport (~> 9.2)
@@ -151,13 +151,13 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
-  Firebase: f92fc551ead69c94168d36c2b26188263860acd9
-  firebase_core: 1ae9f9aa76e6e1edc14fb181637ad466fd6c6fa4
-  firebase_messaging: f8c01f8b540feb4196e8dbe45ae17534747d779d
-  FirebaseCore: 988754646ab3bd4bdcb740f1bfe26b9f6c0d5f2a
+  Firebase: f13680471b021937f2230ea8503c7809d8c29806
+  firebase_core: 58542d7399889ebdbb034baa72d081e54c5c814d
+  firebase_messaging: d62586831d8b081b5d9819e4e986611654b668a1
+  FirebaseCore: fa80ad16a62d52f67274b5b88304c3a318bbf9a4
   FirebaseCoreInternal: c7cd505e2136811096b225ac388d6254a2622362
   FirebaseInstallations: 13dde135fa0524e15bddb133ccc8465c53a1b3f3
-  FirebaseMessaging: e345b219fd15d325f0cf2fef28cb8ce00d851b3f
+  FirebaseMessaging: fd93783258c53ae5cdb9b41bf0c51606a677f2d5
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_inappwebview: 4fe74e5e65809c3d363febfd9e2b21aa79bb0f1c
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
