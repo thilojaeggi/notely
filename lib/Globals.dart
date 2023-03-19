@@ -6,4 +6,3 @@ String accessToken = "";
 bool debug = false;
 bool isDark = true;
 List<Exam> globalExamsList = List.empty(growable: true);
-int upcomingExams = 0;
