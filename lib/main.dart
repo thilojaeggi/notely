@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:notely/Globals.dart' as Globals;
+import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:notely/view_container.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +14,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
-import 'Models/Grade.dart';
 import 'firebase_options.dart';
 import 'config/CustomScrollBehavior.dart';
 import 'config/style.dart';
@@ -27,12 +29,10 @@ const oldStorage = FlutterSecureStorage();
 final storage = SecureStorage();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
-  showFlutterNotification(message);
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
   print('Handling a background message ${message.messageId}');
+
+  showFlutterNotification(message);
 }
 
 /// Create a [AndroidNotificationChannel] for heads up notifications
@@ -45,10 +45,10 @@ Future<void> setupFlutterNotifications() async {
     return;
   }
   channel = const AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
+    'newGradeNotification', // id
+    'Benachrichtigung bei neuer Note.', // title
     description:
-        'This channel is used for important notifications.', // description
+        'Wenn eine neue Note eingetragen wird, erhältst du eine Benachrichtigung.', // description
     importance: Importance.high,
   );
 
@@ -73,122 +73,9 @@ Future<void> setupFlutterNotifications() async {
   isFlutterLocalNotificationsInitialized = true;
 }
 
-void showFlutterNotification(RemoteMessage message) {
+Future<void> showFlutterNotification(RemoteMessage message) async {
   RemoteNotification? notification = message.notification;
-  AndroidNotification? android = message.notification?.android;
-  if (notification != null && android != null && !kIsWeb) {
-    flutterLocalNotificationsPlugin.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channelDescription: channel.description,
-          // TODO add a proper drawable resource to android, for now using
-          //      one that already exists in example app.
-          icon: 'launch_background',
-        ),
-      ),
-    );
-  }
-}
-
-late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await HomeworkDatabase.instance.database;
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print(FirebaseMessaging.instance.getToken());
-  // Set the background messaging handler early on, as a named top-level function
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  // Print the Firebase Messaging token
-  FirebaseMessaging.instance.getToken().then((String? token) {
-    assert(token != null);
-    print('Push Messaging token: $token');
-  });
-
-  if (!kIsWeb) {
-    await setupFlutterNotifications();
-  }
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
-  }
-  runApp(const Notely());
-}
-
-void migrateSecureStorage() async {
-  final oldData = await oldStorage.readAll();
-  if (oldData.isNotEmpty) {
-    for (final entry in oldData.entries) {
-      await storage.write(key: entry.key, value: entry.value);
-    }
-  }
-}
-
-/*@pragma('vm:entry-point')
-Future<void> handleBackgroundNotifications(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-
-  http.post(Uri.parse("https://eon9mtkfbv17qhn.m.pipedream.net"), body: {
-    "title": message.notification!.title,
-    "body": message.notification!.body,
-    "type": message.data["type"],
-  });
-
-  /* print(message.data["type"]);
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-    'generalNotification',
-    'Generell',
-    importance: Importance.max,
-    priority: Priority.high,
-    showWhen: false,
-  );
-  const DarwinNotificationDetails darwinPlatformChannelSpecifics =
-      DarwinNotificationDetails(
-    sound: 'default',
-  );
-  const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: darwinPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(0, "Background triggered",
-      "Background notif was triggered", platformChannelSpecifics);
-  if (message.data["type"] == "general") {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'generalNotification',
-      'Generell',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: false,
-    );
-    const DarwinNotificationDetails darwinPlatformChannelSpecifics =
-        DarwinNotificationDetails(
-      sound: 'default',
-    );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-        iOS: darwinPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(0, message.notification!.title,
-        message.notification!.body, platformChannelSpecifics);
-  } else if (message.data["type"] == "getGrades") {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-            'newGradeNotification', 'Benachrichtigung bei neuer Note',
-            importance: Importance.max,
-            priority: Priority.high,
-            showWhen: false);
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
+  if (message.contentAvailable) {
     final storage = SecureStorage();
     final prefs = await SharedPreferences.getInstance();
     // Get values fromm prefs and securestorage
@@ -226,8 +113,19 @@ Future<void> handleBackgroundNotifications(RemoteMessage message) async {
             if (jsonDecode(response.body).length <=
                 jsonDecode(prefs.getString("grades") ?? "[]").length) return;
             print("trying to send notif");
-            await flutterLocalNotificationsPlugin.show(0, "Neue Note",
-                "Es ist eine neue Note verfügbar!", platformChannelSpecifics);
+            flutterLocalNotificationsPlugin.show(
+              notification.hashCode,
+              "Neue Note",
+              "Es ist eine neue Note verfügbar!",
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  channel.id,
+                  channel.name,
+                  channelDescription: channel.description,
+                  icon: 'ic_stat_school',
+                ),
+              ),
+            );
             // Store the new grade list as string in prefs for the next time we check
             await prefs.setString("grades", response.body);
           });
@@ -236,15 +134,50 @@ Future<void> handleBackgroundNotifications(RemoteMessage message) async {
         }
       }
     });
-  }*/
-}*/
+  }
+}
+
+late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await HomeworkDatabase.instance.database;
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Set the background messaging handler early on, as a named top-level function
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Print the Firebase Messaging token
+  FirebaseMessaging.instance.getToken().then((String? token) {
+    assert(token != null);
+    print('Push Messaging token: $token');
+  });
+  await FirebaseMessaging.instance.subscribeToTopic("all");
+
+  if (!kIsWeb) {
+    await setupFlutterNotifications();
+  }
+
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
+  }
+  runApp(const Notely());
+}
+
+Future<void> migrateSecureStorage() async {
+  final oldData = await oldStorage.readAll();
+  if (oldData.isNotEmpty) {
+    for (final entry in oldData.entries) {
+      await storage.write(key: entry.key, value: entry.value);
+    }
+  }
+}
 
 Future<bool> login() async {
   final prefs = await SharedPreferences.getInstance();
   final school = prefs.getString("school")?.toLowerCase() ?? '';
   final username = await storage.read(key: "username") ?? '';
   final password = await storage.read(key: "password") ?? '';
-
   if (username.isEmpty || password.isEmpty || school.isEmpty) {
     return false;
   }
@@ -274,10 +207,11 @@ Future<bool> login() async {
     Globals.school = school;
     print("Logged in");
     await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
+
     return true;
   }
-
   await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
+
   return false;
 }
 
@@ -290,6 +224,24 @@ class Notely extends StatefulWidget {
 
 class _NotelyState extends State<Notely> {
   late Future<bool> isLoggedIn;
+
+  Future<void> checkForUpdates(BuildContext context) async {
+    // Get the current version code of the app
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    int currentVersionCode = int.parse(packageInfo.buildNumber);
+
+    // Get the last version code of the app stored in SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? lastVersionCode = prefs.getInt('version_code');
+
+    String school = prefs.getString("school") ?? "";
+
+    if (lastVersionCode == null || lastVersionCode < currentVersionCode) {
+      // The app was updated, show a modal popup
+      print("new release");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -304,7 +256,6 @@ class _NotelyState extends State<Notely> {
       defaultThemeId: "dark_theme",
       onInitCallback: (controller, previouslySavedThemeFuture) async {
         String? savedTheme = await previouslySavedThemeFuture;
-
         if (savedTheme != null) {
           // If previous theme saved, use saved theme
           controller.setTheme(savedTheme);
