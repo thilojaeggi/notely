@@ -31,49 +31,6 @@ final storage = SecureStorage();
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await setupFlutterNotifications();
   print('Handling a background message ${message.messageId}');
-
-  showFlutterNotification(message);
-}
-
-/// Create a [AndroidNotificationChannel] for heads up notifications
-late AndroidNotificationChannel channel;
-
-bool isFlutterLocalNotificationsInitialized = false;
-
-Future<void> setupFlutterNotifications() async {
-  if (isFlutterLocalNotificationsInitialized) {
-    return;
-  }
-  channel = const AndroidNotificationChannel(
-    'newGradeNotification', // id
-    'Benachrichtigung bei neuer Note.', // title
-    description:
-        'Wenn eine neue Note eingetragen wird, erhältst du eine Benachrichtigung.', // description
-    importance: Importance.high,
-  );
-
-  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  /// Create an Android Notification Channel.
-  ///
-  /// We use this channel in the `AndroidManifest.xml` file to override the
-  /// default FCM channel to enable heads up notifications.
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  /// Update the iOS foreground notification presentation options to allow
-  /// heads up notifications.
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-  isFlutterLocalNotificationsInitialized = true;
-}
-
-Future<void> showFlutterNotification(RemoteMessage message) async {
   RemoteNotification? notification = message.notification;
   if (message.contentAvailable) {
     final storage = SecureStorage();
@@ -137,26 +94,62 @@ Future<void> showFlutterNotification(RemoteMessage message) async {
   }
 }
 
+/// Create a [AndroidNotificationChannel] for heads up notifications
+late AndroidNotificationChannel channel;
+
+bool isFlutterLocalNotificationsInitialized = false;
+
+Future<void> setupFlutterNotifications() async {
+  if (isFlutterLocalNotificationsInitialized) {
+    return;
+  }
+  channel = const AndroidNotificationChannel(
+    'newGradeNotification', // id
+    'Benachrichtigung bei neuer Note.', // title
+    description:
+        'Wenn eine neue Note eingetragen wird, erhältst du eine Benachrichtigung.', // description
+    importance: Importance.high,
+  );
+
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  /// Create an Android Notification Channel.
+  ///
+  /// We use this channel in the `AndroidManifest.xml` file to override the
+  /// default FCM channel to enable heads up notifications.
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  /// Update the iOS foreground notification presentation options to allow
+  /// heads up notifications.
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  isFlutterLocalNotificationsInitialized = true;
+}
+
+
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await migrateSecureStorage();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   await HomeworkDatabase.instance.database;
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   // Print the Firebase Messaging token
-  FirebaseMessaging.instance.getToken().then((String? token) {
-    assert(token != null);
-    print('Push Messaging token: $token');
-  });
-  await FirebaseMessaging.instance.subscribeToTopic("all");
 
   if (!kIsWeb) {
     await setupFlutterNotifications();
   }
-  migrateSecureStorage();
+  await FirebaseMessaging.instance.subscribeToTopic("all");
+   
 
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
@@ -238,7 +231,7 @@ class _NotelyState extends State<Notely> {
 
     String school = prefs.getString("school") ?? "";
 
-    if (lastVersionCode == null || lastVersionCode < currentVersionCode) {
+    if (lastVersionCode == null || lastVersionCode < currentVersionCode || kDebugMode) {
       // The app was updated, show a modal popup
       showModalBottomSheet<void>(
           context: context,
@@ -246,6 +239,7 @@ class _NotelyState extends State<Notely> {
           builder: (BuildContext context) {
             return WhatsNew(school: school);
           });
+      prefs.setInt('version_code', currentVersionCode);
     }
   }
 
@@ -341,7 +335,7 @@ class _NotelyState extends State<Notely> {
                     )));
                   } else if (snapshot.hasError) {
                     return const Center(
-                      child: Text("Error, versuche es spter erneut!"),
+                      child: Text("Error, versuche es später erneut!"),
                     );
                   }
                   bool loggedIn = snapshot.data ?? false;
