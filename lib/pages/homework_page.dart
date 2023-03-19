@@ -29,7 +29,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: new BoxDecoration(
-        color: Theme.of(context).canvasColor.withOpacity(0.95),
+        color: Theme.of(context).canvasColor.withOpacity(0.96),
         borderRadius: new BorderRadius.only(
           topLeft: const Radius.circular(16.0),
           topRight: const Radius.circular(16.0),
@@ -218,11 +218,12 @@ class _HomeworkPageState extends State<HomeworkPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Text("😄", style: TextStyle(fontSize: 128),),
                           Text(
-                            "Keine Hausaufgaben vorhanden, geniesse den Tag!",
+                            "Keine Hausaufgaben vorhanden!",
                             style: TextStyle(
                               fontSize: 24,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w700,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -230,9 +231,9 @@ class _HomeworkPageState extends State<HomeworkPage> {
                             height: 20,
                           ),
                           Text(
-                              "Hausaufgaben kannst du hinzufügen, indem du auf eine Lektion unter \"Plan\" tippst.",
+                              "Hausaufgaben kannst du hinzufügen, indem du auf eine zukünftige Lektion unter \"Plan\" tippst.",
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w500,
                               ),
                               textAlign: TextAlign.center),

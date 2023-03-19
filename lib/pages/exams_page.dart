@@ -21,7 +21,7 @@ class _ExamsPageState extends State<ExamsPage> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: new BoxDecoration(
-        color: Theme.of(context).canvasColor.withOpacity(0.95),
+        color: Theme.of(context).canvasColor.withOpacity(0.96),
         borderRadius: new BorderRadius.only(
           topLeft: const Radius.circular(16.0),
           topRight: const Radius.circular(16.0),
@@ -53,7 +53,7 @@ class _ExamsPageState extends State<ExamsPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
+            child: (examList.isNotEmpty) ? ListView.builder(
               shrinkWrap: true,
               itemCount: examList.length,
               itemBuilder: (BuildContext ctxt, int index) {
@@ -116,7 +116,33 @@ class _ExamsPageState extends State<ExamsPage> {
                   ),
                 );
               },
-            ),
+            ) : Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("😄", style: TextStyle(fontSize: 128),),
+                          Text(
+                            "Keine Tests vorhanden!",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                              "Tests werden automatisch aus dem Kaschuso ausgelesen.",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center),
+                        ],
+                      ),
+                    ),
           ),
         ],
       ),
