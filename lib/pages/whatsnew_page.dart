@@ -27,7 +27,6 @@ class _WhatsNewState extends State<WhatsNew> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Spacer(),
                   ListTile(
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +43,6 @@ class _WhatsNewState extends State<WhatsNew> {
                       'Bei einer neuen Note erhältst du nun automatisch eine Benachrichtigung sofern du die Berechtigung akzeptierst.',
                     ),
                   ),
-                  Spacer(),
                   ListTile(
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +62,6 @@ class _WhatsNewState extends State<WhatsNew> {
                       'Du kannst nun auf eine Lektion im Stundenplan tippen um eine Hausaufgabe einzutragen.',
                     ),
                   ),
-                  Spacer(),
                   (widget.school.toLowerCase() == "ksso")
                       ? ListTile(
                           leading: Column(
@@ -85,7 +82,6 @@ class _WhatsNewState extends State<WhatsNew> {
                               'Auf der Noten Seite werden dir nun deine Promotionspunkte angezeigt.'),
                         )
                       : SizedBox.shrink(),
-                  Spacer(),
                   ListTile(
                     leading: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
