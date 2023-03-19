@@ -141,9 +141,8 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await HomeworkDatabase.instance.database;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await HomeworkDatabase.instance.database;
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -157,6 +156,7 @@ Future<void> main() async {
   if (!kIsWeb) {
     await setupFlutterNotifications();
   }
+  migrateSecureStorage();
 
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
@@ -178,6 +178,7 @@ Future<bool> login() async {
   final school = prefs.getString("school")?.toLowerCase() ?? '';
   final username = await storage.read(key: "username") ?? '';
   final password = await storage.read(key: "password") ?? '';
+
   if (username.isEmpty || password.isEmpty || school.isEmpty) {
     return false;
   }
@@ -224,6 +225,7 @@ class Notely extends StatefulWidget {
 
 class _NotelyState extends State<Notely> {
   late Future<bool> isLoggedIn;
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   Future<void> checkForUpdates(BuildContext context) async {
     // Get the current version code of the app
@@ -238,7 +240,12 @@ class _NotelyState extends State<Notely> {
 
     if (lastVersionCode == null || lastVersionCode < currentVersionCode) {
       // The app was updated, show a modal popup
-      print("new release");
+      showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          builder: (BuildContext context) {
+            return WhatsNew(school: school);
+          });
     }
   }
 
@@ -246,6 +253,9 @@ class _NotelyState extends State<Notely> {
   void initState() {
     super.initState();
     isLoggedIn = login();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.microtask(() => checkForUpdates(navigatorKey.currentContext!));
+    });
   }
 
   @override
@@ -256,6 +266,7 @@ class _NotelyState extends State<Notely> {
       defaultThemeId: "dark_theme",
       onInitCallback: (controller, previouslySavedThemeFuture) async {
         String? savedTheme = await previouslySavedThemeFuture;
+
         if (savedTheme != null) {
           // If previous theme saved, use saved theme
           controller.setTheme(savedTheme);
@@ -294,6 +305,7 @@ class _NotelyState extends State<Notely> {
       child: ThemeConsumer(
         child: Builder(
           builder: (themeContext) => MaterialApp(
+            navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
             home: FutureBuilder<bool>(
