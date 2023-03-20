@@ -26,7 +26,6 @@ dependencies:
   flutter_acrylic: ^1.0.0
   flutter_platform_alert: ^0.3.0
   flutter_inappwebview: ^6.0.0-beta.22
-  flutter_spinkit: ^5.1.0
   device_info_plus: ^4.1.2
   auto_size_text: ^3.0.0
   flutter_cache_manager: ^3.3.0
@@ -38,6 +37,8 @@ dependencies:
   calendar_timeline: ^1.1.2
   firebase_core: ^2.8.0
   firebase_messaging: ^14.3.0
+  loading_animation_widget: ^1.2.0+4
+  shimmer: ^2.0.0
 dev_dependencies:
   flutter_launcher_icons: "^0.12.0"
   flutter_test:
