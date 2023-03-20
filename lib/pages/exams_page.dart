@@ -70,6 +70,7 @@ class _ExamsPageState extends State<ExamsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                       
                         Row(
                           children: [
                             Expanded(
@@ -77,10 +78,10 @@ class _ExamsPageState extends State<ExamsPage> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  examList[index].text.toString(),
+                                  examList[index].courseName.toString(),
                                   style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500),
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),
@@ -95,20 +96,21 @@ class _ExamsPageState extends State<ExamsPage> {
                             ),
                           ],
                         ),
-                        Row(
+                         Row(
                           children: [
                             Expanded(
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  examList[index].courseName.toString(),
+                                  examList[index].text.toString(),
                                   style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400),
                                 ),
                               ),
                             ),
+                            
                           ],
                         ),
                       ],
