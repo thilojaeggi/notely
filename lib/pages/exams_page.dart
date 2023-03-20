@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../Globals.dart' as Globals;
 import '../Models/Exam.dart';
 
 class ExamsPage extends StatefulWidget {
@@ -20,13 +17,14 @@ class _ExamsPageState extends State<ExamsPage> {
 
   @override
   Widget build(BuildContext context) {
+    List examList = widget.examList;
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: new BoxDecoration(
-        color: Theme.of(context).canvasColor.withOpacity(0.95),
+        color: Theme.of(context).canvasColor.withOpacity(0.96),
         borderRadius: new BorderRadius.only(
-          topLeft: const Radius.circular(25.0),
-          topRight: const Radius.circular(25.0),
+          topLeft: const Radius.circular(16.0),
+          topRight: const Radius.circular(16.0),
         ),
       ),
       child: Column(
@@ -55,9 +53,9 @@ class _ExamsPageState extends State<ExamsPage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
+            child: (examList.isNotEmpty) ? ListView.builder(
               shrinkWrap: true,
-              itemCount: widget.examList.length,
+              itemCount: examList.length,
               itemBuilder: (BuildContext ctxt, int index) {
                 return Card(
                   elevation: 3,
@@ -72,6 +70,7 @@ class _ExamsPageState extends State<ExamsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                       
                         Row(
                           children: [
                             Expanded(
@@ -79,11 +78,10 @@ class _ExamsPageState extends State<ExamsPage> {
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  widget.examList[index].text
-                                      .toString(),
+                                  examList[index].courseName.toString(),
                                   style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500),
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),
@@ -92,28 +90,27 @@ class _ExamsPageState extends State<ExamsPage> {
                             ),
                             Text(
                               DateFormat("dd.MM.yyyy").format(DateTime.parse(
-                                  widget.examList[index].startDate
-                                      .toString())),
+                                  examList[index].startDate.toString())),
                               style: const TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
-                        Row(
+                         Row(
                           children: [
                             Expanded(
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  widget.examList[index].courseName
-                                      .toString(),
+                                  examList[index].text.toString(),
                                   style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400),
                                 ),
                               ),
                             ),
+                            
                           ],
                         ),
                       ],
@@ -121,7 +118,33 @@ class _ExamsPageState extends State<ExamsPage> {
                   ),
                 );
               },
-            ),
+            ) : Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("😄", style: TextStyle(fontSize: 128),),
+                          Text(
+                            "Keine Tests vorhanden!",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Text(
+                              "Tests werden automatisch aus dem Kaschuso ausgelesen.",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center),
+                        ],
+                      ),
+                    ),
           ),
         ],
       ),

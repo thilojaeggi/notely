@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -5,7 +6,7 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:notely/widgets/dynamic_toast.dart';
+import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -106,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> signIn() async {
-    const storage = FlutterSecureStorage();
+    final storage = SecureStorage();
     String url = Globals.apiBase +
         "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl";
     print(url);
@@ -130,9 +131,12 @@ class _LoginPageState extends State<LoginPage> {
             .substring(trimmedString.indexOf("#") + 1)
             .replaceAll("access_token=", "");
         final prefs = await SharedPreferences.getInstance();
-        storage.write(key: "username", value: _usernameController.text);
-        storage.write(key: "password", value: _passwordController.text);
+        await storage.write(key: "username", value: _usernameController.text);
+        await storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
+        await FirebaseMessaging.instance
+            .subscribeToTopic("newGradeNotification");
+
         Globals.accessToken = trimmedString;
         Globals.school = dropdownValue.toLowerCase();
         showToast(

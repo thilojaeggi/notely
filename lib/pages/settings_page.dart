@@ -1,10 +1,10 @@
 import 'package:day_night_switcher/day_night_switcher.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mailto/mailto.dart';
+import 'package:notely/helpers/HomeworkDatabase.dart';
+import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -124,13 +124,11 @@ class _SettingsPageState extends State<SettingsPage> {
             GestureDetector(
               onTap: () {
                 final Uri emailLaunchUri = Uri(
-                  scheme: 'mailto',
-                  path: 'thilo.jaeggi@ksso.ch',
-                  query:
-                    'subject=Notely Problem ' + Globals.school
-                    + '&body=Dein Problem: '
-                  
-                );
+                    scheme: 'mailto',
+                    path: 'thilo.jaeggi@ksso.ch',
+                    query: 'subject=Notely Problem ' +
+                        Globals.school +
+                        '&body=Dein Problem: ');
                 launchUrl(emailLaunchUri);
               },
               child: Card(
@@ -162,10 +160,14 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             GestureDetector(
               onTap: () async {
-                const storage = FlutterSecureStorage();
+                final storage = SecureStorage();
+
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
                 await storage.deleteAll();
+                await FirebaseMessaging.instance
+                    .unsubscribeFromTopic("newGradeNotification");
+
                 Navigator.pushReplacement(
                     context,
                     PageTransition(

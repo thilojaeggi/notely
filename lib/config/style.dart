@@ -4,8 +4,8 @@ class Styles {
   static ThemeData themeData(bool isDarkTheme, BuildContext context) {
     return ThemeData(
         useMaterial3: false,
-        fontFamily: "WorkSans",
-        primaryColor: isDarkTheme ? Colors.black : Colors.white,
+        fontFamily: "Poppins",
+        primaryColor: Colors.blueAccent,
         indicatorColor: isDarkTheme ? Color(0xff0E1D36) : Color(0xffCBDCF8),
         hintColor: isDarkTheme ? Color(0xff280C0B) : Color(0xffEECED3),
         focusColor: isDarkTheme ? Color(0xff0B2512) : Color(0xffA8DAB5),

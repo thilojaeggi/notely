@@ -1,12 +1,14 @@
 import 'dart:convert';
-
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:shimmer/shimmer.dart';
 
 import '../Models/Grade.dart';
 import '../Globals.dart' as Globals;
@@ -22,8 +24,8 @@ class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
   Color good = Colors.blueAccent;
   Color bad = Colors.redAccent;
-  late double targetGrade;
-
+  late Future<Map<String, dynamic>> _gradesDataFuture;
+  double lowestGradePoints = 0;
   final ScrollController _scrollController = ScrollController();
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
@@ -55,6 +57,7 @@ class _GradesPageState extends State<GradesPage> {
         Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
     debugPrint(url);
     debugPrint(Globals.accessToken);
+    await Future.delayed(const Duration(seconds: 3));
     try {
       final response = await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
@@ -62,6 +65,7 @@ class _GradesPageState extends State<GradesPage> {
       final gradeList = (json.decode(response.body) as List)
           .map((i) => Grade.fromJson(i))
           .toList();
+      print(jsonEncode(gradeList));
       prefs.setString("gradeList", json.encode(gradeList));
       final groupedCoursesMap = gradeList.groupBy((m) => m.subject);
       final averageGradeMap = {};
@@ -72,14 +76,28 @@ class _GradesPageState extends State<GradesPage> {
           combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
           combinedWeight += grade.weight!;
         }
+
         averageGradeMap.addAll({
           groupedCoursesMap.keys.elementAt(i):
               (combinedGrade / combinedWeight).toStringAsFixed(3)
         });
       }
+      final lowestAverages = averageGradeMap.values
+          .map((value) => double.parse(value))
+          .toList()
+        ..sort();
+      final numLowest = min(5, averageGradeMap.length);
+      final lowestValues = lowestAverages.take(numLowest).toList();
+      double lowestGradePoints = 0;
+
+      for (var i = 0; i < lowestValues.length; i++) {
+        lowestGradePoints += lowestValues[i];
+      }
+      lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
       return {
         'groupedCoursesMap': groupedCoursesMap,
         'averageGradeMap': averageGradeMap,
+        'lowestGradePoints': lowestGradePoints,
       };
     } catch (e) {
       print(e.toString());
@@ -93,17 +111,17 @@ class _GradesPageState extends State<GradesPage> {
   @override
   initState() {
     super.initState();
+    _gradesDataFuture = getGrades();
   }
 
   Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,
       Map averageGradeMap) {
     final GlobalKey expansionTileKey = GlobalKey();
-
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 10, left: 10.0, right: 10.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(6),
       ),
       clipBehavior: Clip.antiAlias,
       shadowColor: Colors.transparent.withOpacity(0.5),
@@ -121,14 +139,14 @@ class _GradesPageState extends State<GradesPage> {
             child: Text(
               groupedCoursesMap.keys.elementAt(index),
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
           trailing: Text(
             "Ø " + averageGradeMap.values.elementAt(index),
-            style: const TextStyle(fontSize: 20),
+            style: const TextStyle(fontSize: 22),
           ),
           children: [
             Padding(
@@ -145,7 +163,7 @@ class _GradesPageState extends State<GradesPage> {
                         Card(
                           elevation: 3,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           shadowColor: gradeColor(groupedCoursesMap.values
                               .elementAt(index)[i]
@@ -170,7 +188,7 @@ class _GradesPageState extends State<GradesPage> {
                                               .title,
                                           style: const TextStyle(
                                               fontSize: 18,
-                                              fontWeight: FontWeight.w500),
+                                              fontWeight: FontWeight.w600),
                                         ),
                                       ),
                                     ),
@@ -189,7 +207,7 @@ class _GradesPageState extends State<GradesPage> {
                                               .mark
                                               .toDouble()),
                                           fontSize: 18,
-                                          fontWeight: FontWeight.w400),
+                                          fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
@@ -199,7 +217,10 @@ class _GradesPageState extends State<GradesPage> {
                                   children: [
                                     Text(
                                       "Gewichtung: ${groupedCoursesMap.values.elementAt(index)[i].weight}",
-                                      style: const TextStyle(fontSize: 16),
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     Text(
                                       DateFormat("dd.MM.yyyy").format(
@@ -207,7 +228,10 @@ class _GradesPageState extends State<GradesPage> {
                                               .values
                                               .elementAt(index)[i]
                                               .date)),
-                                      style: const TextStyle(fontSize: 16),
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -357,20 +381,90 @@ class _GradesPageState extends State<GradesPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 8.0),
-          child: Text(
-            "Noten",
-            style: TextStyle(
-              fontSize: 64,
-              fontWeight: FontWeight.w400,
-            ),
-            textAlign: TextAlign.start,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                "Noten",
+                style: TextStyle(
+                  fontSize: 64,
+                  fontWeight: FontWeight.w400,
+                ),
+                textAlign: TextAlign.start,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              (Globals.school == "ksso")
+                  ? FutureBuilder<Map<String, dynamic>>(
+                      future: _gradesDataFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(right: 10.0, bottom: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text("Promotionspunkte"),
+                                Shimmer.fromColors(
+                                  child: Text(
+                                    "..........",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    textAlign: TextAlign.end,
+                                  ),
+                                  baseColor: Theme.of(context).canvasColor,
+                                  highlightColor: Theme.of(context).textTheme.bodyMedium!.color!,
+                                ),
+                              ],
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              'Error: ${snapshot.error}',
+                            ),
+                          );
+                        }
+
+                        final double lowestGradePoints =
+                            snapshot.data?['lowestGradePoints'];
+                        return Padding(
+                          padding:
+                              const EdgeInsets.only(right: 10.0, bottom: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text("Promotionspunkte"),
+                              Text(
+                                "${lowestGradePoints.toString()}",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w400,
+                                  color: lowestGradePoints >= 19
+                                      ? Colors.green
+                                      : Colors.red,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            ],
+                          ),
+                        );
+                      })
+                  : SizedBox.shrink(),
+            ],
           ),
         ),
         Expanded(
           child: FutureBuilder<Map<String, dynamic>>(
-              future: getGrades(),
+              future: _gradesDataFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -385,6 +479,7 @@ class _GradesPageState extends State<GradesPage> {
                       snapshot.data?['groupedCoursesMap'] ?? {};
                   final averageGradeMap =
                       snapshot.data?['averageGradeMap'] ?? {};
+
                   return ListView.builder(
                       controller: _scrollController,
                       shrinkWrap: true,

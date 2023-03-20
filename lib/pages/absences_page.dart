@@ -16,7 +16,6 @@ class AbsencesPage extends StatefulWidget {
 }
 
 class _AbsencesPageState extends State<AbsencesPage> {
-
   Future<List<Absence?>> getAbsences() async {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
@@ -67,7 +66,8 @@ class _AbsencesPageState extends State<AbsencesPage> {
             child: FutureBuilder<List<Absence?>>(
                 future: getAbsences(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+                  if (snapshot.connectionState == ConnectionState.waiting ||
+                      !snapshot.hasData) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
@@ -87,7 +87,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
                         margin: const EdgeInsets.only(
                             bottom: 10, left: 10.0, right: 10.0),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         clipBehavior: Clip.antiAlias,
                         shadowColor:
@@ -96,7 +96,8 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                 ? Colors.blue
                                 : Colors.red,
                         child: Container(
-                          padding: EdgeInsets.all(10.0),
+                          padding: EdgeInsets.only(
+                              left: 7.0, right: 7.0, top: 2.0, bottom: 2.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -132,9 +133,27 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    absenceList[index]!.hourFrom.toString() +
+                                    absenceList[index]!
+                                            .hourFrom
+                                            .toString()
+                                            .substring(
+                                                0,
+                                                absenceList[index]!
+                                                        .hourFrom!
+                                                        .toString()
+                                                        .length -
+                                                    3) +
                                         " - " +
-                                        absenceList[index]!.hourTo.toString(),
+                                        absenceList[index]!
+                                            .hourTo
+                                            .toString()
+                                            .substring(
+                                                0,
+                                                absenceList[index]!
+                                                        .hourTo!
+                                                        .toString()
+                                                        .length -
+                                                    3),
                                     style: const TextStyle(
                                       fontSize: 16,
                                     ),

@@ -1,14 +1,15 @@
 import 'dart:ui';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:notely/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'Globals.dart' as Globals;
 
-import 'Globals.dart';
 import 'pages/absences_page.dart';
 import 'pages/grades_page.dart';
 import 'pages/settings_page.dart';
@@ -57,9 +58,11 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       getAccessToken();
+      await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
+
     }
   }
 
@@ -72,7 +75,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
 
   Future<void> getAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
-    const storage = FlutterSecureStorage();
+    final storage = SecureStorage();
     String school = prefs.getString("school") ?? "ksso";
     String username = await storage.read(key: "username") as String;
     String password = await storage.read(key: "password") as String;
@@ -181,7 +184,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                 filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
-                  selectedItemColor: Colors.blue[400],
+                  selectedItemColor: Colors.blueAccent,
                   backgroundColor: Colors.grey.withOpacity(0.1),
                   elevation: 0,
                   items: const <BottomNavigationBarItem>[

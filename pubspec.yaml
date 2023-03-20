@@ -2,9 +2,9 @@ name: notely
 description: A new Flutter project.
 publish_to: 'none'
 
-version: 1.0.9+8
+version: 1.1.0+9
 environment:
-  sdk: ">=2.17.5 <3.0.0"
+  sdk: ">=2.18.5 <3.0.0"
 
 dependencies:
   flutter:
@@ -19,23 +19,28 @@ dependencies:
   flutter_secure_storage: ^6.0.0
   page_transition: ^2.0.9
   day_night_switcher: ^0.2.0+1
-  package_info_plus: ^1.4.2
+  package_info_plus: ^1.4.3
   fl_toast: ^3.1.0
   dropdown_button2: ^1.6.2
   intl: ^0.17.0
-  flutter_local_notifications: ^11.0.1
   flutter_acrylic: ^1.0.0
-  date_picker_timeline: ^1.2.3
   flutter_platform_alert: ^0.3.0
   flutter_inappwebview: ^6.0.0-beta.22
-  flutter_spinkit: ^5.1.0
   device_info_plus: ^4.1.2
   auto_size_text: ^3.0.0
   flutter_cache_manager: ^3.3.0
   mailto: ^2.0.0
   url_launcher: ^6.1.10
+  fluttericon: ^2.0.0
+  sqflite: ^2.2.5
+  flutter_local_notifications: ^13.0.0
+  calendar_timeline: ^1.1.2
+  firebase_core: ^2.8.0
+  firebase_messaging: ^14.3.0
+  loading_animation_widget: ^1.2.0+4
+  shimmer: ^2.0.0
 dev_dependencies:
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: "^0.12.0"
   flutter_test:
     sdk: flutter
 
@@ -48,23 +53,23 @@ flutter_icons:
 flutter:
   uses-material-design: true
   fonts:
-    - family: WorkSans
+    - family: Poppins
       fonts:
-        - asset: fonts/WorkSans-Thin.ttf
+        - asset: fonts/Poppins-Thin.ttf
           weight: 100
-        - asset: fonts/WorkSans-ExtraLight.ttf
+        - asset: fonts/Poppins-ExtraLight.ttf
           weight: 200
-        - asset: fonts/WorkSans-Light.ttf
+        - asset: fonts/Poppins-Light.ttf
           weight: 300
-        - asset: fonts/WorkSans-Regular.ttf
+        - asset: fonts/Poppins-Regular.ttf
           weight: 400
-        - asset: fonts/WorkSans-Medium.ttf
+        - asset: fonts/Poppins-Medium.ttf
           weight: 500
-        - asset: fonts/WorkSans-SemiBold.ttf
+        - asset: fonts/Poppins-SemiBold.ttf
           weight: 600
-        - asset: fonts/WorkSans-Bold.ttf
+        - asset: fonts/Poppins-Bold.ttf
           weight: 700
-        - asset: fonts/WorkSans-ExtraBold.ttf
+        - asset: fonts/Poppins-ExtraBold.ttf
           weight: 800
-        - asset: fonts/WorkSans-Black.ttf
+        - asset: fonts/Poppins-Black.ttf
           weight: 900
