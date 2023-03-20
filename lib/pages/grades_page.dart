@@ -57,7 +57,6 @@ class _GradesPageState extends State<GradesPage> {
         Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
     debugPrint(url);
     debugPrint(Globals.accessToken);
-    await Future.delayed(const Duration(seconds: 3));
     try {
       final response = await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
