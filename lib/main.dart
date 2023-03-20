@@ -33,7 +33,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await setupFlutterNotifications();
   print('Handling a background message ${message.messageId}');
   RemoteNotification? notification = message.notification;
-  if (message.contentAvailable || message.from == "/topics/newGradeNotification") {
+  if (message.contentAvailable ||
+      message.from == "/topics/newGradeNotification") {
     final storage = SecureStorage();
     final prefs = await SharedPreferences.getInstance();
     // Get values fromm prefs and securestorage
@@ -140,8 +141,11 @@ Future<void> main() async {
   await migrateSecureStorage();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission();
-
+  try {
+    await messaging.requestPermission();
+  } catch (e) {
+    print("Failed to request FCM permission: $e");
+  }
   await HomeworkDatabase.instance.database;
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -150,10 +154,10 @@ Future<void> main() async {
   if (!kIsWeb) {
     await setupFlutterNotifications();
   }
-  await FirebaseMessaging.instance.subscribeToTopic("all");
-
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
+  try {
+    await messaging.subscribeToTopic("all");
+  } catch (e) {
+    print("Failed to subscribe to topic all with error: $e");
   }
   runApp(const Notely());
 }
@@ -322,7 +326,8 @@ class _NotelyState extends State<Notely> {
                         SizedBox(
                           height: 10,
                         ),
-                        LoadingAnimationWidget.waveDots(color: Colors.white, size: 48),
+                        LoadingAnimationWidget.waveDots(
+                            color: Colors.white, size: 48),
                         SizedBox(
                           height: 10,
                         ),

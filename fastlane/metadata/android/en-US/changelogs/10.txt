@@ -1,0 +1,16 @@
+Probably the biggest update yet:
+News:
+- New modern app icon
+- Homework can now be entered (just tap on a lesson in the timetable)
+- Home page shows unfinished homework
+- Notification for new grade!
+- For KSSO students: promotion points are calculated directly
+
+Improvements:
+- Bugfixes
+- Performance improvements
+- Layout changes (readability has been improved in several places)
+
+Due to recent events:
+In case of a bug or display error, please report it to me directly, either at my email address or in Settings -> Support.
+
