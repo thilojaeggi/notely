@@ -155,9 +155,9 @@ Future<void> main() async {
     await setupFlutterNotifications();
   }
   try {
-    await FirebaseMessaging.instance.subscribeToTopic("all");
+    await messaging.subscribeToTopic("all");
   } catch (e) {
-    print(e);
+    print("Failed to subscribe to topic all with error: $e");
   }
   runApp(const Notely());
 }
