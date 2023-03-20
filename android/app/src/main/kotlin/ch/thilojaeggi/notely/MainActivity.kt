@@ -1,4 +1,4 @@
-package ch.thilojaeggi.schulnetz
+package ch.thilojaeggi.notely
 
 import io.flutter.embedding.android.FlutterActivity
 
