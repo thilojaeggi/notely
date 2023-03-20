@@ -8,6 +8,7 @@ import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:shimmer/shimmer.dart';
 
 import '../Models/Grade.dart';
 import '../Globals.dart' as Globals;
@@ -56,6 +57,7 @@ class _GradesPageState extends State<GradesPage> {
         Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
     debugPrint(url);
     debugPrint(Globals.accessToken);
+    await Future.delayed(const Duration(seconds: 3));
     try {
       final response = await http.get(Uri.parse(url), headers: {
         'Authorization': 'Bearer ' + Globals.accessToken,
@@ -402,8 +404,27 @@ class _GradesPageState extends State<GradesPage> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(right: 10.0, bottom: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text("Promotionspunkte"),
+                                Shimmer.fromColors(
+                                  child: Text(
+                                    "..........",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    textAlign: TextAlign.end,
+                                  ),
+                                  baseColor: Theme.of(context).canvasColor,
+                                  highlightColor: Theme.of(context).textTheme.bodyMedium!.color!,
+                                ),
+                              ],
+                            ),
                           );
                         } else if (snapshot.hasError) {
                           return Center(
