@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart' as Globals;
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';
@@ -14,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -322,10 +322,7 @@ class _NotelyState extends State<Notely> {
                         SizedBox(
                           height: 10,
                         ),
-                        SpinKitDoubleBounce(
-                          size: 50,
-                          color: Colors.white,
-                        ),
+                        LoadingAnimationWidget.waveDots(color: Colors.white, size: 48),
                         SizedBox(
                           height: 10,
                         ),
