@@ -67,13 +67,10 @@ class _StartPageState extends State<StartPage> {
       }).then((response) async {
         gradeList = jsonDecode(response.body)
             .map<Grade>((json) => Grade.fromJson(json))
-            .toList()
-            .reversed
-            .take(7)
             .toList();
         // If grades prefs is empty store response.body (this is used for notification comparison)
-
         await prefs.setString("grades", jsonEncode(gradeList));
+        gradeList = gradeList.reversed.take(7).toList();
       });
     } catch (e) {
       print(e.toString());
