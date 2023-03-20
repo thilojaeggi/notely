@@ -150,10 +150,10 @@ Future<void> main() async {
   if (!kIsWeb) {
     await setupFlutterNotifications();
   }
+  try {
   await FirebaseMessaging.instance.subscribeToTopic("all");
-
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
+  } catch (e){
+    print(e);
   }
   runApp(const Notely());
 }
