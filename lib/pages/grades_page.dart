@@ -63,7 +63,7 @@ class _GradesPageState extends State<GradesPage> {
       final gradeList = (json.decode(response.body) as List)
           .map((i) => Grade.fromJson(i))
           .toList();
-          print(jsonEncode(gradeList));
+      print(jsonEncode(gradeList));
       prefs.setString("gradeList", json.encode(gradeList));
       final groupedCoursesMap = gradeList.groupBy((m) => m.subject);
       final averageGradeMap = {};
@@ -105,8 +105,6 @@ class _GradesPageState extends State<GradesPage> {
       };
     }
   }
-
-
 
   @override
   initState() {
@@ -188,7 +186,7 @@ class _GradesPageState extends State<GradesPage> {
                                               .title,
                                           style: const TextStyle(
                                               fontSize: 18,
-                                              fontWeight: FontWeight.w500),
+                                              fontWeight: FontWeight.w600),
                                         ),
                                       ),
                                     ),
@@ -207,7 +205,7 @@ class _GradesPageState extends State<GradesPage> {
                                               .mark
                                               .toDouble()),
                                           fontSize: 18,
-                                          fontWeight: FontWeight.w400),
+                                          fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
@@ -215,31 +213,12 @@ class _GradesPageState extends State<GradesPage> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              bottom: 4.5),
-                                          child: Opacity(
-                                            opacity: 0.7,
-                                            child: Icon(
-                                              FontAwesome5.weight_hanging,
-                                              size: 18,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 5.0),
-                                          child: Text(
-                                            "${groupedCoursesMap.values.elementAt(index)[i].weight}",
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                    Text(
+                                      "Gewichtung: ${groupedCoursesMap.values.elementAt(index)[i].weight}",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     Text(
                                       DateFormat("dd.MM.yyyy").format(
@@ -248,7 +227,8 @@ class _GradesPageState extends State<GradesPage> {
                                               .elementAt(index)[i]
                                               .date)),
                                       style: const TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ],
