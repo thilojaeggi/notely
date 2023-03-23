@@ -31,7 +31,14 @@ class _StartPageState extends State<StartPage> {
 
   List<Homework> homeworkList = <Homework>[];
 
-  static const List<String> hellos = ["Hoi", "Sali", "Ciao", "Hallo", "Salut", "Hey"];
+  static const List<String> hellos = [
+    "Hoi",
+    "Sali",
+    "Ciao",
+    "Hallo",
+    "Salut",
+    "Hey"
+  ];
   final Random random = Random();
   List<Exam> _examList = <Exam>[];
   List<Homework> _homeworkList = <Homework>[];
@@ -479,7 +486,7 @@ class _StartPageState extends State<StartPage> {
                                                                           .spaceBetween,
                                                                   children: [
                                                                     Expanded(
-                                                                        flex: 3,
+                                                                        flex: 5,
                                                                         child:
                                                                             AutoSizeText(
                                                                           gradeList[index]
@@ -499,9 +506,6 @@ class _StartPageState extends State<StartPage> {
                                                                           overflow:
                                                                               TextOverflow.ellipsis,
                                                                         )),
-                                                                    Spacer(
-                                                                      flex: 2,
-                                                                    ),
                                                                     Expanded(
                                                                       flex: 3,
                                                                       child:
@@ -520,7 +524,7 @@ class _StartPageState extends State<StartPage> {
                                                                               FontWeight.w400,
                                                                         ),
                                                                         textAlign:
-                                                                            TextAlign.left,
+                                                                            TextAlign.right,
                                                                       ),
                                                                     ),
                                                                   ],
