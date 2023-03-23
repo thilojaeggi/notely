@@ -169,12 +169,11 @@ class _TimetablePageState extends State<TimetablePage> {
                                     return AlertDialog(
                                       shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.all(
-                                              Radius.circular(16.0))),
+                                              Radius.circular(12.0))),
+                                              
                                       title: Text("Hausaufgabe eintragen"),
-                                      content: Container(
-                                        height: 200,
-                                        width: 450,
-                                        child: Column(
+                                      content: Column(
+                                          mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
@@ -197,13 +196,13 @@ class _TimetablePageState extends State<TimetablePage> {
                                               controller: titleController,
                                             ),
                                             SizedBox(
-                                              height: 10,
+                                              height: 5,
                                             ),
                                             Text(
                                               "Details",
                                             ),
                                             TextField(
-                                              maxLines: 4,
+                                              maxLines: 3,
                                               decoration: InputDecoration(
                                                 contentPadding:
                                                     EdgeInsets.all(8.0),
@@ -213,7 +212,7 @@ class _TimetablePageState extends State<TimetablePage> {
                                               controller: detailsController,
                                             ),
                                           ],
-                                        ),
+                                        
                                       ),
                                       actions: [
                                         TextButton(
