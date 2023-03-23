@@ -23,28 +23,20 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   TextEditingController targetGradeController = new TextEditingController();
 
+
+  bool notificationsEnabled = false;
+
   Future<PackageInfo> _getPackageInfo() {
     return PackageInfo.fromPlatform();
   }
 
-  Future<void> getTargetGrade() async {
-    final prefs = await SharedPreferences.getInstance();
-    double targetGrade = await prefs.getDouble("targetGrade") ?? 5.0;
-    targetGradeController.text = targetGrade.toString();
-  }
 
-  Future<void> setTargetGrade(double grade) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble("targetGrade", grade);
-  }
 
-  int dropdownValue = 5;
-  final double maxInputValue = 6;
+
 
   @override
   void initState() {
     super.initState();
-    getTargetGrade();
   }
 
   Future<void> enableDarkMode(bool dark) async {
@@ -121,6 +113,33 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
+            Card(
+              elevation: 3,
+              margin: const EdgeInsets.only(bottom: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ListTile(
+
+                onTap:() {
+                  setState(() {
+                    notificationsEnabled = !notificationsEnabled;
+                  });
+                },
+                title: const Text(
+                  "Benachrichtigungen",
+                  style: TextStyle(
+                    fontSize: 23,
+                  ),
+                ),
+                trailing: Switch(value: notificationsEnabled, onChanged: (value) {
+                  setState(() {
+                    notificationsEnabled = value;
+                  });
+                },),
+              ),
+            ),
             GestureDetector(
               onTap: () {
                 final Uri emailLaunchUri = Uri(
@@ -161,13 +180,9 @@ class _SettingsPageState extends State<SettingsPage> {
             GestureDetector(
               onTap: () async {
                 final storage = SecureStorage();
-
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
                 await storage.deleteAll();
-                await FirebaseMessaging.instance
-                    .unsubscribeFromTopic("newGradeNotification");
-
                 Navigator.pushReplacement(
                     context,
                     PageTransition(
@@ -222,7 +237,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   color: Color.fromRGBO(158, 158, 158, 1)),
                             );
                           }
-                          return Text("");
+                          return Text("0.0.0 (0)");
                         }),
                   ),
                   Container(
