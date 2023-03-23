@@ -181,17 +181,9 @@ Future<bool> login() async {
     'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
   });
   if (response.statusCode == 302 && response.headers['location'] != null) {
-    final locationHeader = response.headers['location'].toString();
-    final trimmedString = locationHeader
-        .substring(locationHeader.indexOf('#') + 1)
-        .split('&')
-        .firstWhere(
-          (element) => element.startsWith('access_token='),
-          orElse: () => '',
-        )
-        .replaceAll('access_token=', '');
-
-    Globals.accessToken = trimmedString;
+    String locationHeader = response.headers['location'].toString().replaceAll("#", "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
+    Globals.accessToken = Uri.parse(locationHeader).queryParameters["access_token"].toString();
+    print(Globals.accessToken);
     Globals.school = school;
     print("Logged in");
     try {
