@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:fluttericon/brandico_icons.dart';
+import 'package:fluttericon/elusive_icons.dart';
+import 'package:fluttericon/entypo_icons.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:fluttericon/fontelico_icons.dart';
+import 'package:fluttericon/iconic_icons.dart';
+import 'package:fluttericon/linecons_icons.dart';
+import 'package:fluttericon/maki_icons.dart';
+import 'package:fluttericon/mfg_labs_icons.dart';
+import 'package:fluttericon/octicons_icons.dart';
 
 class WhatsNew extends StatefulWidget {
   const WhatsNew({super.key, required this.school});
@@ -48,33 +57,20 @@ class _WhatsNewState extends State<WhatsNew> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        FontAwesome5.bell,
+                        FontAwesome5.bug,
                         size: 32,
                         color: Colors.blue.shade500,
                       ),
                     ],
                   ),
                   title: Text(
-                    'Benachrichtigungen (Experimentell)',
+                    'Fehlerbehebung',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ), //Title is the only Required Item
-                  subtitle: Column(
-                    children: [
+                  subtitle: 
                       Text(
-                        'Bei einer neuen Note erhältst du nun automatisch eine Benachrichtigung sofern du die Berechtigung akzeptierst. ',
+                        'Auf der Startseite wurden fälschlicherweise Noten von alt nach neu dargestellt. ',
                       ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        "Funktioniert am besten wenn du die App nicht aus dem Hintergrund swipest.",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Theme.of(context).textTheme.bodySmall!.color,
-                            fontSize: 14.0),
-                      ),
-                    ],
-                  ),
                 ),
                 SizedBox(
                   height: 20,
