@@ -134,8 +134,8 @@ class _LoginPageState extends State<LoginPage> {
         await storage.write(key: "username", value: _usernameController.text);
         await storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
-        await FirebaseMessaging.instance
-            .subscribeToTopic("newGradeNotification");
+
+        if(kReleaseMode) await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
 
         Globals.accessToken = trimmedString;
         Globals.school = dropdownValue.toLowerCase();
