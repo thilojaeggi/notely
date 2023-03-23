@@ -25,7 +25,6 @@ import 'config/style.dart';
 import 'helpers/HomeworkDatabase.dart';
 import 'pages/login_page.dart';
 
-const oldStorage = FlutterSecureStorage();
 final storage = SecureStorage();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -138,9 +137,9 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await migrateSecureStorage();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+
   try {
     await messaging.requestPermission();
   } catch (e) {
@@ -162,15 +161,6 @@ Future<void> main() async {
   runApp(const Notely());
 }
 
-Future<void> migrateSecureStorage() async {
-  final oldData = await oldStorage.readAll();
-  if (oldData.isNotEmpty) {
-    for (final entry in oldData.entries) {
-      await storage.write(key: entry.key, value: entry.value);
-    }
-  }
-}
-
 Future<bool> login() async {
   final prefs = await SharedPreferences.getInstance();
   final school = prefs.getString("school")?.toLowerCase() ?? '';
@@ -190,7 +180,6 @@ Future<bool> login() async {
     'client_id': 'cj79FSz1JQvZKpJY',
     'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
   });
-
   if (response.statusCode == 302 && response.headers['location'] != null) {
     final locationHeader = response.headers['location'].toString();
     final trimmedString = locationHeader
@@ -205,11 +194,18 @@ Future<bool> login() async {
     Globals.accessToken = trimmedString;
     Globals.school = school;
     print("Logged in");
-    await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
-
+    try {
+      if (kReleaseMode)
+        await FirebaseMessaging.instance
+            .subscribeToTopic("newGradeNotification");
+    } catch (e) {
+      print("Error while subscribing to topic newGradeNotification: $e");
+    }
     return true;
   }
-  await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
+  if (kReleaseMode)
+    await FirebaseMessaging.instance
+        .unsubscribeFromTopic("newGradeNotification");
 
   return false;
 }
@@ -339,8 +335,10 @@ class _NotelyState extends State<Notely> {
                       ],
                     )));
                   } else if (snapshot.hasError) {
-                    return const Center(
-                      child: Text("Error, versuche es später erneut!"),
+                    return Material(
+                      child: const Center(
+                        child: Text("Error, versuche es später erneut!"),
+                      ),
                     );
                   }
                   bool loggedIn = snapshot.data ?? false;
