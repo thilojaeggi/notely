@@ -57,48 +57,81 @@ class _WhatsNewState extends State<WhatsNew> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        FontAwesome5.bug,
+                        FontAwesome5.pen_nib,
                         size: 32,
                         color: Colors.blue.shade500,
                       ),
                     ],
                   ),
                   title: Text(
-                    'Fehlerbehebung Startseite',
+                    'Anpassung Startseite',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ), //Title is the only Required Item
-                  subtitle: 
-                      Text(
-                        'Auf der Startseite wurden fälschlicherweise Noten von alt nach neu dargestellt. ',
-                      ),
+                  subtitle: Text(
+                    'Bei den neuesten Noten werden nun Testnamen grösser angezeigt.',
+                  ),
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 5,
                 ),
                 ListTile(
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  title: Text(
+                    'Fehlerbehebungen:',
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Column(
                     children: [
-                      Icon(
-                        FontAwesome5.bug,
-                        size: 32,
-                        color: Colors.blue.shade500,
+                      ListTile(
+                        leading: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              FontAwesome5.bug,
+                              size: 24,
+                              color: Colors.blue.shade500,
+                            ),
+                          ],
+                        ),
+                        title: Text(
+                          'Fehlerbehebung Startseite',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ), //Title is the only Required Item
+                        subtitle: Text(
+                          'Auf der Startseite wurden fälschlicherweise Noten von alt nach neu dargestellt. ',
+                          style: TextStyle(fontSize: 13.0),
+                        ),
+                      ),
+                      ListTile(
+                        leading: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              FontAwesome5.bug,
+                              size: 24,
+                              color: Colors.blue.shade500,
+                            ),
+                          ],
+                        ),
+                        title: Text(
+                          'Fehlerbehebung Login',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ), //Title is the only Required Item
+                        subtitle: Text(
+                          'Bei einigen Usern war es möglich dass man nicht angemeldet bleibt, dies sollte nun behoben sein.',
+                          style: TextStyle(fontSize: 13.0),
+                        ),
                       ),
                     ],
                   ),
-                  title: Text(
-                    'Fehlerbehebung Login',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ), //Title is the only Required Item
-                  subtitle: 
-                      Text(
-                        'Bei einigen Usern war es möglich dass man nicht angemeldet bleibt, dies sollte nun behoben sein.',
-                      ),
                 ),
                 SizedBox(
                   height: 20,
                 ),
-               
+                SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),
