@@ -64,7 +64,7 @@ class _WhatsNewState extends State<WhatsNew> {
                     ],
                   ),
                   title: Text(
-                    'Fehlerbehebung',
+                    'Fehlerbehebung Startseite',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ), //Title is the only Required Item
                   subtitle: 
@@ -80,65 +80,25 @@ class _WhatsNewState extends State<WhatsNew> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        FontAwesome5.tasks,
+                        FontAwesome5.bug,
                         size: 32,
                         color: Colors.blue.shade500,
                       ),
                     ],
                   ),
                   title: Text(
-                    'Hausaufgaben',
+                    'Fehlerbehebung Login',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                    'Du kannst nun auf eine Lektion im Stundenplan tippen um eine Hausaufgabe einzutragen.',
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                (widget.school.toLowerCase() == "ksso")
-                    ? ListTile(
-                        leading: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              FontAwesome5.percent,
-                              size: 32,
-                              color: Colors.blue.shade500,
-                            ),
-                          ],
-                        ),
-                        title: Text(
-                          'Promotionspunkte',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                            'Auf der Noten Seite werden dir nun deine Promotionspunkte angezeigt.'),
-                      )
-                    : SizedBox.shrink(),
-                SizedBox(
-                  height: 20,
-                ),
-                ListTile(
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        FontAwesome5.pencil_ruler,
-                        size: 32,
-                        color: Colors.blue.shade500,
+                  ), //Title is the only Required Item
+                  subtitle: 
+                      Text(
+                        'Bei einigen Usern war es möglich dass man nicht angemeldet bleibt, dies sollte nun behoben sein.',
                       ),
-                    ],
-                  ),
-                  title: Text(
-                    'Überarbeitete Startseite',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                      'Die Kacheln auf der Startseite wurden überarbeitet, tippe auf eine davon, um alle Tests/Hausaufgaben anzuzeigen.'),
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+               
               ],
             ),
           ),
