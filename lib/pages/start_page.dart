@@ -31,7 +31,7 @@ class _StartPageState extends State<StartPage> {
 
   List<Homework> homeworkList = <Homework>[];
 
-  final List<String> hellos = ["Hoi", "Sali", "Ciao", "Hallo", "Salut", "Hey"];
+  static const List<String> hellos = ["Hoi", "Sali", "Ciao", "Hallo", "Salut", "Hey"];
   final Random random = Random();
   List<Exam> _examList = <Exam>[];
   List<Homework> _homeworkList = <Homework>[];
