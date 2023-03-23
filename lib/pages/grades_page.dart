@@ -64,8 +64,6 @@ class _GradesPageState extends State<GradesPage> {
       final gradeList = (json.decode(response.body) as List)
           .map((i) => Grade.fromJson(i))
           .toList();
-      print(jsonEncode(gradeList));
-      prefs.setString("gradeList", json.encode(gradeList));
       final groupedCoursesMap = gradeList.groupBy((m) => m.subject);
       final averageGradeMap = {};
       for (var i = 0; i < groupedCoursesMap.length; i++) {
