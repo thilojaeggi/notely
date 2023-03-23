@@ -18,6 +18,19 @@ class Styles {
                 isDarkTheme ? ColorScheme.dark() : ColorScheme.light()),
         appBarTheme: AppBarTheme(
           elevation: 0.0,
-        ));
+        ),
+        switchTheme: SwitchThemeData(
+            thumbColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.blue;
+          } else {
+            return Colors.grey;
+          }
+        }), trackColor: MaterialStateProperty.resolveWith((states) {
+          if (!states.contains(MaterialState.selected)) {
+            return Colors.grey.withOpacity(.48);
+          }
+          return Colors.blue.withOpacity(0.48);
+        })));
   }
 }
