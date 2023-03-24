@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/Globals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 
 import '../Models/Grade.dart';
-import '../Globals.dart' as Globals;
 
 class GradesPage extends StatefulWidget {
   const GradesPage({Key? key}) : super(key: key);
@@ -54,12 +54,12 @@ class _GradesPageState extends State<GradesPage> {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
     String url =
-        Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
+        Globals().apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
     debugPrint(url);
-    debugPrint(Globals.accessToken);
+    debugPrint(Globals().accessToken);
     try {
       final response = await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer ' + Globals.accessToken,
+        'Authorization': 'Bearer ' + Globals().accessToken,
       });
       final gradeList = (json.decode(response.body) as List)
           .map((i) => Grade.fromJson(i))
@@ -395,7 +395,7 @@ class _GradesPageState extends State<GradesPage> {
               SizedBox(
                 width: 10,
               ),
-              (Globals.school == "ksso")
+              (Globals().school == "ksso")
                   ? FutureBuilder<Map<String, dynamic>>(
                       future: _gradesDataFuture,
                       builder: (context, snapshot) {

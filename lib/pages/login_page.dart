@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:notely/Globals.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
@@ -11,7 +12,6 @@ import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-import '../Globals.dart' as Globals;
 import '../config/style.dart';
 import '../view_container.dart';
 import '../widgets/AuthTextField.dart';
@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> signIn() async {
     final storage = SecureStorage();
-    String url = Globals.apiBase +
+    String url = Globals().apiBase +
         "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl";
     print(url);
     await http.post(Uri.parse(url), body: {
@@ -135,10 +135,10 @@ class _LoginPageState extends State<LoginPage> {
         await storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
 
-        if(kReleaseMode) await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
+      await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
 
-        Globals.accessToken = trimmedString;
-        Globals.school = dropdownValue.toLowerCase();
+        Globals().accessToken = trimmedString;
+        Globals().school = dropdownValue.toLowerCase();
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),
