@@ -69,26 +69,7 @@ class _StartPageState extends State<StartPage> {
     return null;
   }
 
-  Future<List<RSSItem>?> fetchRssItems() async {
-    String school = Globals().school;
-    if (school != "ksso") school = "bbzsogr";
-    if (school == "gibsol" || school == "kbsol" || school == "ksol")
-      school = "bbzolten";
-    List<RSSItem>? items = <RSSItem>[];
-    final response = await http
-        .get(Uri.parse('https://${school}.so.ch/aktuell/agenda?type=9818'));
 
-    final uf = UniversalFeed(response.body);
-    items = uf.rss.entries;
-    // Sort items by date (newest first) but parseValue on timestamps first
-    try {
-      items!.sort((a, b) =>
-          b.published!.parseValue()!.compareTo(a.published!.parseValue()!));
-    } catch (e) {
-      print(e);
-    }
-    return items;
-  }
 
   Future<List<Grade>> getGrades() async {
     final prefs = await SharedPreferences.getInstance();
@@ -552,59 +533,7 @@ class _StartPageState extends State<StartPage> {
                 ),
               ),
             ),
-            // Create listview with own widgets not builder
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                child: FutureBuilder<List<RSSItem>?>(
-                    future: fetchRssItems(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        final items = snapshot.data!;
-                        return ListView.builder(
-                            itemCount: items.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Card(
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                child: ListTile(
-                                  onTap: () => launchUrl(Uri.parse(
-                                      items[index].link!.href.toString())),
-                                  title: Text(items[index].title.toString()),
-                                  // Format published in format DD.MM.YYYY
-                                  subtitle: Text(
-                                    DateFormat('dd.MM.yyyy')
-                                        .format(
-                                          (items[index]
-                                                  .published
-                                                  ?.parseValue() ??
-                                              DateTime.now()),
-                                        )
-                                        .toString(),
-                                  ),
-                                  trailing: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.web,
-                                        size: 32,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            });
-                      } else if (snapshot.hasError) {
-                        return Text('Fehler beim laden: ${snapshot.error}');
-                      } else {
-                        return Center(child: CircularProgressIndicator());
-                      }
-                    }),
-              ),
-            )
+            
           ],
         ),
       ),
