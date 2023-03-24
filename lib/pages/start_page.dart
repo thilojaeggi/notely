@@ -69,8 +69,6 @@ class _StartPageState extends State<StartPage> {
     return null;
   }
 
-
-
   Future<List<Grade>> getGrades() async {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
@@ -522,18 +520,6 @@ class _StartPageState extends State<StartPage> {
                 ],
               ),
             ),
-            // Create Text with header style
-            Padding(
-              padding: const EdgeInsets.only(left: 12.0, top: 8.0),
-              child: Text(
-                "Aktuell ${Globals().school.toUpperCase()}:",
-                style: TextStyle(
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            
           ],
         ),
       ),
