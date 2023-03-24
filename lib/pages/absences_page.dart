@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/Globals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../Globals.dart' as Globals;
 import '../Models/Absence.dart';
-import '../Globals.dart';
 
 class AbsencesPage extends StatefulWidget {
   const AbsencesPage({Key? key}) : super(key: key);
@@ -19,14 +18,14 @@ class _AbsencesPageState extends State<AbsencesPage> {
   Future<List<Absence?>> getAbsences() async {
     final prefs = await SharedPreferences.getInstance();
     String school = await prefs.getString("school") ?? "ksso";
-    String url = Globals.apiBase +
+    String url = Globals().apiBase +
         school.toLowerCase() +
         "/rest/v1" +
         "/me/absencenotices";
     List<Absence> absenceList = <Absence>[];
     try {
       await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $accessToken',
+        'Authorization': 'Bearer ${Globals().accessToken}',
       }).then((response) {
         absenceList = (json.decode(response.body) as List)
             .reversed
@@ -42,7 +41,6 @@ class _AbsencesPageState extends State<AbsencesPage> {
   @override
   initState() {
     super.initState();
-    print(accessToken);
   }
 
   @override
