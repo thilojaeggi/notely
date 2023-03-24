@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -140,7 +141,6 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-
   await HomeworkDatabase.instance.database;
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -177,23 +177,23 @@ Future<bool> login() async {
     'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
   });
   if (response.statusCode == 302 && response.headers['location'] != null) {
-    String locationHeader = response.headers['location'].toString().replaceAll("#", "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
-    Globals().accessToken = Uri.parse(locationHeader).queryParameters["access_token"].toString();
+    String locationHeader = response.headers['location'].toString().replaceAll(
+        "#",
+        "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
+    Globals().accessToken =
+        Uri.parse(locationHeader).queryParameters["access_token"].toString();
     print(Globals().accessToken);
     Globals().school = school;
     print("Logged in");
     try {
-     
-        await FirebaseMessaging.instance
-            .subscribeToTopic("newGradeNotification");
+      await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
     } catch (e) {
       print("Error while subscribing to topic newGradeNotification: $e");
     }
     return true;
   }
- 
-    await FirebaseMessaging.instance
-        .unsubscribeFromTopic("newGradeNotification");
+
+  await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
 
   return false;
 }
@@ -290,6 +290,15 @@ class _NotelyState extends State<Notely> {
       child: ThemeConsumer(
         child: Builder(
           builder: (themeContext) => MaterialApp(
+            title: 'Notely',
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+              Locale('de'),
+            ],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
