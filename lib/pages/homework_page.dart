@@ -73,6 +73,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
             children: [
               (homeworkList.isNotEmpty)
                   ? ListView.builder(
+                      physics: ClampingScrollPhysics(),
                       itemCount: homeworkList.length,
                       itemBuilder: (BuildContext ctxt, int index) {
                         Homework homework = homeworkList[index];
