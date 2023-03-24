@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:notely/Globals.dart' as Globals;
+import 'package:notely/Globals.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:notely/view_container.dart';
@@ -44,7 +44,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     if (username.isEmpty || password.isEmpty || school.isEmpty) return;
     // Get access token first
     await http.post(
-        Uri.parse(Globals.apiBase +
+        Uri.parse(Globals().apiBase +
             school.toLowerCase() +
             "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
         body: {
@@ -60,7 +60,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             .replaceAll("access_token=", "");
         // Get grades from api
         String url =
-            "${Globals.apiBase}${school.toLowerCase()}/rest/v1/me/grades";
+            "${Globals().apiBase}${school.toLowerCase()}/rest/v1/me/grades";
 
         try {
           // If we got the access token get the grades from the api
@@ -140,11 +140,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-  try {
-    await messaging.requestPermission();
-  } catch (e) {
-    print("Failed to request FCM permission: $e");
-  }
+
   await HomeworkDatabase.instance.database;
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -172,7 +168,7 @@ Future<bool> login() async {
   }
   print("Found login data");
 
-  final url = '${Globals.apiBase}$school/authorize.php';
+  final url = '${Globals().apiBase}$school/authorize.php';
   final response = await http.post(Uri.parse(url), body: {
     'login': username,
     'passwort': password,
@@ -182,12 +178,12 @@ Future<bool> login() async {
   });
   if (response.statusCode == 302 && response.headers['location'] != null) {
     String locationHeader = response.headers['location'].toString().replaceAll("#", "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
-    Globals.accessToken = Uri.parse(locationHeader).queryParameters["access_token"].toString();
-    print(Globals.accessToken);
-    Globals.school = school;
+    Globals().accessToken = Uri.parse(locationHeader).queryParameters["access_token"].toString();
+    print(Globals().accessToken);
+    Globals().school = school;
     print("Logged in");
     try {
-      if (kReleaseMode)
+     
         await FirebaseMessaging.instance
             .subscribeToTopic("newGradeNotification");
     } catch (e) {
@@ -195,7 +191,7 @@ Future<bool> login() async {
     }
     return true;
   }
-  if (kReleaseMode)
+ 
     await FirebaseMessaging.instance
         .unsubscribeFromTopic("newGradeNotification");
 
@@ -261,7 +257,7 @@ class _NotelyState extends State<Notely> {
           controller.setTheme(savedTheme);
           if (controller.theme.data.brightness == Brightness.dark) {
             print("Dark theme");
-            Globals.isDark = true;
+            Globals().isDark = true;
             SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle.dark.copyWith(
                     statusBarColor: Color(0xFF0d0d0d), // status bar color
@@ -270,7 +266,7 @@ class _NotelyState extends State<Notely> {
                     ));
           } else {
             print("Light theme");
-            Globals.isDark = false;
+            Globals().isDark = false;
             SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
                 .copyWith(
                     statusBarColor:
