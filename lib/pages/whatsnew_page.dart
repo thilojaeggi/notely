@@ -79,7 +79,8 @@ class _WhatsNewState extends State<WhatsNew> {
                     'Fehlerbehebungen:',
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                   ),
-                  subtitle: Column(
+                  subtitle: ListView(
+                    shrinkWrap: true,
                     children: [
                       ListTile(
                         leading: Column(
@@ -96,7 +97,7 @@ class _WhatsNewState extends State<WhatsNew> {
                           'Fehlerbehebung Startseite',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600),
-                        ), //Title is the only Required Item
+                        ), 
                         subtitle: Text(
                           'Auf der Startseite wurden fälschlicherweise Noten von alt nach neu dargestellt. ',
                           style: TextStyle(fontSize: 13.0),
