@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
+import 'package:notely/helpers/api_client.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -238,7 +239,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       scheme: 'mailto',
                       path: 'thilo.jaeggi@ksso.ch',
                       query: 'subject=Notely Problem ' +
-                          Globals().school +
+                          APIClient().school +
                           '&body=Dein Problem: ');
                   launchUrl(emailLaunchUri);
                 },
@@ -249,7 +250,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     fontSize: 23,
                   ),
                 ),
-                trailing: Icon(Icons.mail, size: 32,),
+                trailing: Icon(
+                  Icons.mail,
+                  size: 32,
+                ),
               ),
             ),
             Card(
@@ -282,7 +286,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 trailing: Icon(
-                  Icons.logout, size: 32,
+                  Icons.logout,
+                  size: 32,
                 ),
               ),
             ),
