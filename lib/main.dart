@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
+import 'package:notely/Models/Grade.dart';
+import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -29,6 +29,7 @@ import 'pages/login_page.dart';
 final storage = SecureStorage();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  final APIClient client = APIClient();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
   print('Handling a background message ${message.messageId}');
@@ -44,55 +45,46 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     // Check if values are empty and exit if so
     if (username.isEmpty || password.isEmpty || school.isEmpty) return;
     // Get access token first
-    await http.post(
-        Uri.parse(Globals().apiBase +
-            school.toLowerCase() +
-            "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
-        body: {
-          "login": username,
-          "passwort": password,
-        }).then((response) async {
-      if (response.statusCode == 302) {
-        String locationHeader = response.headers['location'].toString();
-        var accessToken =
-            locationHeader.substring(0, locationHeader.indexOf('&'));
-        accessToken = accessToken
-            .substring(accessToken.indexOf("#") + 1)
-            .replaceAll("access_token=", "");
-        // Get grades from api
-        String url =
-            "${Globals().apiBase}${school.toLowerCase()}/rest/v1/me/grades";
-
-        try {
-          // If we got the access token get the grades from the api
-          await http.get(Uri.parse(url), headers: {
-            'Authorization': 'Bearer ' + accessToken,
-          }).then((response) async {
-            // If new grades are more than the old ones send a notification
-            if (jsonDecode(response.body).length <=
-                jsonDecode(prefs.getString("grades") ?? "[]").length) return;
-            print("trying to send notif");
-            flutterLocalNotificationsPlugin.show(
-              notification.hashCode,
-              "Notely",
-              "Neue Note!",
-              NotificationDetails(
-                android: AndroidNotificationDetails(
-                  channel.id,
-                  channel.name,
-                  channelDescription: channel.description,
-                  icon: 'ic_stat_school',
-                ),
-              ),
-            );
-            // Store the new grade list as string in prefs for the next time we check
-            await prefs.setString("grades", response.body);
-          });
-        } catch (e) {
-          print(e.toString());
-        }
-      }
+    final url = Globals.buildUrl("${school.toLowerCase()}/authorize.php");
+    final response = await http.post(url, body: {
+      'login': username,
+      'passwort': password,
+      'response_type': 'token',
+      'client_id': 'cj79FSz1JQvZKpJY',
+      'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
     });
+    if (response.statusCode == 302) {
+      String locationHeader = response.headers['location'].toString().replaceAll(
+          "#",
+          "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
+      String accessToken =
+          Uri.parse(locationHeader).queryParameters["access_token"].toString();
+      client.accessToken = accessToken;
+      client.school = school;
+      try {
+        List<Grade> grades = await client.getGrades(false);
+        if (grades.length <=
+            jsonDecode(prefs.getString("grades") ?? "[]").length) return;
+        print("trying to send notif");
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          "Notely",
+          "Neue Note!",
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+              icon: 'ic_stat_school',
+            ),
+          ),
+        );
+        // Store the new grade list as string in prefs for the next time we check
+        prefs.setString("grades", jsonEncode(grades));
+      } catch (e) {
+        print(e.toString());
+      }
+    }
   }
 }
 
@@ -158,6 +150,7 @@ Future<void> main() async {
 }
 
 Future<bool> login() async {
+  final APIClient client = APIClient();
   final prefs = await SharedPreferences.getInstance();
   final school = prefs.getString("school")?.toLowerCase() ?? '';
   final username = await storage.read(key: "username") ?? '';
@@ -167,9 +160,8 @@ Future<bool> login() async {
     return false;
   }
   print("Found login data");
-
-  final url = '${Globals().apiBase}$school/authorize.php';
-  final response = await http.post(Uri.parse(url), body: {
+  final url = Globals.buildUrl("$school/authorize.php");
+  final response = await http.post(url, body: {
     'login': username,
     'passwort': password,
     'response_type': 'token',
@@ -180,10 +172,10 @@ Future<bool> login() async {
     String locationHeader = response.headers['location'].toString().replaceAll(
         "#",
         "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
-    Globals().accessToken =
+    String accessToken =
         Uri.parse(locationHeader).queryParameters["access_token"].toString();
-    print(Globals().accessToken);
-    Globals().school = school;
+    client.accessToken = accessToken;
+    client.school = school;
     print("Logged in");
     try {
       await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
