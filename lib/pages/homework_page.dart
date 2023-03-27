@@ -1,6 +1,5 @@
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
@@ -73,7 +72,6 @@ class _HomeworkPageState extends State<HomeworkPage> {
             children: [
               (homeworkList.isNotEmpty)
                   ? ListView.builder(
-                      physics: ClampingScrollPhysics(),
                       itemCount: homeworkList.length,
                       itemBuilder: (BuildContext ctxt, int index) {
                         Homework homework = homeworkList[index];
@@ -101,8 +99,8 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                               .lessonName
                                               .toString(),
                                           style: const TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w500,
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ),
@@ -116,14 +114,14 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                               .dueDate
                                               .toLocal()
                                               .toString())),
-                                      style:  TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Colors.white.withOpacity(0.5)
-                                              : Colors.black.withOpacity(0.5),
-                                    ),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? Colors.white.withOpacity(0.5)
+                                            : Colors.black.withOpacity(0.5),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -144,29 +142,17 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                   child: Text(
                                     homeworkList[index].title.toString(),
                                     style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w600,
                                       height: 1.0,
                                     ),
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          homeworkList[index]
-                                              .details
-                                              .toString(),
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  homeworkList[index].details.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 Row(
                                   mainAxisSize: MainAxisSize.max,
@@ -255,11 +241,11 @@ class _HomeworkPageState extends State<HomeworkPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: SizedBox(
-                    height: 60,
-                    width: 60,
+                    height: 64,
+                    width: 64,
                     child: FloatingActionButton(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.all(Radius.circular(16))),
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -279,7 +265,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                       },
                       child: Icon(
                         Icons.add,
-                        size: 32,
+                        size: 46,
                       ),
                       backgroundColor:
                           Theme.of(context).brightness == Brightness.dark
@@ -309,6 +295,7 @@ class DisplayDialog extends StatefulWidget {
 
 class _DisplayDialogState extends State<DisplayDialog> {
   late DateTime _date;
+  TextEditingController subjectController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
   Future<void> _showDateTimePicker(BuildContext context) async {
@@ -332,12 +319,6 @@ class _DisplayDialogState extends State<DisplayDialog> {
         context: context,
         initialTime: selectedTime,
         // 24 hour time
-        builder: (BuildContext context, Widget? child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child!,
-          );
-        },
       );
 
       if (pickedTime != null) {
@@ -368,69 +349,105 @@ class _DisplayDialogState extends State<DisplayDialog> {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0))),
       title: Text("Hausaufgabe eintragen"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Datum",
-          ),
-          GestureDetector(
-            onTap: () {
-              _showDateTimePicker(context);
-            },
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(7.0),
-              decoration: BoxDecoration(
-                border: Border.all(
+      content: Container(
+        width: 300,
+        child: ListView(
+          shrinkWrap: true,
+          physics: ClampingScrollPhysics(),
+          children: [
+            GestureDetector(
+              onTap: () {
+                _showDateTimePicker(context);
+              },
+              child: Container(
+                padding: EdgeInsets.all(7.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context)
+                        .textTheme
+                        .titleMedium!
+                        .color!
+                        .withOpacity(0.4),
+                  ),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                // String as date in format dd.MM.yyyy HH:mm
+                child: Text(
+                  DateFormat("dd.MM.yyyy HH:mm").format(_date),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodySmall!.color,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextField(
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodySmall!.color,
+              ),
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                labelText: "Fach",
+                labelStyle: TextStyle(
                   color: Theme.of(context)
                       .textTheme
                       .titleMedium!
                       .color!
                       .withOpacity(0.4),
                 ),
-                borderRadius: BorderRadius.circular(5),
+                contentPadding: EdgeInsets.all(8.0),
+                isDense: true,
+                border: OutlineInputBorder(),
               ),
-              // String as date in format dd.MM.yyyy HH:mm
-              child: Text(
-                DateFormat("dd.MM.yyyy HH:mm").format(_date),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyText1!.color,
+              controller: subjectController,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextField(
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodySmall!.color,
+              ),
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                labelText: "Titel",
+                labelStyle: TextStyle(
+                  color: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .color!
+                      .withOpacity(0.4),
                 ),
+                contentPadding: EdgeInsets.all(8.0),
+                isDense: true,
+                border: OutlineInputBorder(),
               ),
+              controller: titleController,
             ),
-          ),
-          Text(
-            "Titel",
-          ),
-          TextField(
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyText1!.color,
+            const SizedBox(
+              height: 10,
             ),
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(8.0),
-              isDense: true,
-              border: OutlineInputBorder(),
+            TextField(
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: "Details",
+                labelStyle: TextStyle(
+                  color: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .color!
+                      .withOpacity(0.4),
+                ),
+                contentPadding: EdgeInsets.all(8.0),
+                isDense: true,
+                border: OutlineInputBorder(),
+              ),
+              controller: detailsController,
             ),
-            controller: titleController,
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            "Details",
-          ),
-          TextField(
-            maxLines: 3,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.all(8.0),
-              isDense: true,
-              border: OutlineInputBorder(),
-            ),
-            controller: detailsController,
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -439,17 +456,21 @@ class _DisplayDialogState extends State<DisplayDialog> {
             Navigator.pop(context);
           },
         ),
-        TextButton(
+        ElevatedButton(
           child: Text("Speichern"),
           onPressed: () async {
             // Get text of TextFields
+            String subject = subjectController.text;
             String title = titleController.text;
             String details = detailsController.text.trimRight();
-            DateTime startDate = DateTime.now();
 
             if (title.isEmpty && details.isEmpty) {
               title = "Kein Titel";
               details = "Keine Details";
+            }
+
+            if (subject.isEmpty) {
+              subject = "Kein Fach";
             }
 
             if (title.isEmpty) {
@@ -462,7 +483,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
             try {
               Homework homework = Homework(
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
-                lessonName: "Manuell hinzugefügt",
+                lessonName: subject,
                 title: title,
                 details: details,
                 dueDate: _date,
