@@ -4,6 +4,7 @@ class Styles {
   static ThemeData themeData(bool isDarkTheme, BuildContext context) {
     return ThemeData(
         useMaterial3: false,
+        
         fontFamily: "Poppins",
         primaryColor: Colors.blueAccent,
         indicatorColor: isDarkTheme ? Color(0xff0E1D36) : Color(0xffCBDCF8),
