@@ -1,16 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
-import 'package:notely/Globals.dart';
-import 'package:universal_feed/src/rss/rss_item.dart';
-import 'package:universal_feed/universal_feed.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:xml/xml.dart';
+import 'package:notely/Models/Absence.dart';
+import 'package:notely/helpers/api_client.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:notely/Models/Exam.dart';
 import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
@@ -29,13 +24,81 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  final APIClient _apiClient = APIClient();
+  List<Exam> exams = <Exam>[];
   // Make cards half approx. height of screen
   double get cardHeight => MediaQuery.of(context).size.height / 5;
   late Future<List<Homework>> homeworkFuture;
-  late Future<List<Grade>> gradeFuture;
-  late Future<Student?> studentFuture;
+
+  StreamController<List<Grade>> _gradesStreamController =
+      StreamController<List<Grade>>();
+
+  StreamController<Student> _studentStreamController =
+      StreamController<Student>();
+
+  StreamController<List<Exam>> _examsStreamController =
+      StreamController<List<Exam>>();
+
+  void _getGrades() async {
+    if (!_gradesStreamController.isClosed) {
+      try {
+        List<Grade> cachedGrades = await _apiClient.getGrades(true);
+        _gradesStreamController.sink.add(cachedGrades);
+
+        // Then get the latest data and update the UI again
+        List<Grade> latestGrades = await _apiClient.getGrades(false);
+        _gradesStreamController.sink.add(latestGrades);
+      } catch (e) {
+        // Handle the StateError here
+        print('Error adding event to stream controller: $e');
+      }
+    }
+  }
+
+  void _getStudent() async {
+    if (!_studentStreamController.isClosed) {
+      try {
+        Student cachedStudent = await _apiClient.getStudent(true);
+        _studentStreamController.sink.add(cachedStudent);
+
+        // Then get the latest data and update the UI again
+        Student latestStudent = await _apiClient.getStudent(false);
+        _studentStreamController.sink.add(latestStudent);
+      } catch (e) {
+        // Handle the StateError here
+        print('Error adding event to stream controller: $e');
+      }
+    }
+  }
+
+  void _getExams() async {
+    if (!_examsStreamController.isClosed) {
+      try {
+        List<Exam> cachedExams = await _apiClient.getExams(true);
+        _examsStreamController.sink.add(cachedExams);
+        exams = cachedExams;
+
+        // Then get the latest data and update the UI again
+        List<Exam> latestExams = await _apiClient.getExams(false);
+        _examsStreamController.sink.add(latestExams);
+        exams = latestExams;
+      } catch (e) {
+        // Handle the StateError here
+        print('Error adding event to stream controller: $e');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _gradesStreamController.close();
+    _studentStreamController.close();
+    _examsStreamController.close();
+    super.dispose();
+  }
 
   List<Homework> homeworkList = <Homework>[];
+  final Random random = Random();
 
   static const List<String> hellos = [
     "Hoi",
@@ -45,52 +108,7 @@ class _StartPageState extends State<StartPage> {
     "Salut",
     "Hey",
   ];
-  final Random random = Random();
-  List<Exam> _examList = <Exam>[];
-  List<Homework> _homeworkList = <Homework>[];
   int randomHelloIndex = 0;
-
-  Future<Student?> getMe() async {
-    final url =
-        "${Globals().apiBase}${Globals().school.toLowerCase()}/rest/v1/me";
-
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer ${Globals().accessToken}'},
-      );
-
-      final student = Student.fromJson(jsonDecode(response.body));
-      return student;
-    } catch (e) {
-      print('Error getting student: $e');
-    }
-
-    return null;
-  }
-
-  Future<List<Grade>> getGrades() async {
-    final prefs = await SharedPreferences.getInstance();
-    String school = await prefs.getString("school") ?? "ksso";
-    String url =
-        Globals().apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
-    List<Grade> gradeList = <Grade>[];
-    try {
-      await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer ' + Globals().accessToken,
-      }).then((response) async {
-        gradeList = jsonDecode(response.body)
-            .map<Grade>((json) => Grade.fromJson(json))
-            .toList();
-        // If grades prefs is empty store response.body (this is used for notification comparison)
-        await prefs.setString("grades", jsonEncode(gradeList));
-        gradeList = gradeList.take(7).toList();
-      });
-    } catch (e) {
-      print(e.toString());
-    }
-    return gradeList;
-  }
 
   void homeworkCallback(List<Homework> homework) {
     setState(() {
@@ -98,51 +116,21 @@ class _StartPageState extends State<StartPage> {
     });
   }
 
-  Future<List<Exam>> getExams() async {
-    final prefs = await SharedPreferences.getInstance();
-    String school = await prefs.getString("school") ?? "ksso";
-    String url =
-        Globals().apiBase + school.toLowerCase() + "/rest/v1" + "/me/exams";
-
-    List<Exam> examsList = <Exam>[];
-    try {
-      await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer ' + Globals().accessToken,
-      }).then((response) {
-        examsList = ExamFromJson(response.body);
-        examsList = examsList
-            .where((exam) => exam.startDate
-                .isAfter(DateTime.now().subtract(Duration(days: 1))))
-            .toList();
-        examsList.sort((a, b) {
-          return a.startDate.compareTo(b.startDate);
-        });
-        _examList = examsList;
-      });
-    } catch (e) {
-      print(e.toString());
-    }
-    return examsList;
-  }
-
   Future<List<Homework>> getHomework() async {
     List<Homework> homeworkList = await HomeworkDatabase.instance.readAll();
-    _homeworkList = homeworkList;
     return homeworkList;
   }
 
   @override
   initState() {
     super.initState();
-    homeworkFuture = getHomework();
-    gradeFuture = getGrades();
-    studentFuture = getMe();
-    randomHelloIndex = random.nextInt(hellos.length);
-  }
 
-  @override
-  void dispose() {
-    super.dispose();
+    _getGrades();
+    _getStudent();
+    _getExams();
+
+    homeworkFuture = getHomework();
+    randomHelloIndex = random.nextInt(hellos.length);
   }
 
   @override
@@ -157,8 +145,8 @@ class _StartPageState extends State<StartPage> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: FutureBuilder<Student?>(
-                  future: studentFuture,
+              child: StreamBuilder<Student?>(
+                  stream: _studentStreamController.stream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                     } else if (snapshot.hasError) {
@@ -212,7 +200,8 @@ class _StartPageState extends State<StartPage> {
                                               backgroundColor:
                                                   Colors.transparent,
                                               builder: (context) => ExamsPage(
-                                                  examList: _examList));
+                                                    examList: exams,
+                                                  ));
                                         },
                                         customBorder: RoundedRectangleBorder(
                                           borderRadius:
@@ -229,8 +218,9 @@ class _StartPageState extends State<StartPage> {
                                               ),
                                               fit: BoxFit.scaleDown,
                                             ),
-                                            FutureBuilder<List<Exam>>(
-                                                future: getExams(),
+                                            StreamBuilder<List<Exam>>(
+                                                stream: _examsStreamController
+                                                    .stream,
                                                 builder: (context, snapshot) {
                                                   if (snapshot
                                                           .connectionState ==
@@ -299,9 +289,30 @@ class _StartPageState extends State<StartPage> {
                                             context: context,
                                             isScrollControlled: true,
                                             backgroundColor: Colors.transparent,
-                                            builder: (context) => HomeworkPage(
-                                                homeworkList: _homeworkList,
-                                                callBack: homeworkCallback));
+                                            builder: (context) => FutureBuilder<
+                                                    List<Homework>>(
+                                                future: homeworkFuture,
+                                                builder: (context, snapshot) {
+                                                  if (snapshot
+                                                          .connectionState ==
+                                                      ConnectionState.waiting) {
+                                                    return const Center(
+                                                      child:
+                                                          CircularProgressIndicator(),
+                                                    );
+                                                  } else if (snapshot
+                                                      .hasError) {
+                                                    return const Center(
+                                                      child: Text("Error"),
+                                                    );
+                                                  }
+                                                  List<Homework> homework =
+                                                      snapshot.data!;
+                                                  return HomeworkPage(
+                                                      homeworkList: homework,
+                                                      callBack:
+                                                          homeworkCallback);
+                                                }));
                                       },
                                       customBorder: RoundedRectangleBorder(
                                         borderRadius:
@@ -369,149 +380,180 @@ class _StartPageState extends State<StartPage> {
                           Expanded(
                             flex: 16,
                             child: SizedBox(
-                                height: cardHeight * 2,
-                                child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color:
-                                              Color.fromARGB(255, 49, 83, 248),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Column(
-                                            children: [
-                                              Text(
-                                                "Neueste Noten",
-                                                style: TextStyle(
-                                                  fontSize: 20.0,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child:
-                                                    FutureBuilder<List<Grade>?>(
-                                                        future: gradeFuture,
-                                                        builder: (context,
-                                                            snapshot) {
-                                                          if (snapshot
-                                                                  .connectionState ==
-                                                              ConnectionState
-                                                                  .waiting) {
-                                                            return const Center(
-                                                              child:
-                                                                  CircularProgressIndicator(),
-                                                            );
-                                                          } else if (snapshot
-                                                              .hasError) {
-                                                            return const Center(
-                                                              child:
-                                                                  Text("Error"),
-                                                            );
-                                                          }
-                                                          List<Grade>?
-                                                              gradeList =
-                                                              snapshot.data;
-                                                          return ListView
-                                                              .builder(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      left:
-                                                                          10.0,
-                                                                      right:
-                                                                          10.0),
-                                                                  itemCount:
-                                                                      gradeList!
-                                                                          .length,
-                                                                  shrinkWrap:
-                                                                      true,
-                                                                  itemBuilder:
-                                                                      (BuildContext
-                                                                              context,
-                                                                          int index) {
-                                                                    return Container(
-                                                                      margin: (index ==
-                                                                              gradeList.length -
-                                                                                  1)
-                                                                          ? EdgeInsets.only(
-                                                                              bottom: 11.0)
-                                                                          : (index == 0)
-                                                                              ? EdgeInsets.only(top: 8.0, bottom: 3.0)
-                                                                              : EdgeInsets.only(bottom: 3.0),
-                                                                      width: double
-                                                                          .infinity,
-                                                                      padding:
-                                                                          EdgeInsets.all(
-                                                                              12.0),
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        color: Colors
-                                                                            .white
-                                                                            .withOpacity(0.2),
-                                                                        borderRadius:
-                                                                            BorderRadius.only(
-                                                                          topLeft: (index == 0)
-                                                                              ? Radius.circular(8.0)
-                                                                              : Radius.circular(4.0),
-                                                                          topRight: (index == 0)
-                                                                              ? Radius.circular(8.0)
-                                                                              : Radius.circular(4.0),
-                                                                          bottomLeft: (index == gradeList.length - 1)
-                                                                              ? Radius.circular(6.0)
-                                                                              : Radius.circular(4.0),
-                                                                          bottomRight: (index == gradeList.length - 1)
-                                                                              ? Radius.circular(6.0)
-                                                                              : Radius.circular(4.0),
-                                                                        ),
-                                                                      ),
-                                                                      child:
-                                                                          Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.spaceBetween,
-                                                                        children: [
-                                                                          Expanded(
-                                                                              flex: 5,
-                                                                              child: AutoSizeText(
-                                                                                gradeList[index].title.toString(),
-                                                                                style: TextStyle(
-                                                                                  height: 1.0,
-                                                                                  fontSize: 15,
-                                                                                  color: Colors.white,
-                                                                                ),
-                                                                                maxLines: 1,
-                                                                                overflow: TextOverflow.ellipsis,
-                                                                              )),
-                                                                          Expanded(
-                                                                            flex:
-                                                                                3,
-                                                                            child:
-                                                                                Text(
-                                                                              "Note: " + gradeList[index].mark.toString(),
-                                                                              style: TextStyle(
-                                                                                height: 1.0,
-                                                                                fontSize: 16,
-                                                                                color: Colors.white,
-                                                                                fontWeight: FontWeight.w400,
-                                                                              ),
-                                                                              textAlign: TextAlign.right,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    );
-                                                                  });
-                                                        }),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                              height: cardHeight * 2,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Colors.blue.shade800,
+                                          Colors.blue.shade500,
+                                          Colors.blue.shade300,
+                                        ],
                                       ),
-                                    ))),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: Text(
+                                              "Neueste Noten",
+                                              style: TextStyle(
+                                                fontSize: 20.0,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: StreamBuilder<List<Grade>?>(
+                                              stream: _gradesStreamController
+                                                  .stream,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  );
+                                                } else if (snapshot.hasError) {
+                                                  return const Center(
+                                                    child: Text("Error"),
+                                                  );
+                                                }
+                                                List<Grade>? gradeList =
+                                                    snapshot.data!
+                                                        .take(7)
+                                                        .toList();
+                                                return ListView.builder(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 10.0,
+                                                          right: 10.0),
+                                                  itemCount: gradeList.length,
+                                                  shrinkWrap: true,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    return Container(
+                                                      margin: (index ==
+                                                              gradeList.length -
+                                                                  1)
+                                                          ? EdgeInsets.only(
+                                                              bottom: 11.0)
+                                                          : (index == 0)
+                                                              ? EdgeInsets.only(
+                                                                  top: 8.0,
+                                                                  bottom: 3.0)
+                                                              : EdgeInsets.only(
+                                                                  bottom: 3.0),
+                                                      width: double.infinity,
+                                                      padding:
+                                                          EdgeInsets.all(12.0),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.2),
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topLeft: (index == 0)
+                                                              ? Radius.circular(
+                                                                  8.0)
+                                                              : Radius.circular(
+                                                                  4.0),
+                                                          topRight: (index == 0)
+                                                              ? Radius.circular(
+                                                                  8.0)
+                                                              : Radius.circular(
+                                                                  4.0),
+                                                          bottomLeft: (index ==
+                                                                  gradeList
+                                                                          .length -
+                                                                      1)
+                                                              ? Radius.circular(
+                                                                  6.0)
+                                                              : Radius.circular(
+                                                                  4.0),
+                                                          bottomRight: (index ==
+                                                                  gradeList
+                                                                          .length -
+                                                                      1)
+                                                              ? Radius.circular(
+                                                                  6.0)
+                                                              : Radius.circular(
+                                                                  4.0),
+                                                        ),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Expanded(
+                                                              flex: 7,
+                                                              child:
+                                                                  AutoSizeText(
+                                                                gradeList[index]
+                                                                    .title
+                                                                    .toString(),
+                                                                style:
+                                                                    TextStyle(
+                                                                  height: 1.0,
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              )),
+                                                          Expanded(
+                                                            flex: 4,
+                                                            child: Text(
+                                                              "Note: " +
+                                                                  gradeList[
+                                                                          index]
+                                                                      .mark
+                                                                      .toString(),
+                                                              style: TextStyle(
+                                                                height: 1.0,
+                                                                fontSize: 16,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .left,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),

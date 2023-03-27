@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/Globals.dart';
+import 'package:notely/helpers/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../Models/Absence.dart';
@@ -15,32 +17,38 @@ class AbsencesPage extends StatefulWidget {
 }
 
 class _AbsencesPageState extends State<AbsencesPage> {
-  Future<List<Absence?>> getAbsences() async {
-    final prefs = await SharedPreferences.getInstance();
-    String school = await prefs.getString("school") ?? "ksso";
-    String url = Globals().apiBase +
-        school.toLowerCase() +
-        "/rest/v1" +
-        "/me/absencenotices";
-    List<Absence> absenceList = <Absence>[];
-    try {
-      await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer ${Globals().accessToken}',
-      }).then((response) {
-        absenceList = (json.decode(response.body) as List)
-            .reversed
-            .map((i) => Absence.fromJson(i))
-            .toList();
-      });
-    } catch (e) {
-      print(e.toString());
+  final APIClient _apiClient = APIClient();
+
+  StreamController<List<Absence>> _absencesController =
+      StreamController<List<Absence>>();
+
+  void _getAbsences() async {
+    if (!_absencesController.isClosed) {
+      try {
+        List<Absence> cachedAbsences = await _apiClient.getAbsences(true);
+        _absencesController.sink.add(cachedAbsences);
+
+        // Then get the latest data and update the UI again
+        List<Absence> latestAbsences = await _apiClient.getAbsences(false);
+        _absencesController.sink.add(latestAbsences);
+      } catch (e) {
+        // Handle the StateError here
+        print('Error adding event to stream controller: $e');
+      }
     }
-    return absenceList;
   }
 
   @override
   initState() {
     super.initState();
+    _getAbsences();
+  }
+
+  @override
+  void dispose() {
+    _absencesController.close();
+
+    super.dispose();
   }
 
   @override
@@ -61,24 +69,23 @@ class _AbsencesPageState extends State<AbsencesPage> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Absence?>>(
-                future: getAbsences(),
+            child: StreamBuilder<List<Absence>>(
+                stream: _absencesController.stream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting ||
                       !snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return SizedBox.shrink();
                   } else if (snapshot.hasError) {
                     return const Center(
                       child: Text("Error"),
                     );
                   }
-                  List<Absence?>? absenceList = snapshot.data;
-                  print(snapshot.data);
+
+                  List<Absence?>? absenceList =
+                      snapshot.data!.reversed.toList();
                   return ListView.builder(
                     shrinkWrap: true,
-                    itemCount: absenceList!.length,
+                    itemCount: absenceList.length,
                     itemBuilder: (BuildContext ctxt, int index) {
                       return Card(
                         elevation: 3,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -7,8 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:notely/Globals.dart';
+import 'package:notely/Models/Exam.dart';
 import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
+import 'package:notely/helpers/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Event.dart';
 
@@ -22,8 +25,25 @@ class TimetablePage extends StatefulWidget {
 class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
   DateTime today = DateTime.now();
-  List<Event> _eventList = List.empty(growable: true);
-  List<double> itemPositions = [];
+  StreamController<List<Event>> _eventStreamController =
+      StreamController<List<Event>>();
+  APIClient _apiClient = APIClient();
+
+  void _getEvents() async {
+    if (!_eventStreamController.isClosed) {
+      try {
+        List<Event> cachedGrades = await _apiClient.getEvents(today, true);
+        _eventStreamController.sink.add(cachedGrades);
+
+        // Then get the latest data and update the UI again
+        List<Event> latestGrades = await _apiClient.getEvents(today, false);
+        _eventStreamController.sink.add(latestGrades);
+      } catch (e) {
+        // Handle the StateError here
+        print('Error adding event to stream controller: $e');
+      }
+    }
+  }
 
 // Define start and end of the day as DateTime objects
   final startOfDay = DateTime(
@@ -38,46 +58,7 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   initState() {
     super.initState();
-    getData();
-    final totalDuration = endOfDay.difference(startOfDay).inMinutes;
-    currentTime = now.difference(startOfDay).inMinutes / totalDuration;
-  }
-
-  double calculateItemHeight(DateTime startTime, DateTime endTime,
-      DateTime minStartTime, DateTime maxEndTime, double minHeight) {
-    final itemDuration = endTime.difference(startTime).inMinutes;
-    final dayDuration = maxEndTime.difference(minStartTime).inMinutes;
-    final itemHeight = itemDuration / dayDuration;
-    return max(itemHeight * minHeight, minHeight);
-  }
-
-  void getData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String school = await prefs.getString("school") ?? "";
-    String dateFormatted = DateFormat('yyyy-MM-dd').format(today);
-    String url = Globals().apiBase +
-        school.toLowerCase() +
-        "/rest/v1" +
-        "/me/events?min_date=$dateFormatted&max_date=$dateFormatted";
-    print(url);
-    try {
-      await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer ' + Globals().accessToken,
-      }).then((response) {
-        if (mounted) {
-          setState(() {
-            _eventList = (json.decode(response.body) as List)
-                .map((i) => Event.fromJson(i))
-                .toList();
-            _eventList.forEach((element) {
-              print(element.id);
-            });
-          });
-        }
-      });
-    } catch (e) {
-      print(e.toString());
-    }
+    _getEvents();
   }
 
   Widget _eventWidget(BuildContext context, Event event) {
@@ -102,40 +83,54 @@ class _TimetablePageState extends State<TimetablePage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12.0))),
                     title: Text("Hausaufgabe eintragen"),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Titel",
-                        ),
-                        TextField(
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyText1!.color,
+                    content: Container(
+                      width: 300,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          TextField(
+                            style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.bodySmall!.color,
+                            ),
+                            textInputAction: TextInputAction.next,
+                            decoration: InputDecoration(
+                              labelText: "Titel",
+                              labelStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .color!
+                                    .withOpacity(0.4),
+                              ),
+                              contentPadding: EdgeInsets.all(8.0),
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                            ),
+                            controller: titleController,
                           ),
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.all(8.0),
-                            isDense: true,
-                            border: OutlineInputBorder(),
+                          const SizedBox(
+                            height: 10,
                           ),
-                          controller: titleController,
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          "Details",
-                        ),
-                        TextField(
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8.0),
-                            isDense: true,
-                            border: OutlineInputBorder(),
+                          TextField(
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              labelText: "Details",
+                              labelStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .color!
+                                    .withOpacity(0.4),
+                              ),
+                              contentPadding: EdgeInsets.all(8.0),
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                            ),
+                            controller: detailsController,
                           ),
-                          controller: detailsController,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     actions: [
                       TextButton(
@@ -144,7 +139,7 @@ class _TimetablePageState extends State<TimetablePage> {
                           Navigator.of(context).pop();
                         },
                       ),
-                      TextButton(
+                      ElevatedButton(
                         child: Text("Speichern"),
                         onPressed: () async {
                           // Get text of TextFields
@@ -323,25 +318,6 @@ class _TimetablePageState extends State<TimetablePage> {
             ],
           ),
         ),
-        /*DatePicker(
-          DateTime.now(),
-          height: 90,
-          initialSelectedDate: today,
-          selectionColor: Globals().isDark
-              ? Color.fromARGB(255, 46, 46, 46)
-              : Colors.grey.withOpacity(0.2),
-          selectedTextColor: Globals().isDark ? Colors.white : Colors.black,
-          dayTextStyle: TextStyle(color: Colors.grey),
-          monthTextStyle: TextStyle(color: Colors.grey),
-          dateTextStyle: TextStyle(color: Colors.grey),
-          locale: "de",
-          onDateChange: (date) {
-            setState(() {
-              today = date;
-            });
-            getData();
-          },
-        ),*/
         CalendarTimeline(
           initialDate: today,
           firstDate: DateTime.now(),
@@ -351,7 +327,7 @@ class _TimetablePageState extends State<TimetablePage> {
             setState(() {
               today = date;
             });
-            getData();
+            _getEvents();
           },
           leftMargin: 20,
           monthColor: Colors.blueGrey,
@@ -361,25 +337,39 @@ class _TimetablePageState extends State<TimetablePage> {
           dotsColor: Color(0xFF333A47),
           locale: 'de',
         ),
-        Expanded(
-          child: (_eventList.isNotEmpty)
-              ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _eventList.length,
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    Event event = _eventList[index];
-                    return LayoutBuilder(builder:
-                        (BuildContext context, BoxConstraints constraints) {
-                      return _eventWidget(context, event);
-                    });
-                  })
-              : Center(
-                  child: Text(
-                    "Keine Lektionen eingetragen",
-                    style: TextStyle(fontSize: 20.0),
-                  ),
-                ),
-        ),
+        StreamBuilder<List<Event>>(
+            stream: _eventStreamController.stream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text("Error"),
+                );
+              }
+              List<Event> _eventList = snapshot.data!;
+              return Expanded(
+                child: (_eventList.isNotEmpty)
+                    ? ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _eventList.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          Event event = _eventList[index];
+                          return LayoutBuilder(builder: (BuildContext context,
+                              BoxConstraints constraints) {
+                            return _eventWidget(context, event);
+                          });
+                        })
+                    : Center(
+                        child: Text(
+                          "Keine Lektionen eingetragen",
+                          style: TextStyle(fontSize: 20.0),
+                        ),
+                      ),
+              );
+            }),
       ],
     );
   }
