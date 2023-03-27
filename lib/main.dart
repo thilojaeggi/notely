@@ -135,7 +135,8 @@ Future<void> main() async {
 
   await HomeworkDatabase.instance.database;
   final prefs = await SharedPreferences.getInstance();
-  (prefs.getString("notificationEnabled") ?? "true") == "true"
+  await checkNotifications();
+  (prefs.getBool("notificationsEnabled") ?? false)
       ? FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler)
       : print(
@@ -151,6 +152,43 @@ Future<void> main() async {
     print("Failed to subscribe to topic all with error: $e");
   }
   runApp(const Notely());
+}
+
+Future<void> checkNotifications() async {
+  // TODO: Fix this function
+  print("Checking notifications");
+
+  // Check if firebase has ios permissions
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  // Request notification permissions
+  await messaging
+      .requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  )
+      .then((value) async {
+    if (await prefs.getBool("notificationsEnabled") == null) {
+      print(value);
+      if (value.authorizationStatus == AuthorizationStatus.authorized) {
+        print("Notifications are enabled");
+        messaging.subscribeToTopic("all");
+        messaging.subscribeToTopic("newGradeNotification");
+        await prefs.setBool("notificationsEnabled", true);
+      } else if (value.authorizationStatus == AuthorizationStatus.denied) {
+        print("Notifications are disabled");
+        messaging.unsubscribeFromTopic("all");
+        messaging.unsubscribeFromTopic("newGradeNotification");
+        await prefs.setBool("notificationsEnabled", false);
+      }
+    }
+  });
 }
 
 Future<bool> login() async {
