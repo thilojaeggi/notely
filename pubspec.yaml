@@ -41,6 +41,7 @@ dependencies:
   loading_animation_widget: ^1.2.0+4
   shimmer: ^2.0.0
   universal_feed: ^0.2.0
+  app_settings: ^4.2.0
   flutter_localizations:
     sdk: flutter
 dev_dependencies:

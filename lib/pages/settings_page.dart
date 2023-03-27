@@ -19,6 +19,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'login_page.dart';
+import 'package:app_settings/app_settings.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -29,7 +30,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   TextEditingController targetGradeController = new TextEditingController();
-
   bool notificationsEnabled = false;
 
   Future<PackageInfo> _getPackageInfo() {
@@ -37,11 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void openAppSettings() async {
-    if (await canLaunch('app-settings:')) {
-      await launch('app-settings:');
-    } else {
-      throw 'Could not launch app settings';
-    }
+    AppSettings.openNotificationSettings();
   }
 
   void toggleNotifications() async {
@@ -51,65 +47,58 @@ class _SettingsPageState extends State<SettingsPage> {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     // Request notification permissions
-    if (Platform.isIOS) {
-      final settings = await messaging.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true,
-      );
-      print(settings.authorizationStatus);
+    final settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    print(settings.authorizationStatus);
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        setState(() {
-          notificationsEnabled = !notificationsEnabled;
-        });
-        if (notificationsEnabled) {
-          FirebaseMessaging.instance.subscribeToTopic("all");
-        } else {
-          FirebaseMessaging.instance.unsubscribeFromTopic("all");
-        }
-      } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        // Show dialog message
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Benachrichtigungen deaktiviert"),
-              content: Text(
-                "Um Benachrichtigungen zu erhalten, musst du die Mitteilungen in den Einstellungen erlauben, danach kannst du es erneut versuchen.",
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Später"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    openAppSettings();
-                  },
-                  child: Text("Einstellungen öffnen"),
-                )
-              ],
-            );
-          },
-        );
-      }
-    } else {
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       setState(() {
         notificationsEnabled = !notificationsEnabled;
       });
-      if (notificationsEnabled) {
-        FirebaseMessaging.instance.subscribeToTopic("all");
-      } else {
-        FirebaseMessaging.instance.unsubscribeFromTopic("all");
-      }
+    } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Benachrichtigungen deaktiviert"),
+            content: Text(
+              "Um Benachrichtigungen zu erhalten, musst du die Mitteilungen in den Einstellungen erlauben, danach kannst du es erneut versuchen.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Später"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  openAppSettings();
+                },
+                child: Text("Einstellungen öffnen"),
+              )
+            ],
+          );
+        },
+      );
+    }
+
+    if (notificationsEnabled) {
+      messaging.subscribeToTopic("all");
+      messaging.subscribeToTopic("newGradeNotification");
+      print("Subscribed to all topics");
+    } else {
+      messaging.unsubscribeFromTopic("all");
+      messaging.unsubscribeFromTopic("newGradeNotification");
+      print("Unsubscribed from all topics");
     }
 
     // Store value for later use
@@ -119,6 +108,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    SharedPreferences.getInstance().then((value) {
+      setState(() {
+        notificationsEnabled = value.getBool("notificationsEnabled") ?? false;
+      });
+    });
+
     super.initState();
   }
 

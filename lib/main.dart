@@ -134,8 +134,12 @@ Future<void> main() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   await HomeworkDatabase.instance.database;
-  // Set the background messaging handler early on, as a named top-level function
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  final prefs = await SharedPreferences.getInstance();
+  (prefs.getString("notificationEnabled") ?? "true") == "true"
+      ? FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler)
+      : print(
+          "Not setting background handler because notifications are disabled");
   // Print the Firebase Messaging token
 
   if (!kIsWeb) {
