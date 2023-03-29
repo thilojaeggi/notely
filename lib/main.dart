@@ -136,59 +136,53 @@ Future<void> main() async {
   await HomeworkDatabase.instance.database;
   final prefs = await SharedPreferences.getInstance();
   await checkNotifications();
-  (prefs.getBool("notificationsEnabled") ?? false)
-      ? FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler)
-      : print(
-          "Not setting background handler because notifications are disabled");
   // Print the Firebase Messaging token
 
-  if (!kIsWeb) {
-    await setupFlutterNotifications();
-  }
-  try {
-    await messaging.subscribeToTopic("all");
-  } catch (e) {
-    print("Failed to subscribe to topic all with error: $e");
-  }
   runApp(const Notely());
 }
 
 Future<void> checkNotifications() async {
-  // TODO: Fix this function
   print("Checking notifications");
 
-  // Check if firebase has ios permissions
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  // Request notification permissions
-  await messaging
-      .requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  )
-      .then((value) async {
-    if (await prefs.getBool("notificationsEnabled") == null) {
-      print(value);
-      if (value.authorizationStatus == AuthorizationStatus.authorized) {
-        print("Notifications are enabled");
-        messaging.subscribeToTopic("all");
-        messaging.subscribeToTopic("newGradeNotification");
-        await prefs.setBool("notificationsEnabled", true);
-      } else if (value.authorizationStatus == AuthorizationStatus.denied) {
-        print("Notifications are disabled");
+  bool? notificationsEnabled = await prefs.getBool("notificationsEnabled");
+
+  if (notificationsEnabled == null || notificationsEnabled) {
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
+      if (!kIsWeb) {
+        await setupFlutterNotifications();
+      }
+      print("Notifications are enabled");
+      messaging.subscribeToTopic("all");
+      messaging.subscribeToTopic("newGradeNotification");
+
+      await prefs.setBool("notificationsEnabled", true);
+    } else if (notificationsEnabled == null ||
+        settings.authorizationStatus == AuthorizationStatus.denied) {
+      print("Notifications are disabled");
+      try {
         messaging.unsubscribeFromTopic("all");
         messaging.unsubscribeFromTopic("newGradeNotification");
-        await prefs.setBool("notificationsEnabled", false);
+      } catch (e) {
+        print(e.toString());
       }
+      await prefs.setBool("notificationsEnabled", false);
     }
-  });
+  }
 }
 
 Future<bool> login() async {
