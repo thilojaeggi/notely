@@ -36,8 +36,8 @@ dependencies:
   sqflite: ^2.2.5
   flutter_local_notifications: ^13.0.0
   calendar_timeline: ^1.1.2
-  firebase_core: ^2.8.0
-  firebase_messaging: ^14.3.0
+  firebase_core: ^2.9.0
+  firebase_messaging: ^14.4.0
   loading_animation_widget: ^1.2.0+4
   shimmer: ^2.0.0
   universal_feed: ^0.2.0
