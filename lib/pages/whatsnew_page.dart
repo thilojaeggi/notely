@@ -73,8 +73,7 @@ class _WhatsNewState extends State<WhatsNew> {
                 ),
                 SizedBox(
                   height: 5,
-                )
-                ,
+                ),
                 ListTile(
                   leading: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -91,7 +90,7 @@ class _WhatsNewState extends State<WhatsNew> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ), //Title is the only Required Item
                   subtitle: Text(
-                    'Bei den neuesten Noten werden nun Testnamen grösser angezeigt.',
+                    'Bei den neuesten Noten werden nun Testnamen grösser angezeigt und andere kleine Designänderungen.',
                   ),
                 ),
                 SizedBox(
@@ -109,7 +108,7 @@ class _WhatsNewState extends State<WhatsNew> {
                     ],
                   ),
                   title: Text(
-                    'Hausaufgaben manuell hinzufügen',
+                    'Manuelle Hausaufgaben',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ), //Title is the only Required Item
                   subtitle: Text(
@@ -124,8 +123,7 @@ class _WhatsNewState extends State<WhatsNew> {
                     'Fehlerbehebungen:',
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                   ),
-                  subtitle: ListView(
-                    shrinkWrap: true,
+                  subtitle: Column(
                     children: [
                       ListTile(
                         leading: Column(
