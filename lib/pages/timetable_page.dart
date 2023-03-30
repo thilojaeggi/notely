@@ -344,16 +344,18 @@ class _TimetablePageState extends State<TimetablePage> {
               List<Event> _eventList = snapshot.data!;
               return Expanded(
                 child: (_eventList.isNotEmpty)
-                    ? ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _eventList.length,
-                        itemBuilder: (BuildContext ctxt, int index) {
-                          Event event = _eventList[index];
-                          return LayoutBuilder(builder: (BuildContext context,
-                              BoxConstraints constraints) {
-                            return _eventWidget(context, event);
-                          });
-                        })
+                    ? Scrollbar(
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _eventList.length,
+                          itemBuilder: (BuildContext ctxt, int index) {
+                            Event event = _eventList[index];
+                            return LayoutBuilder(builder: (BuildContext context,
+                                BoxConstraints constraints) {
+                              return _eventWidget(context, event);
+                            });
+                          }),
+                    )
                     : Center(
                         child: Text(
                           "Keine Lektionen eingetragen",

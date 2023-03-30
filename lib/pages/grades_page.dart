@@ -477,18 +477,22 @@ class _GradesPageState extends State<GradesPage> {
                   final averageGradeMap =
                       snapshot.data?['averageGradeMap'] ?? {};
 
-                  return ListView.builder(
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      itemCount: groupedCoursesMap.length,
-                      itemBuilder: (BuildContext ctxt, int index) {
-                        return _buildGradeCard(
-                          ctxt,
-                          index,
-                          groupedCoursesMap,
-                          averageGradeMap,
-                        );
-                      });
+                  return Scrollbar(
+                                            controller: _scrollController,
+
+                    child: ListView.builder(
+                        controller: _scrollController,
+                        shrinkWrap: true,
+                        itemCount: groupedCoursesMap.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          return _buildGradeCard(
+                            ctxt,
+                            index,
+                            groupedCoursesMap,
+                            averageGradeMap,
+                          );
+                        }),
+                  );
                 }
               }),
         ),

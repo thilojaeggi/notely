@@ -79,108 +79,111 @@ class _AbsencesPageState extends State<AbsencesPage> {
                 }
 
                 List<Absence?>? absenceList = snapshot.data!.reversed.toList();
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: absenceList.length,
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    return Card(
-                      elevation: 3,
-                      margin: const EdgeInsets.only(
-                          bottom: 10, left: 10.0, right: 10.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      shadowColor:
-                          (absenceList.elementAt(index)!.status == "nz" ||
-                                  absenceList.elementAt(index)!.status == "e")
-                              ? Colors.blue
-                              : Colors.red,
-                      child: Container(
-                        padding: EdgeInsets.only(
-                            left: 7.0, right: 7.0, top: 2.0, bottom: 2.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.topLeft,
-                                    child: Text(
-                                      absenceList[index]!.course.toString(),
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500),
+                return Scrollbar(
+                  
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: absenceList.length,
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      return Card(
+                        elevation: 3,
+                        margin: const EdgeInsets.only(
+                            bottom: 10, left: 10.0, right: 10.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        shadowColor:
+                            (absenceList.elementAt(index)!.status == "nz" ||
+                                    absenceList.elementAt(index)!.status == "e")
+                                ? Colors.blue
+                                : Colors.red,
+                        child: Container(
+                          padding: EdgeInsets.only(
+                              left: 7.0, right: 7.0, top: 2.0, bottom: 2.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        absenceList[index]!.course.toString(),
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Text(
-                                  DateFormat("dd.MM.yyyy").format(
-                                      DateTime.parse(
-                                          absenceList[index]!.date!)),
-                                  style: const TextStyle(
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  Text(
+                                    DateFormat("dd.MM.yyyy").format(
+                                        DateTime.parse(
+                                            absenceList[index]!.date!)),
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    absenceList[index]!
+                                            .hourFrom
+                                            .toString()
+                                            .substring(
+                                                0,
+                                                absenceList[index]!
+                                                        .hourFrom!
+                                                        .toString()
+                                                        .length -
+                                                    3) +
+                                        " - " +
+                                        absenceList[index]!
+                                            .hourTo
+                                            .toString()
+                                            .substring(
+                                                0,
+                                                absenceList[index]!
+                                                        .hourTo!
+                                                        .toString()
+                                                        .length -
+                                                    3),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    (absenceList.elementAt(index)!.status == "nz")
+                                        ? 'Nicht zählend'
+                                        : (absenceList.elementAt(index)!.status ==
+                                                "e")
+                                            ? 'Entschuldigt'
+                                            : (absenceList
+                                                        .elementAt(index)!
+                                                        .status ==
+                                                    "o")
+                                                ? "Offen"
+                                                : "Unbekannt",
+                                    style: const TextStyle(
                                       fontSize: 20,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  absenceList[index]!
-                                          .hourFrom
-                                          .toString()
-                                          .substring(
-                                              0,
-                                              absenceList[index]!
-                                                      .hourFrom!
-                                                      .toString()
-                                                      .length -
-                                                  3) +
-                                      " - " +
-                                      absenceList[index]!
-                                          .hourTo
-                                          .toString()
-                                          .substring(
-                                              0,
-                                              absenceList[index]!
-                                                      .hourTo!
-                                                      .toString()
-                                                      .length -
-                                                  3),
-                                  style: const TextStyle(
-                                    fontSize: 16,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  (absenceList.elementAt(index)!.status == "nz")
-                                      ? 'Nicht zählend'
-                                      : (absenceList.elementAt(index)!.status ==
-                                              "e")
-                                          ? 'Entschuldigt'
-                                          : (absenceList
-                                                      .elementAt(index)!
-                                                      .status ==
-                                                  "o")
-                                              ? "Offen"
-                                              : "Unbekannt",
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               },
             ),

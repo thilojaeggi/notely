@@ -59,72 +59,74 @@ class _ExamsPageState extends State<ExamsPage> {
             child: (examList.isNotEmpty)
                 ? ScrollConfiguration(
                     behavior: CustomScrollBehavior(),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: examList.length,
-                      itemBuilder: (BuildContext ctxt, int index) {
-                        return Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.only(
-                              bottom: 10, left: 10.0, right: 10.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Container(
-                            padding: EdgeInsets.all(10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          examList[index].courseName.toString(),
-                                          style: const TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    Text(
-                                      DateFormat("dd.MM.yyyy").format(
-                                          DateTime.parse(examList[index]
-                                              .startDate
-                                              .toString())),
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          examList[index].text.toString(),
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                    child: Scrollbar(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: examList.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          return Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.only(
+                                bottom: 10, left: 10.0, right: 10.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          ),
-                        );
-                      },
+                            clipBehavior: Clip.antiAlias,
+                            child: Container(
+                              padding: EdgeInsets.all(10.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.topLeft,
+                                          child: Text(
+                                            examList[index].courseName.toString(),
+                                            style: const TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                      Text(
+                                        DateFormat("dd.MM.yyyy").format(
+                                            DateTime.parse(examList[index]
+                                                .startDate
+                                                .toString())),
+                                        style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.topLeft,
+                                          child: Text(
+                                            examList[index].text.toString(),
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   )
                 : Padding(
