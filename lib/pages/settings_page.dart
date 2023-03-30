@@ -205,6 +205,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     fontSize: 23,
                   ),
                 ),
+                subtitle: Text("Bei neuen Noten und Updates"),
                 trailing: (!Platform.isIOS)
                     ? Switch(
                         value: notificationsEnabled,
@@ -215,9 +216,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     : CupertinoSwitch(
                         value: notificationsEnabled,
                         onChanged: (value) {
-                          setState(() {
-                            toggleNotifications();
-                          });
+                          toggleNotifications();
                         }),
               ),
             ),
@@ -262,12 +261,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () async {
                   final storage = SecureStorage();
                   final prefs = await SharedPreferences.getInstance();
-                  await prefs.clear();
+                  // Make a loop to delete all prefs
+                  prefs.remove("grades");
+                  prefs.remove("notificationsEnabled");
+                  prefs.remove("school");
                   await storage.deleteAll();
                   Navigator.pushReplacement(
                       context,
                       PageTransition(
-                        type: PageTransitionType.fade,
+                        type: PageTransitionType.bottomToTop,
                         duration: const Duration(milliseconds: 450),
                         alignment: Alignment.bottomCenter,
                         child: const LoginPage(),
