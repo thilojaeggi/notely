@@ -1,18 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:notely/Globals.dart';
-import 'package:notely/Models/Exam.dart';
 import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/helpers/api_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Event.dart';
 
 class TimetablePage extends StatefulWidget {

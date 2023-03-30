@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import '../Models/Absence.dart';
 
 class AbsencesPage extends StatefulWidget {

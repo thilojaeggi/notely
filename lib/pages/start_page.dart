@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
-import 'package:notely/Models/Absence.dart';
 import 'package:notely/helpers/api_client.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -11,7 +9,6 @@ import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/pages/exams_page.dart';
 import 'package:notely/pages/homework_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Models/Grade.dart';
 import '../Models/Student.dart';

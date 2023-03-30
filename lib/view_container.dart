@@ -1,12 +1,10 @@
 import 'dart:ui';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;

@@ -1,17 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'package:shimmer/shimmer.dart';
 
 import '../Models/Grade.dart';
 
@@ -26,7 +20,6 @@ class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
   Color good = Colors.blueAccent;
   Color bad = Colors.redAccent;
-  late Future<Map<String, dynamic>> _gradesDataFuture;
   double lowestGradePoints = 0;
   final ScrollController _scrollController = ScrollController();
 
