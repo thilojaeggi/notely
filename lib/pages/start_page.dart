@@ -125,7 +125,7 @@ class _StartPageState extends State<StartPage> {
     _getGrades();
     _getStudent();
     _getExams();
-
+  
     homeworkFuture = getHomework();
     randomHelloIndex = random.nextInt(hellos.length);
   }
