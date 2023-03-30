@@ -69,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
           return AlertDialog(
             title: Text("Benachrichtigungen deaktiviert"),
             content: Text(
-              "Um Benachrichtigungen zu erhalten, musst du die Mitteilungen in den Einstellungen erlauben, danach kannst du es erneut versuchen.",
+              "Um Benachrichtigungen zu erhalten, musst du die Benachrichtigungen in den Einstellungen aktivieren.",
             ),
             actions: [
               TextButton(
@@ -262,15 +262,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   final storage = SecureStorage();
                   final prefs = await SharedPreferences.getInstance();
                   // Make a loop to delete all prefs
-                  prefs.remove("grades");
-                  prefs.remove("notificationsEnabled");
                   prefs.remove("school");
                   await storage.deleteAll();
                   Navigator.pushReplacement(
                       context,
                       PageTransition(
-                        type: PageTransitionType.bottomToTop,
-                        duration: const Duration(milliseconds: 450),
+                        type: PageTransitionType.fade,
                         alignment: Alignment.bottomCenter,
                         child: const LoginPage(),
                       ));
