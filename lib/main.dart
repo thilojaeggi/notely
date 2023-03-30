@@ -70,7 +70,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             flutterLocalNotificationsPlugin.show(
               grade.id.hashCode,
               "Notely",
-              "Du hast eine neue Note in ${grade.subject}.",
+              "Du hast eine neue ${grade.subject} Note.",
               NotificationDetails(
                   android: AndroidNotificationDetails(
                     channel.id,
