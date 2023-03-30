@@ -142,7 +142,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   await HomeworkDatabase.instance.database;
   await checkNotifications(messaging);
   runApp(const Notely());
@@ -152,7 +152,10 @@ Future<void> checkNotifications(FirebaseMessaging messaging) async {
   print("Checking notifications");
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool? notificationsEnabled = await prefs.getBool("notificationsEnabled");
-
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  if (!kIsWeb) {
+    await setupFlutterNotifications();
+  }
   if (notificationsEnabled == null || notificationsEnabled) {
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
@@ -164,9 +167,6 @@ Future<void> checkNotifications(FirebaseMessaging messaging) async {
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      if (!kIsWeb) {
-        await setupFlutterNotifications();
-      }
       print("Notifications are enabled");
       messaging.subscribeToTopic("all");
       messaging.subscribeToTopic("newGradeNotification");
@@ -354,8 +354,22 @@ class _NotelyState extends State<Notely> {
                     )));
                   } else if (snapshot.hasError) {
                     return Material(
-                      child: const Center(
-                        child: Text("Error, versuche es später erneut!"),
+                      child:  SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.error, size: 128,),
+                          Text("Error", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),),
+                              Text(
+                              "Versuche es später erneut oder überprüfe deine Internetverbindung.",
+                              style: TextStyle(fontSize: 18.0),
+                              textAlign: TextAlign.center,
+                            ),
+                            ]
+                          ),
+                        ),
                       ),
                     );
                   }
