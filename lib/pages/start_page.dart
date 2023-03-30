@@ -114,6 +114,7 @@ class _StartPageState extends State<StartPage> {
 
   Future<List<Homework>> getHomework() async {
     List<Homework> homeworkList = await HomeworkDatabase.instance.readAll();
+    homeworkList.sort((a, b) => a.dueDate.compareTo(b.dueDate));
     return homeworkList;
   }
 
