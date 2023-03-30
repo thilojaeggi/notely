@@ -90,7 +90,7 @@ class _WhatsNewState extends State<WhatsNew> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ), //Title is the only Required Item
                   subtitle: Text(
-                    'Bei den neuesten Noten werden nun Testnamen grösser angezeigt und andere kleine Designänderungen.',
+                    'Bei den neuesten Noten werden nun Testnamen grösser angezeigt und andere kleine Designänderungen wurden vorgenommen.',
                   ),
                 ),
                 SizedBox(
