@@ -91,6 +91,7 @@ class _GradesPageState extends State<GradesPage> {
   }
 
   void _getGrades() async {
+    if (!mounted) return;
     try {
       final cachedGrades = await APIClient().getGrades(true);
       _gradesStreamController.add(_calculateGrades(cachedGrades));

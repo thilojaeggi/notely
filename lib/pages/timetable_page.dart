@@ -30,18 +30,17 @@ class _TimetablePageState extends State<TimetablePage> {
   APIClient _apiClient = APIClient();
 
   void _getEvents() async {
-    if (!_eventStreamController.isClosed) {
-      try {
-        List<Event> cachedGrades = await _apiClient.getEvents(today, true);
-        _eventStreamController.sink.add(cachedGrades);
+    if (!mounted) return;
+    try {
+      List<Event> cachedGrades = await _apiClient.getEvents(today, true);
+      _eventStreamController.sink.add(cachedGrades);
 
-        // Then get the latest data and update the UI again
-        List<Event> latestGrades = await _apiClient.getEvents(today, false);
-        _eventStreamController.sink.add(latestGrades);
-      } catch (e) {
-        // Handle the StateError here
-        print('Error adding event to stream controller: $e');
-      }
+      // Then get the latest data and update the UI again
+      List<Event> latestGrades = await _apiClient.getEvents(today, false);
+      _eventStreamController.sink.add(latestGrades);
+    } catch (e) {
+      // Handle the StateError here
+      print('Error adding event to stream controller: $e');
     }
   }
 

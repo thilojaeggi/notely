@@ -40,52 +40,51 @@ class _StartPageState extends State<StartPage> {
       StreamController<List<Exam>>();
 
   void _getGrades() async {
-    if (!_gradesStreamController.isClosed) {
-      try {
-        List<Grade> cachedGrades = await _apiClient.getGrades(true);
-        _gradesStreamController.sink.add(cachedGrades);
+    if (!mounted) return;
 
-        // Then get the latest data and update the UI again
-        List<Grade> latestGrades = await _apiClient.getGrades(false);
-        _gradesStreamController.sink.add(latestGrades);
-      } catch (e) {
-        // Handle the StateError here
-        print('Error adding event to stream controller: $e');
-      }
+    try {
+      List<Grade> cachedGrades = await _apiClient.getGrades(true);
+      _gradesStreamController.sink.add(cachedGrades);
+
+      // Then get the latest data and update the UI again
+      List<Grade> latestGrades = await _apiClient.getGrades(false);
+      _gradesStreamController.sink.add(latestGrades);
+    } catch (e) {
+      // Handle the StateError here
+      print('Error adding event to stream controller: $e');
     }
   }
 
   void _getStudent() async {
-    if (!_studentStreamController.isClosed) {
-      try {
-        Student cachedStudent = await _apiClient.getStudent(true);
-        _studentStreamController.sink.add(cachedStudent);
+    if (!mounted) return;
 
-        // Then get the latest data and update the UI again
-        Student latestStudent = await _apiClient.getStudent(false);
-        _studentStreamController.sink.add(latestStudent);
-      } catch (e) {
-        // Handle the StateError here
-        print('Error adding event to stream controller: $e');
-      }
+    try {
+      Student cachedStudent = await _apiClient.getStudent(true);
+      _studentStreamController.sink.add(cachedStudent);
+
+      // Then get the latest data and update the UI again
+      Student latestStudent = await _apiClient.getStudent(false);
+      _studentStreamController.sink.add(latestStudent);
+    } catch (e) {
+      // Handle the StateError here
+      print('Error adding event to stream controller: $e');
     }
   }
 
   void _getExams() async {
-    if (!_examsStreamController.isClosed) {
-      try {
-        List<Exam> cachedExams = await _apiClient.getExams(true);
-        _examsStreamController.sink.add(cachedExams);
-        exams = cachedExams;
+    if (!mounted) return;
+    try {
+      List<Exam> cachedExams = await _apiClient.getExams(true);
+      _examsStreamController.sink.add(cachedExams);
+      exams = cachedExams;
 
-        // Then get the latest data and update the UI again
-        List<Exam> latestExams = await _apiClient.getExams(false);
-        _examsStreamController.sink.add(latestExams);
-        exams = latestExams;
-      } catch (e) {
-        // Handle the StateError here
-        print('Error adding event to stream controller: $e');
-      }
+      // Then get the latest data and update the UI again
+      List<Exam> latestExams = await _apiClient.getExams(false);
+      _examsStreamController.sink.add(latestExams);
+      exams = latestExams;
+    } catch (e) {
+      // Handle the StateError here
+      print('Error adding event to stream controller: $e');
     }
   }
 
