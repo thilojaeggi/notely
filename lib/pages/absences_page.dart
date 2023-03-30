@@ -73,7 +73,9 @@ class _AbsencesPageState extends State<AbsencesPage> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting ||
                     !snapshot.hasData) {
-                  return SizedBox.shrink();
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
                 } else if (snapshot.hasError) {
                   return const Center(
                     child: Text("Error"),
