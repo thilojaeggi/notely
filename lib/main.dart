@@ -142,6 +142,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await HomeworkDatabase.instance.database;
   await checkNotifications(messaging);
   runApp(const Notely());
@@ -163,8 +164,6 @@ Future<void> checkNotifications(FirebaseMessaging messaging) async {
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
       if (!kIsWeb) {
         await setupFlutterNotifications();
       }
