@@ -2,6 +2,7 @@ import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/Models/Homework.dart';
+import 'package:notely/config/CustomScrollBehavior.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 
 class HomeworkPage extends StatefulWidget {
@@ -71,139 +72,148 @@ class _HomeworkPageState extends State<HomeworkPage> {
               child: Stack(
             children: [
               (homeworkList.isNotEmpty)
-                  ? ListView.builder(
-                      itemCount: homeworkList.length,
-                      itemBuilder: (BuildContext ctxt, int index) {
-                        Homework homework = homeworkList[index];
-                        return Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.only(
-                              bottom: 10, left: 10.0, right: 10.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Container(
-                            padding: EdgeInsets.all(10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          homeworkList[index]
-                                              .lessonName
-                                              .toString(),
-                                          style: const TextStyle(
-                                            fontSize: 26,
-                                            fontWeight: FontWeight.w600,
+                  ? ScrollConfiguration(
+                      behavior: CustomScrollBehavior(),
+                      child: ListView.builder(
+                        itemCount: homeworkList.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          Homework homework = homeworkList[index];
+                          return Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.only(
+                                bottom: 10, left: 10.0, right: 10.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: Container(
+                              padding: EdgeInsets.all(10.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.topLeft,
+                                          child: Text(
+                                            homeworkList[index]
+                                                .lessonName
+                                                .toString(),
+                                            style: const TextStyle(
+                                              fontSize: 26,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Text(
-                                      DateFormat("dd.MM.yyyy HH:mm").format(
-                                          DateTime.parse(homeworkList[index]
-                                              .dueDate
-                                              .toLocal()
-                                              .toString())),
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        DateFormat("dd.MM.yyyy HH:mm").format(
+                                            DateTime.parse(homeworkList[index]
+                                                .dueDate
+                                                .toLocal()
+                                                .toString())),
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Colors.white.withOpacity(0.5)
+                                              : Colors.black.withOpacity(0.5),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                      margin:
+                                          const EdgeInsets.only(bottom: 15.0),
+                                      height: 2.0,
+                                      width: 100.0,
+                                      decoration: BoxDecoration(
                                         color: Theme.of(context).brightness ==
                                                 Brightness.dark
-                                            ? Colors.white.withOpacity(0.5)
-                                            : Colors.black.withOpacity(0.5),
+                                            ? Colors.white
+                                            : Colors.black,
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      )),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.topLeft,
+                                    child: Text(
+                                      homeworkList[index].title.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.0,
                                       ),
                                     ),
-                                  ],
-                                ),
-                                Container(
-                                    margin: const EdgeInsets.only(bottom: 15.0),
-                                    height: 2.0,
-                                    width: 100.0,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? Colors.white
-                                          : Colors.black,
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    )),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    homeworkList[index].title.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.0,
-                                    ),
                                   ),
-                                ),
-                                Text(
-                                  homeworkList[index].details.toString(),
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    TextButton(
-                                        onPressed: () async {
-                                          await HomeworkDatabase.instance
-                                              .delete(homework.id);
-                                          setState(() {
-                                            homeworkList.removeAt(index);
-                                          });
-                                          widget.callBack(homeworkList);
-                                        },
-                                        child: Text(
-                                          "Löschen",
-                                          style: TextStyle(
-                                              color: Colors.red, fontSize: 16),
-                                        )),
-                                    Transform.scale(
-                                      scale: 1.7,
-                                      child: Checkbox(
-                                          value: homework.isDone,
-                                          fillColor: MaterialStateProperty.all(
-                                              Theme.of(context).primaryColor),
-                                          // Rounded checkbox
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                          ),
-                                          onChanged: (newVal) async {
-                                            Homework updatedHomework = homework
-                                                .copyWith(isDone: newVal!);
+                                  Text(
+                                    homeworkList[index].details.toString(),
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      TextButton(
+                                          onPressed: () async {
                                             await HomeworkDatabase.instance
-                                                .update(updatedHomework);
-
+                                                .delete(homework.id);
                                             setState(() {
-                                              homeworkList[index] =
-                                                  updatedHomework;
+                                              homeworkList.removeAt(index);
                                             });
                                             widget.callBack(homeworkList);
-                                          }),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                          },
+                                          child: Text(
+                                            "Löschen",
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 16),
+                                          )),
+                                      Transform.scale(
+                                        scale: 1.7,
+                                        child: Checkbox(
+                                            value: homework.isDone,
+                                            fillColor:
+                                                MaterialStateProperty.all(
+                                                    Theme.of(context)
+                                                        .primaryColor),
+                                            // Rounded checkbox
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            onChanged: (newVal) async {
+                                              Homework updatedHomework =
+                                                  homework.copyWith(
+                                                      isDone: newVal!);
+                                              await HomeworkDatabase.instance
+                                                  .update(updatedHomework);
+
+                                              setState(() {
+                                                homeworkList[index] =
+                                                    updatedHomework;
+                                              });
+                                              widget.callBack(homeworkList);
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     )
                   : Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -226,7 +236,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                             height: 20,
                           ),
                           Text(
-                            "Hausaufgaben kannst du am einfachsten hinzufügen, indem du auf eine zukünftige Lektion unter \"Plan\" tippst.",
+                            "Hausaufgaben kannst du hier hinzufügen oder indem du auf eine zukünftige Lektion unter \"Plan\" tippst.",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -353,7 +363,6 @@ class _DisplayDialogState extends State<DisplayDialog> {
         width: 300,
         child: ListView(
           shrinkWrap: true,
-          physics: ClampingScrollPhysics(),
           children: [
             GestureDetector(
               onTap: () {
