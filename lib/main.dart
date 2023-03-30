@@ -33,7 +33,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
   print('Handling a background message ${message.messageId}');
-  RemoteNotification? notification = message.notification;
   if (message.contentAvailable ||
       message.from == "/topics/newGradeNotification") {
     final storage = SecureStorage();
@@ -62,25 +61,36 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       client.accessToken = accessToken;
       client.school = school;
       try {
-        List<Grade> grades = await client.getGrades(false);
-        if (grades.length <=
-            jsonDecode(prefs.getString("grades") ?? "[]").length) return;
-        print("trying to send notif");
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          "Notely",
-          "Neue Note!",
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              icon: 'ic_stat_school',
-            ),
-          ),
-        );
-        // Store the new grade list as string in prefs for the next time we check
-        prefs.setString("grades", jsonEncode(grades));
+        List<Grade> oldGrades = await client.getGrades(true);
+        List<Grade> newGrades = await client.getGrades(false);
+        if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
+        for (Grade grade in newGrades) {
+          if (!oldGrades.contains(grade)) {
+            // send notification
+            flutterLocalNotificationsPlugin.show(
+              grade.id.hashCode,
+              "Notely",
+              "Du hast eine neue Note in ${grade.subject}.",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                    channel.id,
+                    channel.name,
+                    channelDescription: channel.description,
+                    icon: 'ic_stat_school',
+                    playSound: true,
+                    enableVibration: true,
+                    importance: Importance.high,
+                    priority: Priority.high,
+                    visibility: NotificationVisibility.public,
+                  ),
+                  iOS: DarwinNotificationDetails(
+                    presentAlert: true,
+                    presentBadge: true,
+                    presentSound: true,
+                  )),
+            );
+          }
+        }
       } catch (e) {
         print(e.toString());
       }
@@ -132,21 +142,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-
   await HomeworkDatabase.instance.database;
-  final prefs = await SharedPreferences.getInstance();
-  await checkNotifications();
-  // Print the Firebase Messaging token
-
+  await checkNotifications(messaging);
   runApp(const Notely());
 }
 
-Future<void> checkNotifications() async {
+Future<void> checkNotifications(FirebaseMessaging messaging) async {
   print("Checking notifications");
-
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
   SharedPreferences prefs = await SharedPreferences.getInstance();
-
   bool? notificationsEnabled = await prefs.getBool("notificationsEnabled");
 
   if (notificationsEnabled == null || notificationsEnabled) {
@@ -159,7 +162,6 @@ Future<void> checkNotifications() async {
       provisional: false,
       sound: true,
     );
-
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler);
@@ -169,7 +171,6 @@ Future<void> checkNotifications() async {
       print("Notifications are enabled");
       messaging.subscribeToTopic("all");
       messaging.subscribeToTopic("newGradeNotification");
-
       await prefs.setBool("notificationsEnabled", true);
     } else if (notificationsEnabled == null ||
         settings.authorizationStatus == AuthorizationStatus.denied) {
@@ -213,15 +214,8 @@ Future<bool> login() async {
     client.accessToken = accessToken;
     client.school = school;
     print("Logged in");
-    try {
-      await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
-    } catch (e) {
-      print("Error while subscribing to topic newGradeNotification: $e");
-    }
     return true;
   }
-
-  await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
 
   return false;
 }

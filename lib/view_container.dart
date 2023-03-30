@@ -62,7 +62,6 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       getAccessToken();
-      //await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
     }
   }
 
