@@ -1,15 +1,11 @@
 import 'dart:io';
 
 import 'package:day_night_switcher/day_night_switcher.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:notely/Globals.dart';
-import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
@@ -17,7 +13,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'login_page.dart';
 import 'package:app_settings/app_settings.dart';
 
@@ -40,70 +35,85 @@ class _SettingsPageState extends State<SettingsPage> {
     AppSettings.openNotificationSettings();
   }
 
-  void toggleNotifications() async {
+  Future<void> toggleNotifications(bool value) async {
     print("Toggling notifications");
-
-    // Check if firebase has ios permissions
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Request notification permissions
-    final settings = await messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-    print(settings.authorizationStatus);
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      setState(() {
-        notificationsEnabled = !notificationsEnabled;
-      });
-    } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("Benachrichtigungen deaktiviert"),
-            content: Text(
-              "Um Benachrichtigungen zu erhalten, musst du die Benachrichtigungen in den Einstellungen aktivieren.",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Später"),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  openAppSettings();
-                },
-                child: Text("Einstellungen öffnen"),
-              )
-            ],
-          );
-        },
+    if (value) {
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
       );
-    }
-
-    if (notificationsEnabled) {
-      messaging.subscribeToTopic("all");
-      messaging.subscribeToTopic("newGradeNotification");
-      print("Subscribed to all topics");
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        print("Notifications are enabled");
+        setState(() {
+          notificationsEnabled = true;
+        });
+        messaging.subscribeToTopic("all");
+        messaging.subscribeToTopic("newGradeNotification");
+        print("Subscribed to all topics");
+        await prefs.setBool("notificationsEnabled", true);
+      } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        print("Tried to enable notifications but they are disabled in system");
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Benachrichtigungen deaktiviert"),
+              content: Text(
+                "Um Benachrichtigungen zu erhalten, musst du die Benachrichtigungen in den Einstellungen aktivieren.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("Später"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    openAppSettings();
+                  },
+                  child: Text("Einstellungen öffnen"),
+                )
+              ],
+            );
+          },
+        );
+        await prefs.setBool("notificationsEnabled", false);
+        print("Notifications are disabled in system");
+      }
     } else {
+      print("Notifications were disabled");
+      setState(() {
+        notificationsEnabled = false;
+      });
       messaging.unsubscribeFromTopic("all");
       messaging.unsubscribeFromTopic("newGradeNotification");
       print("Unsubscribed from all topics");
+      await prefs.setBool("notificationsEnabled", false);
     }
+    print("Done toggling notifications");
+  }
 
-    // Store value for later use
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("notificationsEnabled", notificationsEnabled);
+  void logout() async {
+    SecureStorage().deleteAll();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove("school");
+    Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          alignment: Alignment.bottomCenter,
+          child: const LoginPage(),
+        ));
   }
 
   @override
@@ -196,7 +206,7 @@ class _SettingsPageState extends State<SettingsPage> {
               clipBehavior: Clip.antiAlias,
               child: ListTile(
                 onTap: () {
-                  toggleNotifications();
+                  toggleNotifications(!notificationsEnabled);
                 },
                 visualDensity: VisualDensity(vertical: 2),
                 title: const Text(
@@ -210,13 +220,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? Switch(
                         value: notificationsEnabled,
                         onChanged: (value) {
-                          toggleNotifications();
+                          toggleNotifications(value);
                         },
                       )
                     : CupertinoSwitch(
                         value: notificationsEnabled,
                         onChanged: (value) {
-                          toggleNotifications();
+                          toggleNotifications(value);
                         }),
               ),
             ),
@@ -258,20 +268,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               clipBehavior: Clip.antiAlias,
               child: ListTile(
-                onTap: () async {
-                  final storage = SecureStorage();
-                  final prefs = await SharedPreferences.getInstance();
-                  // Make a loop to delete all prefs
-                  prefs.remove("school");
-                  await storage.deleteAll();
-                  Navigator.pushReplacement(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.fade,
-                        alignment: Alignment.bottomCenter,
-                        child: const LoginPage(),
-                      ));
-                },
+                onTap: logout,
                 visualDensity: VisualDensity(vertical: 2),
                 title: Text(
                   "Abmelden",
