@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 
 class WhatsNew extends StatefulWidget {
@@ -40,110 +39,158 @@ class _WhatsNewState extends State<WhatsNew> {
             height: 20,
           ),
           Expanded(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                ListTile(
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        FontAwesome5.bell,
-                        size: 32,
-                        color: Colors.blue.shade500,
-                      ),
-                    ],
-                  ),
-                  title: Text(
-                    'Benachrichtigungen (Experimentell)',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ), //Title is the only Required Item
-                  subtitle: Column(
-                    children: [
-                      Text(
-                        'Bei einer neuen Note erhältst du nun automatisch eine Benachrichtigung sofern du die Berechtigung akzeptierst. ',
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        "Funktioniert am besten wenn du die App nicht aus dem Hintergrund swipest.",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Theme.of(context).textTheme.bodySmall!.color,
-                            fontSize: 14.0),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                ListTile(
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        FontAwesome5.tasks,
-                        size: 32,
-                        color: Colors.blue.shade500,
-                      ),
-                    ],
-                  ),
-                  title: Text(
-                    'Hausaufgaben',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                    'Du kannst nun auf eine Lektion im Stundenplan tippen um eine Hausaufgabe einzutragen.',
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                (widget.school.toLowerCase() == "ksso")
-                    ? ListTile(
-                        leading: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              FontAwesome5.percent,
-                              size: 32,
-                              color: Colors.blue.shade500,
-                            ),
-                          ],
+            child: Scrollbar(
+              thumbVisibility: true,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  ListTile(
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FontAwesome5.tachometer_alt,
+                          size: 32,
+                          color: Colors.blue.shade500,
                         ),
-                        title: Text(
-                          'Promotionspunkte',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
+                      ],
+                    ),
+                    title: Text(
+                      'Ladezeiten verringert',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ), //Title is the only Required Item
+                    subtitle: Text(
+                      'Die Ladezeiten in der ganzen App wurden verbessert und sie sollte nun auch schneller starten.',
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  ListTile(
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FontAwesome5.pen_nib,
+                          size: 32,
+                          color: Colors.blue.shade500,
                         ),
-                        subtitle: Text(
-                            'Auf der Noten Seite werden dir nun deine Promotionspunkte angezeigt.'),
-                      )
-                    : SizedBox.shrink(),
-                SizedBox(
-                  height: 20,
-                ),
-                ListTile(
-                  leading: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        FontAwesome5.pencil_ruler,
-                        size: 32,
-                        color: Colors.blue.shade500,
-                      ),
-                    ],
+                      ],
+                    ),
+                    title: Text(
+                      'Anpassung Startseite',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ), //Title is the only Required Item
+                    subtitle: Text(
+                      'Bei den neuesten Noten werden nun Testnamen grösser angezeigt und andere kleine Designänderungen wurden vorgenommen.',
+                    ),
                   ),
-                  title: Text(
-                    'Überarbeitete Startseite',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  SizedBox(
+                    height: 5,
                   ),
-                  subtitle: Text(
-                      'Die Kacheln auf der Startseite wurden überarbeitet, tippe auf eine davon, um alle Tests/Hausaufgaben anzuzeigen.'),
-                ),
-              ],
+                  ListTile(
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FontAwesome5.plus,
+                          size: 32,
+                          color: Colors.blue.shade500,
+                        ),
+                      ],
+                    ),
+                    title: Text(
+                      'Manuelle Hausaufgaben',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ), //Title is the only Required Item
+                    subtitle: Text(
+                      'Hausaufgaben können nun auch manuell hinzugefügt werden auch ausserhalb des Stundenplans.\nZudem wurde die Darstellung überarbeitet.',
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Fehlerbehebungen:',
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
+                    ),
+                    subtitle: Column(
+                      children: [
+                        ListTile(
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                FontAwesome5.bug,
+                                size: 24,
+                                color: Colors.blue.shade500,
+                              ),
+                            ],
+                          ),
+                          title: Text(
+                            'Fehlerbehebung Startseite',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            'Auf der Startseite wurden fälschlicherweise Noten von alt nach neu dargestellt. ',
+                            style: TextStyle(fontSize: 13.0),
+                          ),
+                        ),
+                        ListTile(
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                FontAwesome5.bug,
+                                size: 24,
+                                color: Colors.blue.shade500,
+                              ),
+                            ],
+                          ),
+                          title: Text(
+                            'Fehlerbehebung Login',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ), //Title is the only Required Item
+                          subtitle: Text(
+                            'Bei einigen Usern war es möglich dass man nicht angemeldet bleibt, dies sollte nun behoben sein.',
+                            style: TextStyle(fontSize: 13.0),
+                          ),
+                        ),
+                        ListTile(
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                FontAwesome5.bug,
+                                size: 24,
+                                color: Colors.blue.shade500,
+                              ),
+                            ],
+                          ),
+                          title: Text(
+                            'Fehlerbehebung Hausaufgaben',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ), //Title is the only Required Item
+                          subtitle: Text(
+                            'Zeilenumbrüche in Hausaufgaben sollten nun korrekt dargestellt werden.',
+                            style: TextStyle(fontSize: 13.0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
             ),
           ),
           Padding(

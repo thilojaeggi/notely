@@ -1,17 +1,16 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:notely/Globals.dart';
+import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-import '../Globals.dart' as Globals;
 import '../config/style.dart';
 import '../view_container.dart';
 import '../widgets/AuthTextField.dart';
@@ -29,10 +28,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   HeadlessInAppWebView? headlessWebView;
   String dropdownValue = 'KSSO';
-
-  bool toastIslandVisible = false;
-  bool toastSuccess = false;
-  String toastMessage = "";
 
   @override
   void initState() {
@@ -74,7 +69,6 @@ class _LoginPageState extends State<LoginPage> {
         },
         onUpdateVisitedHistory: (controller, url, androidIsReload) async {
           print("onUpdateVisitedHistory $url");
-
           if (url
               .toString()
               .contains("https://www.schul-netz.com/mobile/start")) {
@@ -90,28 +84,12 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> showIslandToast(
-      bool success, String message, int duration) async {
-    if (mounted) {
-      setState(() {
-        toastIslandVisible = true;
-        toastSuccess = success;
-        toastMessage = message;
-      });
-      await Future.delayed(Duration(milliseconds: duration), () {
-        setState(() {
-          toastIslandVisible = false;
-        });
-      });
-    }
-  }
-
   Future<void> signIn() async {
     final storage = SecureStorage();
-    String url = Globals.apiBase +
-        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl";
+    final url = Globals.buildUrl(
+        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl");
     print(url);
-    await http.post(Uri.parse(url), body: {
+    await http.post(url, body: {
       "login": _usernameController.text,
       "passwort": _passwordController.text,
     }, headers: {
@@ -134,11 +112,9 @@ class _LoginPageState extends State<LoginPage> {
         await storage.write(key: "username", value: _usernameController.text);
         await storage.write(key: "password", value: _passwordController.text);
         await prefs.setString("school", dropdownValue.toLowerCase());
-        await FirebaseMessaging.instance
-            .subscribeToTopic("newGradeNotification");
 
-        Globals.accessToken = trimmedString;
-        Globals.school = dropdownValue.toLowerCase();
+        APIClient().accessToken = trimmedString;
+        APIClient().school = dropdownValue.toLowerCase();
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),

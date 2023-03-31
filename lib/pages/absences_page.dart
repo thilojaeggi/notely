@@ -1,12 +1,9 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import '../Globals.dart' as Globals;
+import 'package:notely/helpers/api_client.dart';
 import '../Models/Absence.dart';
-import '../Globals.dart';
 
 class AbsencesPage extends StatefulWidget {
   const AbsencesPage({Key? key}) : super(key: key);
@@ -16,33 +13,37 @@ class AbsencesPage extends StatefulWidget {
 }
 
 class _AbsencesPageState extends State<AbsencesPage> {
-  Future<List<Absence?>> getAbsences() async {
-    final prefs = await SharedPreferences.getInstance();
-    String school = await prefs.getString("school") ?? "ksso";
-    String url = Globals.apiBase +
-        school.toLowerCase() +
-        "/rest/v1" +
-        "/me/absencenotices";
-    List<Absence> absenceList = <Absence>[];
+  final APIClient _apiClient = APIClient();
+
+  StreamController<List<Absence>> _absencesController =
+      StreamController<List<Absence>>();
+
+  void _getAbsences() async {
+    if (!mounted) return;
     try {
-      await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $accessToken',
-      }).then((response) {
-        absenceList = (json.decode(response.body) as List)
-            .reversed
-            .map((i) => Absence.fromJson(i))
-            .toList();
-      });
+      List<Absence> cachedAbsences = await _apiClient.getAbsences(true);
+      _absencesController.sink.add(cachedAbsences);
+
+      // Then get the latest data and update the UI again
+      List<Absence> latestAbsences = await _apiClient.getAbsences(false);
+      _absencesController.sink.add(latestAbsences);
     } catch (e) {
-      print(e.toString());
+      // Handle the StateError here
+      print('Error adding event to stream controller: $e');
     }
-    return absenceList;
   }
 
   @override
   initState() {
     super.initState();
-    print(accessToken);
+    _getAbsences();
+  }
+
+  @override
+  void dispose() {
+    _absencesController.close();
+
+    super.dispose();
   }
 
   @override
@@ -63,24 +64,26 @@ class _AbsencesPageState extends State<AbsencesPage> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Absence?>>(
-                future: getAbsences(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting ||
-                      !snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const Center(
-                      child: Text("Error"),
-                    );
-                  }
-                  List<Absence?>? absenceList = snapshot.data;
-                  print(snapshot.data);
-                  return ListView.builder(
+            child: StreamBuilder<List<Absence>>(
+              stream: _absencesController.stream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting ||
+                    !snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return const Center(
+                    child: Text("Error"),
+                  );
+                }
+
+                List<Absence?>? absenceList = snapshot.data!.reversed.toList();
+                return Scrollbar(
+                  
+                  child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: absenceList!.length,
+                    itemCount: absenceList.length,
                     itemBuilder: (BuildContext ctxt, int index) {
                       return Card(
                         elevation: 3,
@@ -129,8 +132,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     absenceList[index]!
@@ -159,12 +161,9 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                     ),
                                   ),
                                   Text(
-                                    (absenceList.elementAt(index)!.status ==
-                                            "nz")
+                                    (absenceList.elementAt(index)!.status == "nz")
                                         ? 'Nicht zählend'
-                                        : (absenceList
-                                                    .elementAt(index)!
-                                                    .status ==
+                                        : (absenceList.elementAt(index)!.status ==
                                                 "e")
                                             ? 'Entschuldigt'
                                             : (absenceList
@@ -184,8 +183,10 @@ class _AbsencesPageState extends State<AbsencesPage> {
                         ),
                       );
                     },
-                  );
-                }),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

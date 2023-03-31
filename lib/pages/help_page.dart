@@ -52,10 +52,10 @@ class _HelpPageState extends State<HelpPage> {
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: new BoxDecoration(
         borderRadius: new BorderRadius.only(
-          topLeft: const Radius.circular(25.0),
-          topRight: const Radius.circular(25.0),
+          topLeft: const Radius.circular(16.0),
+          topRight: const Radius.circular(16.0),
         ),
-        color: Color.fromARGB(255, 226, 226, 226).withOpacity(0.2),
+          color: Theme.of(context).canvasColor.withOpacity(0.96),
       ),
       child: Padding(
           padding: EdgeInsets.all(8.0),

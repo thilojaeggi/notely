@@ -1,17 +1,13 @@
-import 'dart:convert';
+import 'dart:async';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'package:shimmer/shimmer.dart';
+import 'package:notely/helpers/api_client.dart';
 
 import '../Models/Grade.dart';
-import '../Globals.dart' as Globals;
 
 class GradesPage extends StatefulWidget {
   const GradesPage({Key? key}) : super(key: key);
@@ -24,7 +20,6 @@ class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
   Color good = Colors.blueAccent;
   Color bad = Colors.redAccent;
-  late Future<Map<String, dynamic>> _gradesDataFuture;
   double lowestGradePoints = 0;
   final ScrollController _scrollController = ScrollController();
 
@@ -50,67 +45,67 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
-  Future<Map<String, dynamic>> getGrades() async {
-    final prefs = await SharedPreferences.getInstance();
-    String school = await prefs.getString("school") ?? "ksso";
-    String url =
-        Globals.apiBase + school.toLowerCase() + "/rest/v1" + "/me/grades";
-    debugPrint(url);
-    debugPrint(Globals.accessToken);
-    try {
-      final response = await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer ' + Globals.accessToken,
+  StreamController<Map<String, dynamic>> _gradesStreamController =
+      StreamController<Map<String, dynamic>>();
+
+  Map<String, dynamic> _calculateGrades(List<Grade> gradeList) {
+    var groupedCoursesMap = gradeList.groupBy((m) => m.subject);
+    final averageGradeMap = {};
+    for (var i = 0; i < groupedCoursesMap.length; i++) {
+      double combinedGrade = 0;
+      double combinedWeight = 0;
+      for (var grade in groupedCoursesMap.values.elementAt(i)) {
+        combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
+        combinedWeight += grade.weight!;
+      }
+
+      averageGradeMap.addAll({
+        groupedCoursesMap.keys.elementAt(i):
+            (combinedGrade / combinedWeight).toStringAsFixed(3)
       });
-      final gradeList = (json.decode(response.body) as List)
-          .map((i) => Grade.fromJson(i))
-          .toList();
-      print(jsonEncode(gradeList));
-      prefs.setString("gradeList", json.encode(gradeList));
-      final groupedCoursesMap = gradeList.groupBy((m) => m.subject);
-      final averageGradeMap = {};
-      for (var i = 0; i < groupedCoursesMap.length; i++) {
-        double combinedGrade = 0;
-        double combinedWeight = 0;
-        for (var grade in groupedCoursesMap.values.elementAt(i)) {
-          combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
-          combinedWeight += grade.weight!;
-        }
-
-        averageGradeMap.addAll({
-          groupedCoursesMap.keys.elementAt(i):
-              (combinedGrade / combinedWeight).toStringAsFixed(3)
-        });
-      }
-      final lowestAverages = averageGradeMap.values
-          .map((value) => double.parse(value))
-          .toList()
-        ..sort();
-      final numLowest = min(5, averageGradeMap.length);
-      final lowestValues = lowestAverages.take(numLowest).toList();
-      double lowestGradePoints = 0;
-
-      for (var i = 0; i < lowestValues.length; i++) {
-        lowestGradePoints += lowestValues[i];
-      }
-      lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
-      return {
-        'groupedCoursesMap': groupedCoursesMap,
-        'averageGradeMap': averageGradeMap,
-        'lowestGradePoints': lowestGradePoints,
-      };
-    } catch (e) {
-      print(e.toString());
-      return {
-        'groupedCoursesMap': {},
-        'averageGradeMap': {},
-      };
     }
+    final lowestAverages = averageGradeMap.values
+        .map((value) => double.parse(value))
+        .toList()
+      ..sort();
+    final numLowest = min(5, averageGradeMap.length);
+    final lowestValues = lowestAverages.take(numLowest).toList();
+    double lowestGradePoints = 0;
+
+    for (var i = 0; i < lowestValues.length; i++) {
+      lowestGradePoints += lowestValues[i];
+    }
+    lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
+    return {
+      'groupedCoursesMap': groupedCoursesMap,
+      'averageGradeMap': averageGradeMap,
+      'lowestGradePoints': lowestGradePoints,
+    };
+  }
+
+  void _getGrades() async {
+    if (!mounted) return;
+    try {
+      final cachedGrades = await APIClient().getGrades(true);
+      _gradesStreamController.add(_calculateGrades(cachedGrades));
+      final newGrades = await APIClient().getGrades(false);
+      _gradesStreamController.add(_calculateGrades(newGrades));
+    } catch (e) {
+      // Handle the StateError here
+      print('Error adding event to stream controller: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _gradesStreamController.close();
+    super.dispose();
   }
 
   @override
   initState() {
     super.initState();
-    _gradesDataFuture = getGrades();
+    _getGrades();
   }
 
   Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,
@@ -397,7 +392,7 @@ class _GradesPageState extends State<GradesPage> {
               SizedBox(
                 width: 10,
               ),
-              (Globals.school == "ksso")
+/*(APIClient().school == "ksso")
                   ? FutureBuilder<Map<String, dynamic>>(
                       future: _gradesDataFuture,
                       builder: (context, snapshot) {
@@ -420,7 +415,10 @@ class _GradesPageState extends State<GradesPage> {
                                     textAlign: TextAlign.end,
                                   ),
                                   baseColor: Theme.of(context).canvasColor,
-                                  highlightColor: Theme.of(context).textTheme.bodyMedium!.color!,
+                                  highlightColor: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .color!,
                                 ),
                               ],
                             ),
@@ -457,13 +455,13 @@ class _GradesPageState extends State<GradesPage> {
                           ),
                         );
                       })
-                  : SizedBox.shrink(),
+                  : SizedBox.shrink(),*/
             ],
           ),
         ),
         Expanded(
-          child: FutureBuilder<Map<String, dynamic>>(
-              future: _gradesDataFuture,
+          child: StreamBuilder<Map<String, dynamic>>(
+              stream: _gradesStreamController.stream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -479,18 +477,22 @@ class _GradesPageState extends State<GradesPage> {
                   final averageGradeMap =
                       snapshot.data?['averageGradeMap'] ?? {};
 
-                  return ListView.builder(
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      itemCount: groupedCoursesMap.length,
-                      itemBuilder: (BuildContext ctxt, int index) {
-                        return _buildGradeCard(
-                          ctxt,
-                          index,
-                          groupedCoursesMap,
-                          averageGradeMap,
-                        );
-                      });
+                  return Scrollbar(
+                                            controller: _scrollController,
+
+                    child: ListView.builder(
+                        controller: _scrollController,
+                        shrinkWrap: true,
+                        itemCount: groupedCoursesMap.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          return _buildGradeCard(
+                            ctxt,
+                            index,
+                            groupedCoursesMap,
+                            averageGradeMap,
+                          );
+                        }),
+                  );
                 }
               }),
         ),

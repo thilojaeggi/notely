@@ -1,14 +1,13 @@
 import 'dart:ui';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:notely/Globals.dart';
+import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'Globals.dart' as Globals;
 
 import 'pages/absences_page.dart';
 import 'pages/grades_page.dart';
@@ -61,8 +60,6 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       getAccessToken();
-      await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
-
     }
   }
 
@@ -79,14 +76,15 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     String school = prefs.getString("school") ?? "ksso";
     String username = await storage.read(key: "username") as String;
     String password = await storage.read(key: "password") as String;
-    await http.post(
-        Uri.parse(Globals.apiBase +
-            school.toLowerCase() +
-            "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
-        body: {
-          "login": username,
-          "passwort": password,
-        }).then((response) {
+    final url = Globals.buildUrl("$school/authorize.php");
+    print(url);
+    await http.post(url, body: {
+      'login': username,
+      'passwort': password,
+      'response_type': 'token',
+      'client_id': 'cj79FSz1JQvZKpJY',
+      'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
+    }).then((response) {
       if (response.statusCode == 302) {
         String locationHeader = response.headers['location'].toString();
         var trimmedString =
@@ -94,7 +92,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
         trimmedString = trimmedString
             .substring(trimmedString.indexOf("#") + 1)
             .replaceAll("access_token=", "");
-        Globals.accessToken = trimmedString;
+        APIClient().accessToken = trimmedString;
       }
     });
   }

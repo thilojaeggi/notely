@@ -1,20 +1,19 @@
-import 'dart:async';
-import 'dart:convert';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:fluttericon/font_awesome5_icons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:notely/Globals.dart' as Globals;
+import 'package:notely/Globals.dart';
+import 'package:notely/Models/Grade.dart';
+import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -25,14 +24,13 @@ import 'config/style.dart';
 import 'helpers/HomeworkDatabase.dart';
 import 'pages/login_page.dart';
 
-const oldStorage = FlutterSecureStorage();
 final storage = SecureStorage();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  final APIClient client = APIClient();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
   print('Handling a background message ${message.messageId}');
-  RemoteNotification? notification = message.notification;
   if (message.contentAvailable ||
       message.from == "/topics/newGradeNotification") {
     final storage = SecureStorage();
@@ -44,55 +42,57 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     // Check if values are empty and exit if so
     if (username.isEmpty || password.isEmpty || school.isEmpty) return;
     // Get access token first
-    await http.post(
-        Uri.parse(Globals.apiBase +
-            school.toLowerCase() +
-            "/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=Yr9Q5dODCujQtTDCZyyYq9MbyECVTNgFha276guJ&redirect_uri=https://www.schul-netz.com/mobile/oauth-callback.html&id="),
-        body: {
-          "login": username,
-          "passwort": password,
-        }).then((response) async {
-      if (response.statusCode == 302) {
-        String locationHeader = response.headers['location'].toString();
-        var accessToken =
-            locationHeader.substring(0, locationHeader.indexOf('&'));
-        accessToken = accessToken
-            .substring(accessToken.indexOf("#") + 1)
-            .replaceAll("access_token=", "");
-        // Get grades from api
-        String url =
-            "${Globals.apiBase}${school.toLowerCase()}/rest/v1/me/grades";
-
-        try {
-          // If we got the access token get the grades from the api
-          await http.get(Uri.parse(url), headers: {
-            'Authorization': 'Bearer ' + accessToken,
-          }).then((response) async {
-            // If new grades are more than the old ones send a notification
-            if (jsonDecode(response.body).length <=
-                jsonDecode(prefs.getString("grades") ?? "[]").length) return;
-            print("trying to send notif");
-            flutterLocalNotificationsPlugin.show(
-              notification.hashCode,
-              "Notely",
-              "Neue Note!",
-              NotificationDetails(
-                android: AndroidNotificationDetails(
-                  channel.id,
-                  channel.name,
-                  channelDescription: channel.description,
-                  icon: 'ic_stat_school',
-                ),
-              ),
-            );
-            // Store the new grade list as string in prefs for the next time we check
-            await prefs.setString("grades", response.body);
-          });
-        } catch (e) {
-          print(e.toString());
-        }
-      }
+    final url = Globals.buildUrl("${school.toLowerCase()}/authorize.php");
+    final response = await http.post(url, body: {
+      'login': username,
+      'passwort': password,
+      'response_type': 'token',
+      'client_id': 'cj79FSz1JQvZKpJY',
+      'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
     });
+    if (response.statusCode == 302) {
+      String locationHeader = response.headers['location'].toString().replaceAll(
+          "#",
+          "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
+      String accessToken =
+          Uri.parse(locationHeader).queryParameters["access_token"].toString();
+      client.accessToken = accessToken;
+      client.school = school;
+      try {
+        List<Grade> oldGrades = await client.getGrades(true);
+        List<Grade> newGrades = await client.getGrades(false);
+        if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
+        for (Grade grade in newGrades) {
+          if (!oldGrades.contains(grade)) {
+            // send notification
+            flutterLocalNotificationsPlugin.show(
+              grade.id.hashCode,
+              "Notely",
+              "Du hast eine neue ${grade.subject} Note.",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                    channel.id,
+                    channel.name,
+                    channelDescription: channel.description,
+                    icon: 'ic_stat_school',
+                    playSound: true,
+                    enableVibration: true,
+                    importance: Importance.high,
+                    priority: Priority.high,
+                    visibility: NotificationVisibility.public,
+                  ),
+                  iOS: DarwinNotificationDetails(
+                    presentAlert: true,
+                    presentBadge: true,
+                    presentSound: true,
+                  )),
+            );
+          }
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
   }
 }
 
@@ -138,40 +138,53 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await migrateSecureStorage();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  try {
-    await messaging.requestPermission();
-  } catch (e) {
-    print("Failed to request FCM permission: $e");
-  }
-  await HomeworkDatabase.instance.database;
-  // Set the background messaging handler early on, as a named top-level function
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  // Print the Firebase Messaging token
 
-  if (!kIsWeb) {
-    await setupFlutterNotifications();
-  }
-  try {
-    await messaging.subscribeToTopic("all");
-  } catch (e) {
-    print("Failed to subscribe to topic all with error: $e");
-  }
+  await HomeworkDatabase.instance.database;
+  await checkNotifications(messaging);
   runApp(const Notely());
 }
 
-Future<void> migrateSecureStorage() async {
-  final oldData = await oldStorage.readAll();
-  if (oldData.isNotEmpty) {
-    for (final entry in oldData.entries) {
-      await storage.write(key: entry.key, value: entry.value);
+Future<void> checkNotifications(FirebaseMessaging messaging) async {
+  print("Checking notifications");
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool? notificationsEnabled = await prefs.getBool("notificationsEnabled");
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  if (!kIsWeb) {
+    await setupFlutterNotifications();
+  }
+  if (notificationsEnabled == null || notificationsEnabled) {
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print("Notifications are enabled");
+      messaging.subscribeToTopic("all");
+      messaging.subscribeToTopic("newGradeNotification");
+      await prefs.setBool("notificationsEnabled", true);
+    } else if (notificationsEnabled == null ||
+        settings.authorizationStatus == AuthorizationStatus.denied) {
+      print("Notifications are disabled");
+      try {
+        messaging.unsubscribeFromTopic("all");
+        messaging.unsubscribeFromTopic("newGradeNotification");
+      } catch (e) {
+        print(e.toString());
+      }
+      await prefs.setBool("notificationsEnabled", false);
     }
   }
 }
 
 Future<bool> login() async {
+  final APIClient client = APIClient();
   final prefs = await SharedPreferences.getInstance();
   final school = prefs.getString("school")?.toLowerCase() ?? '';
   final username = await storage.read(key: "username") ?? '';
@@ -181,35 +194,25 @@ Future<bool> login() async {
     return false;
   }
   print("Found login data");
-
-  final url = '${Globals.apiBase}$school/authorize.php';
-  final response = await http.post(Uri.parse(url), body: {
+  final url = Globals.buildUrl("$school/authorize.php");
+  final response = await http.post(url, body: {
     'login': username,
     'passwort': password,
     'response_type': 'token',
     'client_id': 'cj79FSz1JQvZKpJY',
     'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
   });
-
   if (response.statusCode == 302 && response.headers['location'] != null) {
-    final locationHeader = response.headers['location'].toString();
-    final trimmedString = locationHeader
-        .substring(locationHeader.indexOf('#') + 1)
-        .split('&')
-        .firstWhere(
-          (element) => element.startsWith('access_token='),
-          orElse: () => '',
-        )
-        .replaceAll('access_token=', '');
-
-    Globals.accessToken = trimmedString;
-    Globals.school = school;
+    String locationHeader = response.headers['location'].toString().replaceAll(
+        "#",
+        "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
+    String accessToken =
+        Uri.parse(locationHeader).queryParameters["access_token"].toString();
+    client.accessToken = accessToken;
+    client.school = school;
     print("Logged in");
-    await FirebaseMessaging.instance.subscribeToTopic("newGradeNotification");
-
     return true;
   }
-  await FirebaseMessaging.instance.unsubscribeFromTopic("newGradeNotification");
 
   return false;
 }
@@ -273,7 +276,7 @@ class _NotelyState extends State<Notely> {
           controller.setTheme(savedTheme);
           if (controller.theme.data.brightness == Brightness.dark) {
             print("Dark theme");
-            Globals.isDark = true;
+            Globals().isDark = true;
             SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle.dark.copyWith(
                     statusBarColor: Color(0xFF0d0d0d), // status bar color
@@ -282,7 +285,7 @@ class _NotelyState extends State<Notely> {
                     ));
           } else {
             print("Light theme");
-            Globals.isDark = false;
+            Globals().isDark = false;
             SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
                 .copyWith(
                     statusBarColor:
@@ -306,6 +309,15 @@ class _NotelyState extends State<Notely> {
       child: ThemeConsumer(
         child: Builder(
           builder: (themeContext) => MaterialApp(
+            title: 'Notely',
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+              Locale('de'),
+            ],
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
@@ -339,8 +351,24 @@ class _NotelyState extends State<Notely> {
                       ],
                     )));
                   } else if (snapshot.hasError) {
-                    return const Center(
-                      child: Text("Error, versuche es später erneut!"),
+                    return Material(
+                      child:  SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.error, size: 128,),
+                          Text("Error", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),),
+                              Text(
+                              "Versuche es später erneut oder überprüfe deine Internetverbindung.",
+                              style: TextStyle(fontSize: 18.0),
+                              textAlign: TextAlign.center,
+                            ),
+                            ]
+                          ),
+                        ),
+                      ),
                     );
                   }
                   bool loggedIn = snapshot.data ?? false;
