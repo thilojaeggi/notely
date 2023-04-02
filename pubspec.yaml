@@ -42,6 +42,7 @@ dependencies:
   shimmer: ^2.0.0
   universal_feed: ^0.2.0
   app_settings: ^4.2.0
+  flutter_dynamic_icon: ^2.1.0
   flutter_localizations:
     sdk: flutter
 dev_dependencies:
@@ -57,6 +58,8 @@ flutter_icons:
 
 flutter:
   uses-material-design: true
+  assets:
+  - assets/icons/
   fonts:
     - family: Poppins
       fonts:
