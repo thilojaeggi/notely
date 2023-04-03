@@ -107,6 +107,8 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
       return;
+    } else {
+      apiClient.fakeData = false;
     }
 
     await http.post(url, body: {
