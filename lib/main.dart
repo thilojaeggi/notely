@@ -1,4 +1,3 @@
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -189,10 +188,15 @@ Future<bool> login() async {
   final school = prefs.getString("school")?.toLowerCase() ?? '';
   final username = await storage.read(key: "username") ?? '';
   final password = await storage.read(key: "password") ?? '';
+  if (username == "demo" && password == "demo") {
+    client.fakeData = true;
+    return true;
+  }
 
   if (username.isEmpty || password.isEmpty || school.isEmpty) {
     return false;
   }
+
   print("Found login data");
   final url = Globals.buildUrl("$school/authorize.php");
   final response = await http.post(url, body: {
@@ -352,21 +356,28 @@ class _NotelyState extends State<Notely> {
                     )));
                   } else if (snapshot.hasError) {
                     return Material(
-                      child:  SafeArea(
+                      child: SafeArea(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.error, size: 128,),
-                          Text("Error", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),),
-                              Text(
-                              "Versuche es später erneut oder überprüfe deine Internetverbindung.",
-                              style: TextStyle(fontSize: 18.0),
-                              textAlign: TextAlign.center,
-                            ),
-                            ]
-                          ),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error,
+                                  size: 128,
+                                ),
+                                Text(
+                                  "Error",
+                                  style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "Versuche es später erneut oder überprüfe deine Internetverbindung.",
+                                  style: TextStyle(fontSize: 18.0),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ]),
                         ),
                       ),
                     );
