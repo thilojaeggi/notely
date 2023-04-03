@@ -123,7 +123,8 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w500,
-                                            color: Theme.of(context).brightness ==
+                                            color: Theme.of(context)
+                                                        .brightness ==
                                                     Brightness.dark
                                                 ? Colors.white.withOpacity(0.5)
                                                 : Colors.black.withOpacity(0.5),
@@ -201,7 +202,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                                         isDone: newVal!);
                                                 await HomeworkDatabase.instance
                                                     .update(updatedHomework);
-                      
+
                                                 setState(() {
                                                   homeworkList[index] =
                                                       updatedHomework;
