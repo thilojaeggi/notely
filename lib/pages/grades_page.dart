@@ -392,7 +392,7 @@ class _GradesPageState extends State<GradesPage> {
               SizedBox(
                 width: 10,
               ),
-/*(APIClient().school == "ksso")
+(APIClient().school == "ksso")
                   ? FutureBuilder<Map<String, dynamic>>(
                       future: _gradesDataFuture,
                       builder: (context, snapshot) {
@@ -455,7 +455,7 @@ class _GradesPageState extends State<GradesPage> {
                           ),
                         );
                       })
-                  : SizedBox.shrink(),*/
+                  : SizedBox.shrink(),
             ],
           ),
         ),
