@@ -95,6 +95,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (username == "demo" && password == "demo") {
       apiClient.fakeData = true;
+      apiClient.school = "demo";
       await storage.write(key: "username", value: username);
       await storage.write(key: "password", value: password);
       Navigator.pushReplacement(

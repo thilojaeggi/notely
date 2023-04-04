@@ -190,6 +190,7 @@ Future<bool> login() async {
   final password = await storage.read(key: "password") ?? '';
   if (username == "demo" && password == "demo") {
     client.fakeData = true;
+    client.school = "demo";
     return true;
   }
 

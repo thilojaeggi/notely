@@ -283,7 +283,6 @@ class APIClient {
       String path, T Function(dynamic) fromJson, bool cached) async {
     final prefs = await SharedPreferences.getInstance();
     if (_fakeData) {
-      // Return demo data
       return getDemoData(path);
     }
     if (_accessToken.isEmpty || _school.isEmpty) {
