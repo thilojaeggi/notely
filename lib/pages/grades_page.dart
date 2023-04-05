@@ -73,7 +73,8 @@ class _GradesPageState extends State<GradesPage> {
     final lowestValues = lowestAverages.take(numLowest).toList();
     lowestGradePoints = 0;
     for (var i = 0; i < lowestValues.length; i++) {
-      lowestGradePoints += lowestValues[i];
+      // Round lowestValues to 0.5
+      lowestGradePoints += (lowestValues[i] * 2).round() / 2;
     }
     setState(() {
       lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
