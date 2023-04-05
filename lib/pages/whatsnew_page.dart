@@ -57,7 +57,8 @@ class _WhatsNewState extends State<WhatsNew> {
                     ),
                     title: Text(
                       'Ladezeiten verringert',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ), //Title is the only Required Item
                     subtitle: Text(
                       'Die Ladezeiten in der ganzen App wurden verbessert und sie sollte nun auch schneller starten.',
@@ -79,7 +80,8 @@ class _WhatsNewState extends State<WhatsNew> {
                     ),
                     title: Text(
                       'Anpassung Startseite',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ), //Title is the only Required Item
                     subtitle: Text(
                       'Bei den neuesten Noten werden nun Testnamen grösser angezeigt und andere kleine Designänderungen wurden vorgenommen.',
@@ -101,7 +103,8 @@ class _WhatsNewState extends State<WhatsNew> {
                     ),
                     title: Text(
                       'Manuelle Hausaufgaben',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ), //Title is the only Required Item
                     subtitle: Text(
                       'Hausaufgaben können nun auch manuell hinzugefügt werden auch ausserhalb des Stundenplans.\nZudem wurde die Darstellung überarbeitet.',
@@ -113,7 +116,8 @@ class _WhatsNewState extends State<WhatsNew> {
                   ListTile(
                     title: Text(
                       'Fehlerbehebungen:',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
+                      style:
+                          TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                     ),
                     subtitle: Column(
                       children: [
@@ -194,7 +198,8 @@ class _WhatsNewState extends State<WhatsNew> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding:
+                const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
             child: MaterialButton(
               onPressed: () {
                 Navigator.pop(context);
