@@ -125,7 +125,7 @@ class _StartPageState extends State<StartPage> {
     _getGrades();
     _getStudent();
     _getExams();
-  
+
     homeworkFuture = getHomework();
     randomHelloIndex = random.nextInt(hellos.length);
   }
@@ -236,14 +236,11 @@ class _StartPageState extends State<StartPage> {
                                                       snapshot.data!;
                                                   int examCount = 0;
                                                   for (var exam in exams) {
-                                                    if (exam.startDate.isAfter(
-                                                        DateTime.now())) {
-                                                      if (exam.startDate.isBefore(
-                                                          DateTime.now().add(
-                                                              const Duration(
-                                                                  days: 14)))) {
-                                                        examCount++;
-                                                      }
+                                                    if (exam.startDate.isBefore(
+                                                        DateTime.now().add(
+                                                            const Duration(
+                                                                days: 14)))) {
+                                                      examCount++;
                                                     }
                                                   }
                                                   return FittedBox(

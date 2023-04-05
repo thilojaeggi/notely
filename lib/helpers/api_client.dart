@@ -327,7 +327,7 @@ class APIClient {
       final today = DateTime.now();
       return (json as List<dynamic>)
           .map((e) => Exam.fromJson(e))
-          .where((e) => e.startDate.isAfter(today))
+          .where((e) => e.startDate.isAfter(today.subtract(Duration(days: 1))))
           .toList();
     }, cached);
   }
