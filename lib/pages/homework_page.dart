@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:fl_toast/fl_toast.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/Models/Homework.dart';
@@ -313,19 +318,73 @@ class _DisplayDialogState extends State<DisplayDialog> {
   TextEditingController subjectController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
+
+  iosDatePicker(BuildContext context) {
+    showCupertinoModalPopup(
+        context: context,
+        builder: (BuildContext builder) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.25,
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black
+                  : Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.0),
+                topRight: Radius.circular(16.0),
+              ),
+            ),
+            child: Stack(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.dateAndTime,
+                    use24hFormat: true,
+                    onDateTimeChanged: (value) {
+                      setState(() {
+                        _date = value;
+                      });
+                    },
+                    initialDateTime: DateTime.now(),
+                    minimumYear: 2000,
+                    maximumYear: 3000,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: CupertinoButton(
+                    child: const Text(
+                      'Fertig',
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                )
+              ],
+            ),
+          );
+        });
+  }
+
+  androidDatePicker(BuildContext context) {
+    return showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2022),
+      lastDate: DateTime(3000),
+      locale: Locale('de'),
+    );
+  }
+
   Future<void> _showDateTimePicker(BuildContext context) async {
     DateTime selectedDate = DateTime.now();
     TimeOfDay selectedTime = TimeOfDay.now();
 
     // Show date picker
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2022),
-      lastDate: DateTime(2025),
-      locale: Locale('de'),
-    );
-
+    final pickedDate = (Platform.isIOS || Platform.isMacOS || kDebugMode)
+        ? await iosDatePicker(context)
+        : await androidDatePicker(context);
+    print("Getting selected date");
     if (pickedDate != null) {
       selectedDate = pickedDate;
 
