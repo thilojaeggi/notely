@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:notely/helpers/api_client.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -191,6 +192,8 @@ class _StartPageState extends State<StartPage> {
                                       ),
                                       child: InkWell(
                                         onTap: () {
+                                          HapticFeedback.selectionClick();
+
                                           showModalBottomSheet(
                                               context: context,
                                               isScrollControlled: true,
@@ -279,6 +282,7 @@ class _StartPageState extends State<StartPage> {
                                     ),
                                     child: InkWell(
                                       onTap: () {
+                                        HapticFeedback.selectionClick();
                                         showModalBottomSheet(
                                             context: context,
                                             isScrollControlled: true,

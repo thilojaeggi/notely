@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/helpers/api_client.dart';
@@ -63,6 +64,7 @@ class _TimetablePageState extends State<TimetablePage> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
           onTap: () {
+            HapticFeedback.selectionClick();
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -345,17 +347,18 @@ class _TimetablePageState extends State<TimetablePage> {
               return Expanded(
                 child: (_eventList.isNotEmpty)
                     ? Scrollbar(
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: _eventList.length,
-                          itemBuilder: (BuildContext ctxt, int index) {
-                            Event event = _eventList[index];
-                            return LayoutBuilder(builder: (BuildContext context,
-                                BoxConstraints constraints) {
-                              return _eventWidget(context, event);
-                            });
-                          }),
-                    )
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _eventList.length,
+                            itemBuilder: (BuildContext ctxt, int index) {
+                              Event event = _eventList[index];
+                              return LayoutBuilder(builder:
+                                  (BuildContext context,
+                                      BoxConstraints constraints) {
+                                return _eventWidget(context, event);
+                              });
+                            }),
+                      )
                     : Center(
                         child: Text(
                           "Keine Lektionen eingetragen",
