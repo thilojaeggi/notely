@@ -236,11 +236,20 @@ class _GradesPageState extends State<GradesPage> {
                             ),
                           ),
                         ),
+                      SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.only(
                             right: 16, top: 16, bottom: 16),
                         width: double.infinity,
                         height: 200,
+                        // make corners of container rounded
+                        decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade900
+                                    : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(6)),
+
                         child: LineChart(
                           LineChartData(
                               minY: 1.0,
@@ -261,16 +270,17 @@ class _GradesPageState extends State<GradesPage> {
                                 show: false,
                               ),
                               gridData: FlGridData(
-                                  horizontalInterval: 1, verticalInterval: 1),
+                                  horizontalInterval: 1, verticalInterval: 0.5),
                               lineTouchData: LineTouchData(
                                 getTouchedSpotIndicator:
                                     (barData, spotIndexes) {
                                   return spotIndexes.map((index) {
                                     return TouchedSpotIndicatorData(
                                       FlLine(
-                                          color: _gradeColor(
-                                              barData.spots.elementAt(index).y),
-                                          strokeWidth: 4.0),
+                                        color: _gradeColor(
+                                            barData.spots.elementAt(index).y),
+                                        strokeWidth: 4.0,
+                                      ),
                                       FlDotData(
                                         show: true,
                                       ),
@@ -278,7 +288,12 @@ class _GradesPageState extends State<GradesPage> {
                                   }).toList();
                                 },
                                 touchTooltipData: LineTouchTooltipData(
-                                  tooltipRoundedRadius: 8,
+                                  tooltipRoundedRadius: 4,
+                                  tooltipBgColor:
+                                      Theme.of(context).brightness ==
+                                              Brightness.light
+                                          ? Colors.grey.shade200
+                                          : Colors.grey.shade900,
                                   fitInsideHorizontally: true,
                                   tooltipPadding: EdgeInsets.all(8.0),
                                   getTooltipItems:
@@ -296,6 +311,7 @@ class _GradesPageState extends State<GradesPage> {
                               ),
                               lineBarsData: [
                                 LineChartBarData(
+                                  
                                   dotData: FlDotData(
                                     show: true,
                                     getDotPainter:
