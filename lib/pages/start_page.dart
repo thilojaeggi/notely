@@ -80,6 +80,8 @@ class _StartPageState extends State<StartPage> {
       List<Exam> latestExams = await _apiClient.getExams(false);
       _examsStreamController.sink.add(latestExams);
       exams = latestExams;
+      exams.sort((a, b) => a.startDate.compareTo(b.startDate));
+
     } catch (e) {
       // Handle the StateError here
       print('Error adding event to stream controller: $e');
@@ -237,6 +239,7 @@ class _StartPageState extends State<StartPage> {
                                                   }
                                                   List<Exam> exams =
                                                       snapshot.data!;
+
                                                   int examCount = 0;
                                                   for (var exam in exams) {
                                                     if (exam.startDate.isBefore(
