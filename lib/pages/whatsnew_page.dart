@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 
@@ -44,76 +47,33 @@ class _WhatsNewState extends State<WhatsNew> {
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  ListTile(
-                    leading: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          FontAwesome5.tachometer_alt,
-                          size: 32,
-                          color: Colors.blue.shade500,
-                        ),
-                      ],
-                    ),
-                    title: Text(
-                      'Ladezeiten verringert',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ), //Title is the only Required Item
-                    subtitle: Text(
-                      'Die Ladezeiten in der ganzen App wurden verbessert und sie sollte nun auch schneller starten.',
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  ListTile(
-                    leading: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          FontAwesome5.pen_nib,
-                          size: 32,
-                          color: Colors.blue.shade500,
-                        ),
-                      ],
-                    ),
-                    title: Text(
-                      'Anpassung Startseite',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ), //Title is the only Required Item
-                    subtitle: Text(
-                      'Bei den neuesten Noten werden nun Testnamen grösser angezeigt und andere kleine Designänderungen wurden vorgenommen.',
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  ListTile(
-                    leading: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          FontAwesome5.plus,
-                          size: 32,
-                          color: Colors.blue.shade500,
-                        ),
-                      ],
-                    ),
-                    title: Text(
-                      'Manuelle Hausaufgaben',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ), //Title is the only Required Item
-                    subtitle: Text(
-                      'Hausaufgaben können nun auch manuell hinzugefügt werden auch ausserhalb des Stundenplans.\nZudem wurde die Darstellung überarbeitet.',
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
+                  (Platform.isIOS)
+                      ? ListTile(
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.app_badge_fill,
+                                size: 32,
+                                color: Colors.blue.shade500,
+                              ),
+                            ],
+                          ),
+                          title: Text(
+                            'App Icon ändern',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w600),
+                          ), //Title is the only Required Item
+                          subtitle: Text(
+                            'Das App Icon kann nun in den Einstellungen geändert werden.',
+                          ),
+                        )
+                      : SizedBox.shrink(),
                   ListTile(
                     title: Text(
                       'Fehlerbehebungen:',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
+                      style:
+                          TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                     ),
                     subtitle: Column(
                       children: [
@@ -129,57 +89,40 @@ class _WhatsNewState extends State<WhatsNew> {
                             ],
                           ),
                           title: Text(
-                            'Fehlerbehebung Startseite',
+                            'Fehlerbehebung Tests',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(
-                            'Auf der Startseite wurden fälschlicherweise Noten von alt nach neu dargestellt. ',
+                            'Fälschlicherweise wurden Tests nicht mehr nach Datum sortiert.',
                             style: TextStyle(fontSize: 13.0),
                           ),
                         ),
-                        ListTile(
-                          leading: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                FontAwesome5.bug,
-                                size: 24,
-                                color: Colors.blue.shade500,
-                              ),
-                            ],
-                          ),
-                          title: Text(
-                            'Fehlerbehebung Login',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ), //Title is the only Required Item
-                          subtitle: Text(
-                            'Bei einigen Usern war es möglich dass man nicht angemeldet bleibt, dies sollte nun behoben sein.',
-                            style: TextStyle(fontSize: 13.0),
-                          ),
-                        ),
-                        ListTile(
-                          leading: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                FontAwesome5.bug,
-                                size: 24,
-                                color: Colors.blue.shade500,
-                              ),
-                            ],
-                          ),
-                          title: Text(
-                            'Fehlerbehebung Hausaufgaben',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ), //Title is the only Required Item
-                          subtitle: Text(
-                            'Zeilenumbrüche in Hausaufgaben sollten nun korrekt dargestellt werden.',
-                            style: TextStyle(fontSize: 13.0),
-                          ),
-                        ),
+                        (widget.school == "ksso")
+                            ? ListTile(
+                                leading: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      FontAwesome5.bug,
+                                      size: 24,
+                                      color: Colors.blue.shade500,
+                                    ),
+                                  ],
+                                ),
+                                title: Text(
+                                  'Fehlerbehebung Promotionspunkte',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ), //Title is the only Required Item
+                                subtitle: Text(
+                                  'Die Promotionspunkte wurden nicht mehr angezeigt, sollten nun wieder angezeigt und mittels gerundeten Noten berechnet werden.',
+                                  style: TextStyle(fontSize: 13.0),
+                                ),
+                              )
+                            : SizedBox.shrink(),
+
                       ],
                     ),
                   ),
@@ -194,7 +137,8 @@ class _WhatsNewState extends State<WhatsNew> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding:
+                const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
             child: MaterialButton(
               onPressed: () {
                 Navigator.pop(context);

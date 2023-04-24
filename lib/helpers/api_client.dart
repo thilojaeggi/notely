@@ -12,6 +12,7 @@ class APIClient {
   static const String _baseUrl = 'https://kaschuso.so.ch/public';
   late String _accessToken;
   late String _school;
+  bool _fakeData = false;
 
   factory APIClient() {
     return _singleton;
@@ -27,11 +28,263 @@ class APIClient {
     _school = school;
   }
 
+  set fakeData(bool fakeData) {
+    _fakeData = fakeData;
+  }
+
   String get school => _school;
+  dynamic getDemoData(String path) {
+    if (path.contains("events")) {
+      return [
+        Event(
+            id: 'eeafsdg',
+            startDate: "2023-03-01T08:25:00.000Z",
+            endDate: "2023-03-01T09:10:00.000Z",
+            text: 'Math',
+            comment: 'Test',
+            roomToken: 'A02',
+            roomId: 'A02',
+            teachers: ['Hans Müller'],
+            teacherIds: ['1'],
+            teacherTokens: ['1'],
+            courseId: '1',
+            courseToken: '1',
+            courseName: 'Mathematik',
+            status: '1',
+            color: '1',
+            eventType: '1',
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+        Event(
+            id: 'sdfsfef',
+            startDate: "2023-03-01T09:15:00.000Z",
+            endDate: "2023-03-01T10:00:00.000Z",
+            text: 'Math',
+            comment: 'Test',
+            roomToken: 'A02',
+            roomId: 'A02',
+            teachers: ['Hans Müller'],
+            teacherIds: ['1'],
+            teacherTokens: ['1'],
+            courseId: '1',
+            courseToken: '1',
+            courseName: 'Mathematik',
+            status: '1',
+            color: '1',
+            eventType: '1',
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+        Event(
+            id: 'fhgfh',
+            startDate: "2023-03-01T10:25:00.000Z",
+            endDate: "2023-03-01T11:05:00.000Z",
+            text: 'English',
+            comment: 'Test',
+            roomToken: 'B13',
+            roomId: 'B13',
+            teachers: ['Adriana Albrecht'],
+            teacherIds: ['1'],
+            teacherTokens: ['1'],
+            courseId: '1',
+            courseToken: '1',
+            courseName: 'English',
+            status: '1',
+            color: '1',
+            eventType: '1',
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+        Event(
+            id: '1',
+            startDate: "2023-03-01T11:10:00.000Z",
+            endDate: "2023-03-01T11:55:00.000Z",
+            text: 'Math',
+            comment: 'Test',
+            roomToken: 'EU2',
+            roomId: 'EU2',
+            teachers: ['Dieter Dürr'],
+            teacherIds: ['1'],
+            teacherTokens: ['1'],
+            courseId: '1',
+            courseToken: '1',
+            courseName: 'Wirtschaft und Recht',
+            status: '1',
+            color: '1',
+            eventType: '1',
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+      ];
+    }
+    switch (path) {
+      case '/rest/v1/me':
+        return Student(
+            id: "test",
+            idNr: "test",
+            lastName: "Mustermann",
+            firstName: "Max",
+            loginActive: true,
+            loginAd: true,
+            gender: "male",
+            birthday: DateTime.now(),
+            street: "Musterstrasse 5",
+            zip: "2545",
+            city: "Selzach",
+            nationality: "Schweiz",
+            hometown: "Solothurn",
+            phone: "0346424557565",
+            mobile: "0346424557565",
+            email: "max@mustermann.de",
+            emailPrivate: "max@mustermann.de",
+            profil1: "EngW",
+            entryDate: DateTime.now().subtract(Duration(days: 7)),
+            regularClasses: [
+              RegularClass(id: "test", token: "test", semester: "3")
+            ],
+            additionalClasses: [
+              "Demo",
+              "Data"
+            ]);
+      case '/rest/v1/me/exams':
+        return [
+          Exam(
+              id: '1',
+              startDate: DateTime.now().add(Duration(days: 2)),
+              endDate: DateTime.now().add(Duration(days: 2)),
+              text: 'Trigonometrie',
+              comment: '',
+              roomToken: '1',
+              roomId: '1',
+              teachers: ['1'],
+              teacherIds: ['1'],
+              teacherTokens: ['1'],
+              courseId: '1',
+              courseToken: '1',
+              courseName: 'Mathematik',
+              status: '1',
+              color: '1',
+              eventType: '1',
+              eventRoomStatus: null,
+              timetableText: null,
+              infoFacilityManagement: null,
+              importset: null,
+              lessons: null,
+              publishToInfoSystem: null,
+              studentNames: null,
+              studentIds: null),
+          Exam(
+              id: '1',
+              startDate: DateTime.now().add(Duration(days: 4)),
+              endDate: DateTime.now().add(Duration(days: 4)),
+              text: 'Pronouns and Prepositions',
+              comment: '',
+              roomToken: '1',
+              roomId: '1',
+              teachers: ['1'],
+              teacherIds: ['1'],
+              teacherTokens: ['1'],
+              courseId: '1',
+              courseToken: '1',
+              courseName: 'English',
+              status: '1',
+              color: '1',
+              eventType: '1',
+              eventRoomStatus: null,
+              timetableText: null,
+              infoFacilityManagement: null,
+              importset: null,
+              lessons: null,
+              publishToInfoSystem: null,
+              studentNames: null,
+              studentIds: null),
+        ];
+
+      case '/rest/v1/me/grades':
+        return [
+          Grade(
+              course: "Wirtschaft und Recht",
+              subject: "Wirtschaft und Recht",
+              title: "Welthandel und Wirtschaftspolitik",
+              date: DateTime.now().subtract(Duration(days: 1)).toString(),
+              mark: 6,
+              weight: 1),
+          Grade(
+              course: "Mathematik",
+              subject: "Mathematik",
+              title: "Bogenmasse und Trigonometrie",
+              date: DateTime.now().subtract(Duration(days: 1)).toString(),
+              mark: 4.5,
+              weight: 1),
+          Grade(
+              course: "Wirtschaft und Recht",
+              subject: "Wirtschaft und Recht",
+              title: "UNO und NATO",
+              date: DateTime.now().subtract(Duration(days: 2)).toString(),
+              mark: 6,
+              weight: 1),
+          Grade(
+              course: "Französisch",
+              subject: "Französisch",
+              title: "Tests de grammaire",
+              date: DateTime.now().subtract(Duration(days: 2)).toString(),
+              mark: 5.5,
+              weight: 1),
+          Grade(
+              course: "Mathematik",
+              subject: "Mathematik",
+              title: "Vektorrechnung",
+              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              mark: 3.5,
+              weight: 1),
+          Grade(
+              course: "Französisch",
+              subject: "Französisch",
+              title: "Rédaction",
+              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              mark: 4.9,
+              weight: 2),
+        ];
+      case '/rest/v1/me/absencenotices':
+        return [
+          Absence(
+              id: "hfdg",
+              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              course: "Französisch",
+              hourFrom: "11:10:00",
+              hourTo: "11:55:00",
+              status: "e")
+        ];
+    }
+  }
 
   Future<T> get<T>(
       String path, T Function(dynamic) fromJson, bool cached) async {
     final prefs = await SharedPreferences.getInstance();
+    if (_fakeData) {
+      return getDemoData(path);
+    }
     if (_accessToken.isEmpty || _school.isEmpty) {
       throw Exception('Daten konnten nicht geladen werden');
     }
@@ -51,8 +304,8 @@ class APIClient {
       // Cache data in shared preferences
 
       (!path.contains("events"))
-          ?  prefs.setString('$path', response.body)
-          :  prefs.setString('events', response.body);
+          ? prefs.setString('$path', response.body)
+          : prefs.setString('events', response.body);
 
       return fromJson(json.decode(response.body));
     } else {
@@ -74,7 +327,7 @@ class APIClient {
       final today = DateTime.now();
       return (json as List<dynamic>)
           .map((e) => Exam.fromJson(e))
-          .where((e) => e.startDate.isAfter(today))
+          .where((e) => e.startDate.isAfter(today.subtract(Duration(days: 1))))
           .toList();
     }, cached);
   }
@@ -97,7 +350,10 @@ class APIClient {
         prefs.setString("grades", jsonEncode(json));
       });
 
-      return (json as List<dynamic>).map((e) => Grade.fromJson(e)).toList();
+      List<Grade> grades =
+          (json as List<dynamic>).map((e) => Grade.fromJson(e)).toList();
+
+      return grades;
     }, cached);
   }
 

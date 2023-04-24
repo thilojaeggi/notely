@@ -86,12 +86,35 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> signIn() async {
     final storage = SecureStorage();
+    final apiClient = APIClient();
+    // Get text controller values
+    final String username = _usernameController.text;
+    final String password = _passwordController.text;
     final url = Globals.buildUrl(
         "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl");
-    print(url);
+
+    if (username == "demo" && password == "demo") {
+      apiClient.fakeData = true;
+      apiClient.school = "demo";
+      await storage.write(key: "username", value: username);
+      await storage.write(key: "password", value: password);
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: const Duration(milliseconds: 450),
+          alignment: Alignment.bottomCenter,
+          child: const ViewContainerWidget(),
+        ),
+      );
+      return;
+    } else {
+      apiClient.fakeData = false;
+    }
+
     await http.post(url, body: {
-      "login": _usernameController.text,
-      "passwort": _passwordController.text,
+      "login": username,
+      "passwort": password,
     }, headers: {
       'accept-encoding': 'gzip, deflate',
       'access-control-allow-credentials': 'true',
@@ -109,12 +132,12 @@ class _LoginPageState extends State<LoginPage> {
             .substring(trimmedString.indexOf("#") + 1)
             .replaceAll("access_token=", "");
         final prefs = await SharedPreferences.getInstance();
-        await storage.write(key: "username", value: _usernameController.text);
-        await storage.write(key: "password", value: _passwordController.text);
+        await storage.write(key: "username", value: username);
+        await storage.write(key: "password", value: password);
         await prefs.setString("school", dropdownValue.toLowerCase());
 
-        APIClient().accessToken = trimmedString;
-        APIClient().school = dropdownValue.toLowerCase();
+        apiClient.accessToken = trimmedString;
+        apiClient.school = dropdownValue.toLowerCase();
         showToast(
           alignment: Alignment.bottomCenter,
           duration: Duration(seconds: 1),

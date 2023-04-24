@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../Models/Grade.dart';
 
@@ -20,7 +21,7 @@ class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
   Color good = Colors.blueAccent;
   Color bad = Colors.redAccent;
-  double lowestGradePoints = 0;
+  double lowestGradePoints = 0.0;
   final ScrollController _scrollController = ScrollController();
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
@@ -35,7 +36,7 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
-  Color gradeColor(double grade) {
+  Color _gradeColor(double grade) {
     if (grade >= 4.5) {
       return good;
     } else if (grade >= 4) {
@@ -70,12 +71,14 @@ class _GradesPageState extends State<GradesPage> {
       ..sort();
     final numLowest = min(5, averageGradeMap.length);
     final lowestValues = lowestAverages.take(numLowest).toList();
-    double lowestGradePoints = 0;
-
+    lowestGradePoints = 0;
     for (var i = 0; i < lowestValues.length; i++) {
-      lowestGradePoints += lowestValues[i];
+      // Round lowestValues to 0.5
+      lowestGradePoints += (lowestValues[i] * 2).round() / 2;
     }
-    lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
+    setState(() {
+      lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
+    });
     return {
       'groupedCoursesMap': groupedCoursesMap,
       'averageGradeMap': averageGradeMap,
@@ -159,7 +162,7 @@ class _GradesPageState extends State<GradesPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          shadowColor: gradeColor(groupedCoursesMap.values
+                          shadowColor: _gradeColor(groupedCoursesMap.values
                               .elementAt(index)[i]
                               .mark
                               .toDouble()),
@@ -195,7 +198,7 @@ class _GradesPageState extends State<GradesPage> {
                                           .mark
                                           .toString(),
                                       style: TextStyle(
-                                          color: gradeColor(groupedCoursesMap
+                                          color: _gradeColor(groupedCoursesMap
                                               .values
                                               .elementAt(index)[i]
                                               .mark
@@ -233,11 +236,20 @@ class _GradesPageState extends State<GradesPage> {
                             ),
                           ),
                         ),
+                      SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.only(
                             right: 16, top: 16, bottom: 16),
                         width: double.infinity,
                         height: 200,
+                        // make corners of container rounded
+                        decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade900
+                                    : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(6)),
+
                         child: LineChart(
                           LineChartData(
                               minY: 1.0,
@@ -258,16 +270,17 @@ class _GradesPageState extends State<GradesPage> {
                                 show: false,
                               ),
                               gridData: FlGridData(
-                                  horizontalInterval: 1, verticalInterval: 1),
+                                  horizontalInterval: 1, verticalInterval: 0.5),
                               lineTouchData: LineTouchData(
                                 getTouchedSpotIndicator:
                                     (barData, spotIndexes) {
                                   return spotIndexes.map((index) {
                                     return TouchedSpotIndicatorData(
                                       FlLine(
-                                          color: gradeColor(
-                                              barData.spots.elementAt(index).y),
-                                          strokeWidth: 4.0),
+                                        color: _gradeColor(
+                                            barData.spots.elementAt(index).y),
+                                        strokeWidth: 4.0,
+                                      ),
                                       FlDotData(
                                         show: true,
                                       ),
@@ -275,7 +288,12 @@ class _GradesPageState extends State<GradesPage> {
                                   }).toList();
                                 },
                                 touchTooltipData: LineTouchTooltipData(
-                                  tooltipRoundedRadius: 8,
+                                  tooltipRoundedRadius: 4,
+                                  tooltipBgColor:
+                                      Theme.of(context).brightness ==
+                                              Brightness.light
+                                          ? Colors.grey.shade200
+                                          : Colors.grey.shade900,
                                   fitInsideHorizontally: true,
                                   tooltipPadding: EdgeInsets.all(8.0),
                                   getTooltipItems:
@@ -284,7 +302,7 @@ class _GradesPageState extends State<GradesPage> {
                                       return LineTooltipItem(
                                         lineBarSpot.y.toString(),
                                         TextStyle(
-                                            color: gradeColor(lineBarSpot.y),
+                                            color: _gradeColor(lineBarSpot.y),
                                             fontWeight: FontWeight.bold),
                                       );
                                     }).toList();
@@ -293,13 +311,14 @@ class _GradesPageState extends State<GradesPage> {
                               ),
                               lineBarsData: [
                                 LineChartBarData(
+                                  
                                   dotData: FlDotData(
                                     show: true,
                                     getDotPainter:
                                         (spot, percent, barData, index) =>
                                             FlDotCirclePainter(
                                       radius: 6,
-                                      color: gradeColor(spot.y),
+                                      color: _gradeColor(spot.y),
                                       strokeColor: Colors.transparent,
                                     ),
                                   ),
@@ -316,7 +335,7 @@ class _GradesPageState extends State<GradesPage> {
                                                           .elementAt(index)
                                                           .length;
                                                   i++)
-                                                gradeColor(List.from(
+                                                _gradeColor(List.from(
                                                         groupedCoursesMap.values
                                                             .elementAt(index))
                                                     .reversed
@@ -325,14 +344,14 @@ class _GradesPageState extends State<GradesPage> {
                                                     .toDouble())
                                             ]
                                           : [
-                                              gradeColor(List.from(
+                                              _gradeColor(List.from(
                                                       groupedCoursesMap.values
                                                           .elementAt(index))
                                                   .reversed
                                                   .toList()[0]
                                                   .mark!
                                                   .toDouble()),
-                                              gradeColor(List.from(
+                                              _gradeColor(List.from(
                                                       groupedCoursesMap.values
                                                           .elementAt(index))
                                                   .reversed
@@ -392,48 +411,34 @@ class _GradesPageState extends State<GradesPage> {
               SizedBox(
                 width: 10,
               ),
-/*(APIClient().school == "ksso")
-                  ? FutureBuilder<Map<String, dynamic>>(
-                      future: _gradesDataFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Padding(
-                            padding:
-                                const EdgeInsets.only(right: 10.0, bottom: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text("Promotionspunkte"),
-                                Shimmer.fromColors(
-                                  child: Text(
-                                    "..........",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    textAlign: TextAlign.end,
+              (APIClient().school == "ksso")
+                  ? (lowestGradePoints == 0.0)
+                      ? Padding(
+                          padding:
+                              const EdgeInsets.only(right: 10.0, bottom: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text("Promotionspunkte"),
+                              Shimmer.fromColors(
+                                child: Text(
+                                  "..........",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w400,
                                   ),
-                                  baseColor: Theme.of(context).canvasColor,
-                                  highlightColor: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .color!,
+                                  textAlign: TextAlign.end,
                                 ),
-                              ],
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              'Error: ${snapshot.error}',
-                            ),
-                          );
-                        }
-
-                        final double lowestGradePoints =
-                            snapshot.data?['lowestGradePoints'];
-                        return Padding(
+                                baseColor: Theme.of(context).canvasColor,
+                                highlightColor: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color!,
+                              ),
+                            ],
+                          ),
+                        )
+                      : Padding(
                           padding:
                               const EdgeInsets.only(right: 10.0, bottom: 16),
                           child: Column(
@@ -453,9 +458,8 @@ class _GradesPageState extends State<GradesPage> {
                               ),
                             ],
                           ),
-                        );
-                      })
-                  : SizedBox.shrink(),*/
+                        )
+                  : SizedBox.shrink(),
             ],
           ),
         ),
@@ -478,8 +482,7 @@ class _GradesPageState extends State<GradesPage> {
                       snapshot.data?['averageGradeMap'] ?? {};
 
                   return Scrollbar(
-                                            controller: _scrollController,
-
+                    controller: _scrollController,
                     child: ListView.builder(
                         controller: _scrollController,
                         shrinkWrap: true,

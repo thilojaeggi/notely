@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:notely/helpers/api_client.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -79,6 +80,8 @@ class _StartPageState extends State<StartPage> {
       List<Exam> latestExams = await _apiClient.getExams(false);
       _examsStreamController.sink.add(latestExams);
       exams = latestExams;
+      exams.sort((a, b) => a.startDate.compareTo(b.startDate));
+
     } catch (e) {
       // Handle the StateError here
       print('Error adding event to stream controller: $e');
@@ -125,7 +128,7 @@ class _StartPageState extends State<StartPage> {
     _getGrades();
     _getStudent();
     _getExams();
-  
+
     homeworkFuture = getHomework();
     randomHelloIndex = random.nextInt(hellos.length);
   }
@@ -191,6 +194,8 @@ class _StartPageState extends State<StartPage> {
                                       ),
                                       child: InkWell(
                                         onTap: () {
+                                          HapticFeedback.selectionClick();
+
                                           showModalBottomSheet(
                                               context: context,
                                               isScrollControlled: true,
@@ -234,16 +239,14 @@ class _StartPageState extends State<StartPage> {
                                                   }
                                                   List<Exam> exams =
                                                       snapshot.data!;
+
                                                   int examCount = 0;
                                                   for (var exam in exams) {
-                                                    if (exam.startDate.isAfter(
-                                                        DateTime.now())) {
-                                                      if (exam.startDate.isBefore(
-                                                          DateTime.now().add(
-                                                              const Duration(
-                                                                  days: 14)))) {
-                                                        examCount++;
-                                                      }
+                                                    if (exam.startDate.isBefore(
+                                                        DateTime.now().add(
+                                                            const Duration(
+                                                                days: 14)))) {
+                                                      examCount++;
                                                     }
                                                   }
                                                   return FittedBox(
@@ -282,6 +285,7 @@ class _StartPageState extends State<StartPage> {
                                     ),
                                     child: InkWell(
                                       onTap: () {
+                                        HapticFeedback.selectionClick();
                                         showModalBottomSheet(
                                             context: context,
                                             isScrollControlled: true,

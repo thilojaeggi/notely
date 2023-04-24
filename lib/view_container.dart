@@ -76,7 +76,10 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     String school = prefs.getString("school") ?? "ksso";
     String username = await storage.read(key: "username") as String;
     String password = await storage.read(key: "password") as String;
+
+    if (username == "demo" && password == "demo") return;
     final url = Globals.buildUrl("$school/authorize.php");
+
     print(url);
     await http.post(url, body: {
       'login': username,

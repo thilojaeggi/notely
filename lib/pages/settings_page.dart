@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/secure_storage.dart';
@@ -116,6 +117,45 @@ class _SettingsPageState extends State<SettingsPage> {
         ));
   }
 
+  void changeAppIcon() {
+    if (Platform.isIOS) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return ChangeAppIconDialog();
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("App-Icon ändern"),
+            content: Text(
+              "Um das App-Icon zu ändern, musst du die App aus dem Homescreen entfernen und neu installieren.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Später"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  launch(
+                      "https://play.google.com/store/apps/details?id=de.notely.app");
+                },
+                child: Text("App öffnen"),
+              )
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   void initState() {
     SharedPreferences.getInstance().then((value) {
@@ -165,124 +205,154 @@ class _SettingsPageState extends State<SettingsPage> {
                 textAlign: TextAlign.start,
               ),
             ),
-            Card(
-              elevation: 3,
-              margin: const EdgeInsets.only(bottom: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                onTap: () {
-                  enableDarkMode(
-                      !(ThemeProvider.themeOf(context).id == "dark_theme"));
-                },
-                visualDensity: VisualDensity(vertical: 2),
-                title: const Text(
-                  "Light/Dark-Mode",
-                  style: TextStyle(
-                    fontSize: 23,
+            Expanded(
+              child: ListView(
+                shrinkWrap: false,
+                children: [
+                  Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      onTap: () {
+                        enableDarkMode(!(ThemeProvider.themeOf(context).id ==
+                            "dark_theme"));
+                      },
+                      visualDensity: VisualDensity(vertical: 2),
+                      title: const Text(
+                        "Light/Dark-Mode",
+                        style: TextStyle(
+                          fontSize: 23,
+                        ),
+                      ),
+                      trailing: Padding(
+                        padding: EdgeInsets.only(right: 3),
+                        child: DayNightSwitcherIcon(
+                          cloudsColor: Colors.transparent,
+                          isDarkModeEnabled:
+                              (ThemeProvider.themeOf(context).id ==
+                                  "dark_theme"),
+                          onStateChanged: (isDarkModeEnabled) {
+                            enableDarkMode(isDarkModeEnabled);
+                          },
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                trailing: Padding(
-                  padding: EdgeInsets.only(right: 3),
-                  child: DayNightSwitcherIcon(
-                    cloudsColor: Colors.transparent,
-                    isDarkModeEnabled:
-                        (ThemeProvider.themeOf(context).id == "dark_theme"),
-                    onStateChanged: (isDarkModeEnabled) {
-                      enableDarkMode(isDarkModeEnabled);
-                    },
+                  Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      onTap: () {
+                        toggleNotifications(!notificationsEnabled);
+                      },
+                      visualDensity: VisualDensity(vertical: 2),
+                      title: const Text(
+                        "Benachrichtigungen",
+                        style: TextStyle(
+                          fontSize: 23,
+                        ),
+                      ),
+                      subtitle: Text("Bei neuen Noten und Updates"),
+                      trailing: (!Platform.isIOS)
+                          ? Switch(
+                              value: notificationsEnabled,
+                              onChanged: (value) {
+                                toggleNotifications(value);
+                              },
+                            )
+                          : CupertinoSwitch(
+                              value: notificationsEnabled,
+                              onChanged: (value) {
+                                toggleNotifications(value);
+                              }),
+                    ),
                   ),
-                ),
+                  (Platform.isIOS)
+                      ? Card(
+                          elevation: 3,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: ListTile(
+                            onTap: changeAppIcon,
+                            visualDensity: VisualDensity(vertical: 2),
+                            title: const Text(
+                              "App Icon ändern",
+                              style: TextStyle(
+                                fontSize: 23,
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.image,
+                              size: 32,
+                            ),
+                          ))
+                      : SizedBox.shrink(),
+                  Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      onTap: () {
+                        final Uri emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path: 'thilo.jaeggi@ksso.ch',
+                            query: 'subject=Notely Problem ' +
+                                APIClient().school +
+                                '&body=Dein Problem: ');
+                        launchUrl(emailLaunchUri);
+                      },
+                      visualDensity: VisualDensity(vertical: 2),
+                      title: const Text(
+                        "Support",
+                        style: TextStyle(
+                          fontSize: 23,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.mail,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                  Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      onTap: logout,
+                      visualDensity: VisualDensity(vertical: 2),
+                      title: Text(
+                        "Abmelden",
+                        style: TextStyle(
+                          fontSize: 23,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.logout,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Card(
-              elevation: 3,
-              margin: const EdgeInsets.only(bottom: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                onTap: () {
-                  toggleNotifications(!notificationsEnabled);
-                },
-                visualDensity: VisualDensity(vertical: 2),
-                title: const Text(
-                  "Benachrichtigungen",
-                  style: TextStyle(
-                    fontSize: 23,
-                  ),
-                ),
-                subtitle: Text("Bei neuen Noten und Updates"),
-                trailing: (!Platform.isIOS)
-                    ? Switch(
-                        value: notificationsEnabled,
-                        onChanged: (value) {
-                          toggleNotifications(value);
-                        },
-                      )
-                    : CupertinoSwitch(
-                        value: notificationsEnabled,
-                        onChanged: (value) {
-                          toggleNotifications(value);
-                        }),
-              ),
-            ),
-            Card(
-              elevation: 3,
-              margin: const EdgeInsets.only(bottom: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                onTap: () {
-                  final Uri emailLaunchUri = Uri(
-                      scheme: 'mailto',
-                      path: 'thilo.jaeggi@ksso.ch',
-                      query: 'subject=Notely Problem ' +
-                          APIClient().school +
-                          '&body=Dein Problem: ');
-                  launchUrl(emailLaunchUri);
-                },
-                visualDensity: VisualDensity(vertical: 2),
-                title: const Text(
-                  "Support",
-                  style: TextStyle(
-                    fontSize: 23,
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.mail,
-                  size: 32,
-                ),
-              ),
-            ),
-            Card(
-              elevation: 3,
-              margin: const EdgeInsets.only(bottom: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                onTap: logout,
-                visualDensity: VisualDensity(vertical: 2),
-                title: Text(
-                  "Abmelden",
-                  style: TextStyle(
-                    fontSize: 23,
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.logout,
-                  size: 32,
-                ),
-              ),
-            ),
-            const Spacer(),
             Center(
               child: Column(
                 children: [
@@ -317,6 +387,91 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ChangeAppIconDialog extends StatefulWidget {
+  const ChangeAppIconDialog({super.key});
+
+  @override
+  State<ChangeAppIconDialog> createState() => _ChangeAppIconDialogState();
+}
+
+class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
+  List iconName = <String>['Classic', 'Aktuell'];
+
+  void changeAppIconCallback(int index) async {
+    try {
+      if (await FlutterDynamicIcon.supportsAlternateIcons) {
+        await FlutterDynamicIcon.setAlternateIconName(iconName[index]);
+        print("App icon change successful");
+        Navigator.pop(context);
+        return;
+      }
+    } catch (e) {
+      print("Exception: ${e.toString()}");
+    }
+    print("Failed to change app icon ");
+  }
+
+  Widget buildIconTile(int index, String themeTxt, String imageName) {
+    return Card(
+      elevation: 3,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+      child: ListTile(
+          onTap: () {
+            changeAppIconCallback(index);
+          },
+          contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+          leading: SizedBox(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(11),
+              child: Image.asset(
+                imageName,
+              ),
+            ),
+          ),
+          title: Text(themeTxt, style: const TextStyle(fontSize: 25)),
+        ),
+      
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      contentPadding: EdgeInsets.only(left: 4.0, right: 4.0),
+      buttonPadding: EdgeInsets.zero,
+      actionsPadding: EdgeInsets.zero,
+    
+      titlePadding: EdgeInsets.only(left: 8.0, top: 8.0),
+      insetPadding: EdgeInsets.zero,
+      title: Text("App Icon ändern"),
+      content: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          
+          children: [
+            buildIconTile(0, "Klassisch", "assets/icons/icon-classic.png"),
+
+            buildIconTile(1, "Aktuell", "assets/icons/notely.png"),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text("Schliessen"),
+        ),
+      ],
     );
   }
 }
