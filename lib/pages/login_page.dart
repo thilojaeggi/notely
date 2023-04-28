@@ -381,7 +381,7 @@ class _LoginPageState extends State<LoginPage> {
                               },
                               style: OutlinedButton.styleFrom(
                                 padding:
-                                    const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                                    const EdgeInsets.all(10),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
@@ -398,8 +398,8 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
+                                padding: const EdgeInsets.only(
+                                    left: 8.0, 
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
