@@ -61,6 +61,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       try {
         List<Grade> oldGrades = await client.getGrades(true);
         List<Grade> newGrades = await client.getGrades(false);
+        oldGrades.removeAt(1);
+
         if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
         for (Grade grade in newGrades) {
           if (!oldGrades.contains(grade)) {
@@ -269,7 +271,7 @@ class _NotelyState extends State<Notely> {
     }
     appLaunches++;
     print(appLaunches);
-    
+
     prefs.setInt('appLaunches', appLaunches);
     if (appLaunches == 10 && appLaunches != 0) {
       if (await inAppReview.isAvailable()) {
