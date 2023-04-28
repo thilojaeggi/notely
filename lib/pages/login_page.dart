@@ -222,8 +222,8 @@ class _LoginPageState extends State<LoginPage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                    Color.fromARGB(255, 40, 40, 40),
-                    Color.fromARGB(255, 10, 10, 10),
+                    Color.fromARGB(255, 0, 191, 255),
+                    Color.fromARGB(255, 0, 29, 146),
                   ])),
               child: Column(
                 children: <Widget>[
@@ -238,6 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                             'assets/images/notely_n.png',
                             width: 100,
                             height: 100,
+                            isAntiAlias: true,
                           ),
                         ),
                         Card(
