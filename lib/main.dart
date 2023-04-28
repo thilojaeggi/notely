@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/Models/Grade.dart';
@@ -232,6 +233,7 @@ class Notely extends StatefulWidget {
 class _NotelyState extends State<Notely> {
   late Future<bool> isLoggedIn;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final InAppReview inAppReview = InAppReview.instance;
 
   Future<void> checkForUpdates(BuildContext context) async {
     // Get the current version code of the app
@@ -258,12 +260,31 @@ class _NotelyState extends State<Notely> {
     }
   }
 
+  Future<void> askForReview(BuildContext context) async {
+    // Ask for review when the user has used the app for 5 times
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? appLaunches = prefs.getInt('appLaunches');
+    if (appLaunches == null) {
+      appLaunches = 0;
+    }
+    appLaunches++;
+    print(appLaunches);
+    
+    prefs.setInt('appLaunches', appLaunches);
+    if (appLaunches % 10 == 0 && appLaunches != 0) {
+      if (await inAppReview.isAvailable()) {
+        inAppReview.requestReview();
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     isLoggedIn = login();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(() => checkForUpdates(navigatorKey.currentContext!));
+      Future.microtask(() => askForReview(navigatorKey.currentContext!));
     });
   }
 
