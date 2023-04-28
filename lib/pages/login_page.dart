@@ -220,13 +220,15 @@ class _LoginPageState extends State<LoginPage> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                    Color.fromARGB(255, 0, 191, 255),
-                    Color.fromARGB(255, 0, 29, 146),
-                  ])),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.black,
+                    Colors.blueAccent,
+                  ],
+                ),
+              ),
               child: Column(
                 children: <Widget>[
                   const Spacer(),
@@ -277,7 +279,6 @@ class _LoginPageState extends State<LoginPage> {
                                 focusedBorder: InputBorder.none,
                                 border: InputBorder.none,
                               ),
-                              
                               onChanged: (String? newValue) {
                                 setState(() {
                                   dropdownValue = newValue!;
@@ -310,7 +311,7 @@ class _LoginPageState extends State<LoginPage> {
                                   })
                                   .values
                                   .toList(),
-                              dropdownColor: Color.fromARGB(255, 0, 119, 255),
+                              dropdownColor: Color.fromARGB(239, 72, 113, 184),
                             ),
                           ),
                         ),
@@ -380,8 +381,7 @@ class _LoginPageState extends State<LoginPage> {
                                 signIn();
                               },
                               style: OutlinedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8.0),
                                 ),
@@ -399,7 +399,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.only(
-                                    left: 8.0, 
+                                  left: 8.0,
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
