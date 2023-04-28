@@ -232,17 +232,14 @@ class _LoginPageState extends State<LoginPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Padding(
-                            padding: EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              "Notely",
-                              style: TextStyle(
-                                fontSize: 80,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.start,
-                            )),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 8.0),
+                          child: Image.asset(
+                            'assets/images/notely_n.png',
+                            width: 100,
+                            height: 100,
+                          ),
+                        ),
                         Card(
                           color: Colors.transparent,
                           elevation: 0,
