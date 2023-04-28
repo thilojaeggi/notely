@@ -271,7 +271,7 @@ class _NotelyState extends State<Notely> {
     print(appLaunches);
     
     prefs.setInt('appLaunches', appLaunches);
-    if (appLaunches % 10 == 0 && appLaunches != 0) {
+    if (appLaunches == 10 && appLaunches != 0) {
       if (await inAppReview.isAvailable()) {
         inAppReview.requestReview();
       }
