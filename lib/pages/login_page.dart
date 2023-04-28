@@ -411,7 +411,7 @@ class _LoginPageState extends State<LoginPage> {
                                         color: _loginHasBeenPressed
                                             ? Colors.white
                                             : Colors.black,
-                                        fontSize: 22.0,
+                                        fontSize: 20.0,
                                       ),
                                     ),
                                     SizedBox(
