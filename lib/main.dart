@@ -61,12 +61,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       try {
         List<Grade> oldGrades = await client.getGrades(true);
         List<Grade> newGrades = await client.getGrades(false);
-        oldGrades.removeAt(1);
-        
-        // Cause contains somehow doesn't work like it should we have to use this
-        newGrades = newGrades.toSet().difference(oldGrades.toSet()).toList();
 
         if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
+
+        // Get grades that are in newGrades but not in oldGrades, not using contains cause it doesn't work -.-
+        newGrades = newGrades.where((element) {
+          return !oldGrades.any((oldGrade) => oldGrade.id == element.id);
+        }).toList();
 
         for (Grade grade in newGrades) {
           // send notification
