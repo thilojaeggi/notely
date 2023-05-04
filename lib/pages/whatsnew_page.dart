@@ -60,12 +60,12 @@ class _WhatsNewState extends State<WhatsNew> {
                             ],
                           ),
                           title: Text(
-                            'App Icon ändern',
+                            'Login screen',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w600),
                           ), //Title is the only Required Item
                           subtitle: Text(
-                            'Das App Icon kann nun in den Einstellungen geändert werden.',
+                            'Der Login screen wurde neu gestaltet.',
                           ),
                         )
                       : SizedBox.shrink(),
@@ -89,40 +89,15 @@ class _WhatsNewState extends State<WhatsNew> {
                             ],
                           ),
                           title: Text(
-                            'Fehlerbehebung Tests',
+                            'Fehlerbehebung Benachrichtigung',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(
-                            'Fälschlicherweise wurden Tests nicht mehr nach Datum sortiert.',
+                            'Bei einer neuen Note wurde fälschlicherweise für jede bestehende Note auch eine Benachrichtigung versandt. Dies wurde behoben.',
                             style: TextStyle(fontSize: 13.0),
                           ),
                         ),
-                        (widget.school == "ksso")
-                            ? ListTile(
-                                leading: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      FontAwesome5.bug,
-                                      size: 24,
-                                      color: Colors.blue.shade500,
-                                    ),
-                                  ],
-                                ),
-                                title: Text(
-                                  'Fehlerbehebung Promotionspunkte',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600),
-                                ), //Title is the only Required Item
-                                subtitle: Text(
-                                  'Die Promotionspunkte wurden nicht mehr angezeigt, sollten nun wieder angezeigt und mittels gerundeten Noten berechnet werden.',
-                                  style: TextStyle(fontSize: 13.0),
-                                ),
-                              )
-                            : SizedBox.shrink(),
-
                       ],
                     ),
                   ),
