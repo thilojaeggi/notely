@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:notely/OutlinedBoxShadow.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/help_page.dart';
@@ -218,13 +220,15 @@ class _LoginPageState extends State<LoginPage> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                    Color.fromARGB(255, 40, 40, 40),
-                    Color.fromARGB(255, 10, 10, 10),
-                  ])),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.black,
+                    Colors.blueAccent,
+                  ],
+                ),
+              ),
               child: Column(
                 children: <Widget>[
                   const Spacer(),
@@ -232,145 +236,197 @@ class _LoginPageState extends State<LoginPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Padding(
-                            padding: EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              "Notely",
-                              style: TextStyle(
-                                fontSize: 80,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.start,
-                            )),
-                        Card(
-                          color: Colors.transparent,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: DropdownButtonFormField2<String>(
-                            value: dropdownValue,
-                            selectedItemHighlightColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 16),
-                            decoration: const InputDecoration(
-                              hintStyle: TextStyle(color: Colors.white),
-                              prefixIcon: Icon(
-                                Icons.school,
-                                color: Colors.white,
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                  top: 19.0, bottom: 19.0, right: 19.0),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(16),
-                                ),
-                                borderSide:
-                                    BorderSide(color: Colors.white, width: 4.0),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(16),
-                                ),
-                                borderSide:
-                                    BorderSide(color: Colors.white, width: 2.5),
-                              ),
-                            ),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                dropdownValue = newValue!;
-                              });
-                            },
-                            items: <String, String>{
-                              'Kanti Solothurn': 'KSSO',
-                              'GIBS Solothurn': 'GIBSSO',
-                              'KBS Solothurn': 'KBSSO',
-                              'GIBS Grenchen': 'GIBSGR',
-                              'GIBS Olten': 'GIBSOL',
-                              'Kanti Olten': 'KSOL',
-                              'KBS Olten': 'KBSOL',
-                            }
-                                .map((description, value) {
-                                  return MapEntry(
-                                      description,
-                                      DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(description),
-                                      ));
-                                })
-                                .values
-                                .toList(),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        AuthTextField(
-                          backgroundColor: Colors.transparent,
-                          hintText: 'Benutzername',
-                          icon: Icons.person,
-                          editingController: _usernameController,
-                          passwordField: false,
-                          textInputAction: TextInputAction.next,
-                        ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        AuthTextField(
-                          backgroundColor: Colors.transparent,
-                          hintText: 'Passwort',
-                          icon: Icons.lock,
-                          editingController: _passwordController,
-                          passwordField: true,
-                          textInputAction: TextInputAction.done,
-                        ),
-                        const SizedBox(
-                          height: 6,
-                        ),
                         Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: OutlinedButton(
-                            onPressed: () async {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              setState(() {
-                                _loginHasBeenPressed = true;
-                              });
-                              await Future.delayed(
-                                  const Duration(milliseconds: 300));
-                              signIn();
-                            },
-                            style: OutlinedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                              minimumSize: const Size.fromHeight(50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
+                          padding: EdgeInsets.only(bottom: 8.0),
+                          child: Image.asset(
+                            'assets/images/notely_n.png',
+                            width: 100,
+                            height: 100,
+                            isAntiAlias: true,
+                            filterQuality: FilterQuality.medium,
+                          ),
+                        ),
+                        Container(
+                          clipBehavior: Clip.antiAlias,
+                          padding: EdgeInsets.symmetric(vertical: 6.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.white.withOpacity(0.1),
+                            boxShadow: [
+                              OutlinedBoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  offset: new Offset(0, 0),
+                                  blurRadius: 10.0,
+                                  blurStyle: BlurStyle.outer)
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12.0),
+                            child: DropdownButtonFormField<String>(
+                              value: dropdownValue,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 18),
+                              alignment: Alignment.centerLeft,
+                              decoration: const InputDecoration(
+                                hintStyle: TextStyle(color: Colors.white),
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(left: 8.0),
+                                  child: Icon(
+                                    Icons.school,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                focusedBorder: InputBorder.none,
+                                border: InputBorder.none,
                               ),
-                              side: BorderSide(
-                                  width: 3.0,
-                                  color: _loginHasBeenPressed
-                                      ? Colors.white
-                                      : Colors.transparent),
-                              backgroundColor: _loginHasBeenPressed
-                                  ? Colors.transparent
-                                  : Colors.white,
-                              animationDuration: const Duration(
-                                milliseconds: 450,
-                              ),
-                            ),
-                            child: Text(
-                              'Anmelden',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 28,
-                                color: _loginHasBeenPressed
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  dropdownValue = newValue!;
+                                });
+                              },
+                              items: <String, String>{
+                                'Kanti Solothurn': 'KSSO',
+                                'GIBS Solothurn': 'GIBSSO',
+                                'KBS Solothurn': 'KBSSO',
+                                'GIBS Grenchen': 'GIBSGR',
+                                'GIBS Olten': 'GIBSOL',
+                                'Kanti Olten': 'KSOL',
+                                'KBS Olten': 'KBSOL',
+                              }
+                                  .map((description, value) {
+                                    return MapEntry(
+                                        description,
+                                        DropdownMenuItem<String>(
+                                          alignment: Alignment.centerLeft,
+                                          value: value,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 4.0),
+                                            child: Text(
+                                              description,
+                                              textAlign: TextAlign.start,
+                                            ),
+                                          ),
+                                        ));
+                                  })
+                                  .values
+                                  .toList(),
+                              dropdownColor: Color.fromARGB(239, 72, 113, 184),
                             ),
                           ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Container(
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.white.withOpacity(0.1),
+                            boxShadow: [
+                              OutlinedBoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  offset: new Offset(0, 0),
+                                  blurRadius: 10.0,
+                                  blurStyle: BlurStyle.outer)
+                            ],
+                          ),
+                          child: AuthTextField(
+                            backgroundColor: Colors.transparent,
+                            hintText: 'Benutzername',
+                            icon: Icons.person,
+                            editingController: _usernameController,
+                            passwordField: false,
+                            textInputAction: TextInputAction.next,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Container(
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.white.withOpacity(0.1),
+                            boxShadow: [
+                              OutlinedBoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  offset: new Offset(0, 0),
+                                  blurRadius: 10.0,
+                                  blurStyle: BlurStyle.outer)
+                            ],
+                          ),
+                          child: AuthTextField(
+                            backgroundColor: Colors.transparent,
+                            hintText: 'Passwort',
+                            icon: Icons.lock,
+                            editingController: _passwordController,
+                            passwordField: true,
+                            textInputAction: TextInputAction.done,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: OutlinedButton(
+                              onPressed: () async {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                setState(() {
+                                  _loginHasBeenPressed = true;
+                                });
+                                await Future.delayed(
+                                    const Duration(milliseconds: 300));
+                                signIn();
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.all(10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                side: BorderSide(
+                                    width: 3.0,
+                                    color: _loginHasBeenPressed
+                                        ? Colors.white
+                                        : Colors.transparent),
+                                backgroundColor: _loginHasBeenPressed
+                                    ? Colors.transparent
+                                    : Colors.white,
+                                animationDuration: const Duration(
+                                  milliseconds: 450,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8.0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "Anmelden",
+                                      style: TextStyle(
+                                        color: _loginHasBeenPressed
+                                            ? Colors.white
+                                            : Colors.black,
+                                        fontSize: 20.0,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Icon(
+                                      CupertinoIcons.arrow_right,
+                                      color: _loginHasBeenPressed
+                                          ? Colors.white
+                                          : Colors.black,
+                                      size: 30.0,
+                                    ),
+                                  ],
+                                ),
+                              )),
                         ),
                       ],
                     ),

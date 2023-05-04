@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/Models/Grade.dart';
@@ -60,33 +61,38 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       try {
         List<Grade> oldGrades = await client.getGrades(true);
         List<Grade> newGrades = await client.getGrades(false);
+
         if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
+
+        // Get grades that are in newGrades but not in oldGrades, not using contains cause it doesn't work -.-
+        newGrades = newGrades.where((element) {
+          return !oldGrades.any((oldGrade) => oldGrade.id == element.id);
+        }).toList();
+
         for (Grade grade in newGrades) {
-          if (!oldGrades.contains(grade)) {
-            // send notification
-            flutterLocalNotificationsPlugin.show(
-              grade.id.hashCode,
-              "Notely",
-              "Du hast eine neue ${grade.subject} Note.",
-              NotificationDetails(
-                  android: AndroidNotificationDetails(
-                    channel.id,
-                    channel.name,
-                    channelDescription: channel.description,
-                    icon: 'ic_stat_school',
-                    playSound: true,
-                    enableVibration: true,
-                    importance: Importance.high,
-                    priority: Priority.high,
-                    visibility: NotificationVisibility.public,
-                  ),
-                  iOS: DarwinNotificationDetails(
-                    presentAlert: true,
-                    presentBadge: true,
-                    presentSound: true,
-                  )),
-            );
-          }
+          // send notification
+          flutterLocalNotificationsPlugin.show(
+            grade.id.hashCode,
+            "Notely",
+            "Du hast eine neue ${grade.subject} Note.",
+            NotificationDetails(
+                android: AndroidNotificationDetails(
+                  channel.id,
+                  channel.name,
+                  channelDescription: channel.description,
+                  icon: 'ic_stat_school',
+                  playSound: true,
+                  enableVibration: true,
+                  importance: Importance.high,
+                  priority: Priority.high,
+                  visibility: NotificationVisibility.public,
+                ),
+                iOS: DarwinNotificationDetails(
+                  presentAlert: true,
+                  presentBadge: true,
+                  presentSound: true,
+                )),
+          );
         }
       } catch (e) {
         print(e.toString());
@@ -232,6 +238,7 @@ class Notely extends StatefulWidget {
 class _NotelyState extends State<Notely> {
   late Future<bool> isLoggedIn;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final InAppReview inAppReview = InAppReview.instance;
 
   Future<void> checkForUpdates(BuildContext context) async {
     // Get the current version code of the app
@@ -258,12 +265,31 @@ class _NotelyState extends State<Notely> {
     }
   }
 
+  Future<void> askForReview(BuildContext context) async {
+    // Ask for review when the user has used the app for 5 times
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? appLaunches = prefs.getInt('appLaunches');
+    if (appLaunches == null) {
+      appLaunches = 0;
+    }
+    appLaunches++;
+    print(appLaunches);
+
+    prefs.setInt('appLaunches', appLaunches);
+    if (appLaunches == 10 && appLaunches != 0) {
+      if (await inAppReview.isAvailable()) {
+        inAppReview.requestReview();
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     isLoggedIn = login();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(() => checkForUpdates(navigatorKey.currentContext!));
+      Future.microtask(() => askForReview(navigatorKey.currentContext!));
     });
   }
 
