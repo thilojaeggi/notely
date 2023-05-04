@@ -62,34 +62,36 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         List<Grade> oldGrades = await client.getGrades(true);
         List<Grade> newGrades = await client.getGrades(false);
         oldGrades.removeAt(1);
+        
+        // Cause contains somehow doesn't work like it should we have to use this
+        newGrades = newGrades.toSet().difference(oldGrades.toSet()).toList();
 
         if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
+
         for (Grade grade in newGrades) {
-          if (!oldGrades.contains(grade)) {
-            // send notification
-            flutterLocalNotificationsPlugin.show(
-              grade.id.hashCode,
-              "Notely",
-              "Du hast eine neue ${grade.subject} Note.",
-              NotificationDetails(
-                  android: AndroidNotificationDetails(
-                    channel.id,
-                    channel.name,
-                    channelDescription: channel.description,
-                    icon: 'ic_stat_school',
-                    playSound: true,
-                    enableVibration: true,
-                    importance: Importance.high,
-                    priority: Priority.high,
-                    visibility: NotificationVisibility.public,
-                  ),
-                  iOS: DarwinNotificationDetails(
-                    presentAlert: true,
-                    presentBadge: true,
-                    presentSound: true,
-                  )),
-            );
-          }
+          // send notification
+          flutterLocalNotificationsPlugin.show(
+            grade.id.hashCode,
+            "Notely",
+            "Du hast eine neue ${grade.subject} Note.",
+            NotificationDetails(
+                android: AndroidNotificationDetails(
+                  channel.id,
+                  channel.name,
+                  channelDescription: channel.description,
+                  icon: 'ic_stat_school',
+                  playSound: true,
+                  enableVibration: true,
+                  importance: Importance.high,
+                  priority: Priority.high,
+                  visibility: NotificationVisibility.public,
+                ),
+                iOS: DarwinNotificationDetails(
+                  presentAlert: true,
+                  presentBadge: true,
+                  presentSound: true,
+                )),
+          );
         }
       } catch (e) {
         print(e.toString());
