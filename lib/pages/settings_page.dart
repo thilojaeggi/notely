@@ -66,8 +66,8 @@ class _SettingsPageState extends State<SettingsPage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text("Benachrichtigungen deaktiviert"),
-              content: Text(
+              title: const Text("Benachrichtigungen deaktiviert"),
+              content: const Text(
                 "Um Benachrichtigungen zu erhalten, musst du die Benachrichtigungen in den Einstellungen aktivieren.",
               ),
               actions: [
@@ -75,14 +75,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("Später"),
+                  child: const Text("Später"),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                     openAppSettings();
                   },
-                  child: Text("Einstellungen öffnen"),
+                  child: const Text("Einstellungen öffnen"),
                 )
               ],
             );
@@ -122,7 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
       showDialog(
         context: context,
         builder: (context) {
-          return ChangeAppIconDialog();
+          return const ChangeAppIconDialog();
         },
       );
     } else {
@@ -130,8 +130,8 @@ class _SettingsPageState extends State<SettingsPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("App-Icon ändern"),
-            content: Text(
+            title: const Text("App-Icon ändern"),
+            content: const Text(
               "Um das App-Icon zu ändern, musst du die App aus dem Homescreen entfernen und neu installieren.",
             ),
             actions: [
@@ -139,7 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Später"),
+                child: const Text("Später"),
               ),
               TextButton(
                 onPressed: () {
@@ -147,7 +147,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   launch(
                       "https://play.google.com/store/apps/details?id=de.notely.app");
                 },
-                child: Text("App öffnen"),
+                child: const Text("App öffnen"),
               )
             ],
           );
@@ -171,7 +171,7 @@ class _SettingsPageState extends State<SettingsPage> {
     Globals().isDark = dark;
     if (dark) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-          statusBarColor: Color(0xFF0d0d0d), // status bar color
+          statusBarColor: const Color(0xFF0d0d0d), // status bar color
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark // this one for iOS
           ));
@@ -221,7 +221,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         enableDarkMode(!(ThemeProvider.themeOf(context).id ==
                             "dark_theme"));
                       },
-                      visualDensity: VisualDensity(vertical: 2),
+                      visualDensity: const VisualDensity(vertical: 2),
                       title: const Text(
                         "Light/Dark-Mode",
                         style: TextStyle(
@@ -229,7 +229,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
                       trailing: Padding(
-                        padding: EdgeInsets.only(right: 3),
+                        padding: const EdgeInsets.only(right: 3),
                         child: DayNightSwitcherIcon(
                           cloudsColor: Colors.transparent,
                           isDarkModeEnabled:
@@ -253,14 +253,14 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: () {
                         toggleNotifications(!notificationsEnabled);
                       },
-                      visualDensity: VisualDensity(vertical: 2),
+                      visualDensity: const VisualDensity(vertical: 2),
                       title: const Text(
                         "Benachrichtigungen",
                         style: TextStyle(
                           fontSize: 23,
                         ),
                       ),
-                      subtitle: Text("Bei neuen Noten und Updates"),
+                      subtitle: const Text("Bei neuen Noten und Updates"),
                       trailing: (!Platform.isIOS)
                           ? Switch(
                               value: notificationsEnabled,
@@ -285,19 +285,19 @@ class _SettingsPageState extends State<SettingsPage> {
                           clipBehavior: Clip.antiAlias,
                           child: ListTile(
                             onTap: changeAppIcon,
-                            visualDensity: VisualDensity(vertical: 2),
+                            visualDensity: const VisualDensity(vertical: 2),
                             title: const Text(
                               "App Icon ändern",
                               style: TextStyle(
                                 fontSize: 23,
                               ),
                             ),
-                            trailing: Icon(
+                            trailing: const Icon(
                               Icons.image,
                               size: 32,
                             ),
                           ))
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
                   Card(
                     elevation: 3,
                     margin: const EdgeInsets.only(bottom: 10),
@@ -310,19 +310,17 @@ class _SettingsPageState extends State<SettingsPage> {
                         final Uri emailLaunchUri = Uri(
                             scheme: 'mailto',
                             path: 'thilo.jaeggi@ksso.ch',
-                            query: 'subject=Notely Problem ' +
-                                APIClient().school +
-                                '&body=Dein Problem: ');
+                            query: 'subject=Notely Problem ${APIClient().school}&body=Dein Problem: ');
                         launchUrl(emailLaunchUri);
                       },
-                      visualDensity: VisualDensity(vertical: 2),
+                      visualDensity: const VisualDensity(vertical: 2),
                       title: const Text(
                         "Support",
                         style: TextStyle(
                           fontSize: 23,
                         ),
                       ),
-                      trailing: Icon(
+                      trailing: const Icon(
                         Icons.mail,
                         size: 32,
                       ),
@@ -337,14 +335,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     clipBehavior: Clip.antiAlias,
                     child: ListTile(
                       onTap: logout,
-                      visualDensity: VisualDensity(vertical: 2),
-                      title: Text(
+                      visualDensity: const VisualDensity(vertical: 2),
+                      title: const Text(
                         "Abmelden",
                         style: TextStyle(
                           fontSize: 23,
                         ),
                       ),
-                      trailing: Icon(
+                      trailing: const Icon(
                         Icons.logout,
                         size: 32,
                       ),
@@ -363,22 +361,19 @@ class _SettingsPageState extends State<SettingsPage> {
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return Text(
-                              (snapshot.data!.version) +
-                                  " (" +
-                                  snapshot.data!.buildNumber +
-                                  ")",
-                              style: TextStyle(
+                              "${snapshot.data!.version} (${snapshot.data!.buildNumber})",
+                              style: const TextStyle(
                                   color: Color.fromRGBO(158, 158, 158, 1)),
                             );
                           }
-                          return Text("0.0.0 (0)");
+                          return const Text("0.0.0 (0)");
                         }),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 5),
                     child: Text(
                       "${DateTime.now().year.toString()} © Thilo Jaeggi",
-                      style: TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
+                      style: const TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
                     ),
                   ),
                 ],
@@ -445,13 +440,13 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      contentPadding: EdgeInsets.only(left: 4.0, right: 4.0),
+      contentPadding: const EdgeInsets.only(left: 4.0, right: 4.0),
       buttonPadding: EdgeInsets.zero,
       actionsPadding: EdgeInsets.zero,
     
-      titlePadding: EdgeInsets.only(left: 8.0, top: 8.0),
+      titlePadding: const EdgeInsets.only(left: 8.0, top: 8.0),
       insetPadding: EdgeInsets.zero,
-      title: Text("App Icon ändern"),
+      title: const Text("App Icon ändern"),
       content: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -469,7 +464,7 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text("Schliessen"),
+          child: const Text("Schliessen"),
         ),
       ],
     );
