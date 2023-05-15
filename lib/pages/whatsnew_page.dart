@@ -116,6 +116,11 @@ class _WhatsNewState extends State<WhatsNew> {
               onPressed: () {
                 Navigator.pop(context);
               },
+              color: Colors.blue.shade500,
+              minWidth: double.infinity,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
               child: const Padding(
                 padding: EdgeInsets.all(6.0),
                 child: Text(
@@ -125,11 +130,6 @@ class _WhatsNewState extends State<WhatsNew> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-              color: Colors.blue.shade500,
-              minWidth: double.infinity,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.0),
               ),
             ),
           )

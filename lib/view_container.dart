@@ -156,6 +156,10 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
         return Scaffold(
           extendBody: true,
           body: SafeArea(
+            bottom: false,
+            left: true,
+            right: true,
+            top: true,
             child: PageView.builder(
               controller: pageController,
               itemCount: _pages.length,
@@ -167,10 +171,6 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                 return _pages[index];
               },
             ),
-            bottom: false,
-            left: true,
-            right: true,
-            top: true,
           ),
           bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
