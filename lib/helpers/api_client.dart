@@ -38,8 +38,8 @@ class APIClient {
       return [
         Event(
             id: 'eeafsdg',
-            startDate: "2023-03-01T08:25:00.000Z",
-            endDate: "2023-03-01T09:10:00.000Z",
+            startDate: DateTime.now().add(Duration(days: 7)),
+            endDate: DateTime.now().add(Duration(days: 7)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'A02',
@@ -63,8 +63,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: 'sdfsfef',
-            startDate: "2023-03-01T09:15:00.000Z",
-            endDate: "2023-03-01T10:00:00.000Z",
+            startDate: DateTime.now().add(Duration(days: 1)),
+            endDate: DateTime.now().add(Duration(days: 1)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'A02',
@@ -88,8 +88,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: 'fhgfh',
-            startDate: "2023-03-01T10:25:00.000Z",
-            endDate: "2023-03-01T11:05:00.000Z",
+            startDate: DateTime.now().add(Duration(days: 3)),
+            endDate: DateTime.now().add(Duration(days: 3)),
             text: 'English',
             comment: 'Test',
             roomToken: 'B13',
@@ -113,8 +113,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: '1',
-            startDate: "2023-03-01T11:10:00.000Z",
-            endDate: "2023-03-01T11:55:00.000Z",
+            startDate: DateTime.now().add(Duration(days: 2)),
+            endDate: DateTime.now().add(Duration(days: 2)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'EU2',

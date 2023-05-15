@@ -1,7 +1,7 @@
 class Event {
   String? _id;
-  String? _startDate;
-  String? _endDate;
+  DateTime? _startDate;
+  DateTime? _endDate;
   String? _text;
   String? _comment;
   String? _roomToken;
@@ -26,8 +26,8 @@ class Event {
 
   Event(
       {String? id,
-      String? startDate,
-      String? endDate,
+      DateTime? startDate,
+      DateTime? endDate,
       String? text,
       String? comment,
       String? roomToken,
@@ -101,10 +101,10 @@ class Event {
 
   String? get id => _id;
   set id(String? id) => _id = id;
-  String? get startDate => _startDate;
-  set startDate(String? startDate) => _startDate = startDate;
-  String? get endDate => _endDate;
-  set endDate(String? endDate) => _endDate = endDate;
+  DateTime? get startDate => _startDate;
+  set startDate(DateTime? startDate) => _startDate = startDate;
+  DateTime? get endDate => _endDate;
+  set endDate(DateTime? endDate) => _endDate = endDate;
   String? get text => _text;
   set text(String? text) => _text = text;
   String? get comment => _comment;
@@ -154,8 +154,8 @@ class Event {
 
   Event.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
-    _startDate = json['startDate'];
-    _endDate = json['endDate'];
+    _startDate = DateTime.parse(json['startDate']);
+    _endDate = DateTime.parse(json['endDate']);
     _text = json['text'];
     _comment = json['comment'];
     _roomToken = json['roomToken'];
