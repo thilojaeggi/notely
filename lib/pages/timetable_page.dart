@@ -4,6 +4,7 @@ import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:notely/Models/Exam.dart';
 import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/helpers/api_client.dart';
@@ -31,6 +32,7 @@ class _TimetablePageState extends State<TimetablePage> {
 
       // Then get the latest data and update the UI again
       List<Event> latestGrades = await _apiClient.getEvents(today, false);
+
       _eventStreamController.sink.add(latestGrades);
     } catch (e) {
       // Handle the StateError here
@@ -55,12 +57,23 @@ class _TimetablePageState extends State<TimetablePage> {
   }
 
   Widget _eventWidget(BuildContext context, Event event) {
+    bool isExam = false;
+    // Check if event is an exam by getting apiClient.getExams and checking if any exam has the same date as the event
+    // TODO: This is ugly, fix in future
+    APIClient apiClient = APIClient();
+    apiClient.getExams(true).then((exams) {
+      for (Exam exam in exams) {
+        isExam = (exam.startDate == event.startDate);
+      }
+    });
+
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10.0, right: 10.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
+      shadowColor: isExam ? Colors.yellowAccent : Colors.grey,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
           onTap: () {
@@ -139,7 +152,7 @@ class _TimetablePageState extends State<TimetablePage> {
                           // Get text of TextFields
                           String title = titleController.text;
                           String details = detailsController.text.trimRight();
-                          DateTime startDate = DateTime.parse(event.startDate!);
+                          DateTime startDate = event.startDate!;
 
                           if (title.isEmpty && details.isEmpty) {
                             title = "Kein Titel";
@@ -208,8 +221,7 @@ class _TimetablePageState extends State<TimetablePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          event.startDate!
-                              .substring(event.startDate!.length - 5),
+                          event.startDate!.toString().substring(0, 5),
                           style: TextStyle(
                               fontSize: 18.0, fontWeight: FontWeight.w600),
                           textAlign: TextAlign.center,
@@ -217,9 +229,7 @@ class _TimetablePageState extends State<TimetablePage> {
                         Opacity(
                           opacity: 0.75,
                           child: Text(
-                            event.endDate!
-                                .substring(event.endDate!.length - 5)
-                                .toString(),
+                            event.endDate!.toString().substring(0, 5),
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.w500,
@@ -238,10 +248,8 @@ class _TimetablePageState extends State<TimetablePage> {
                     height: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(3),
-                      color: (DateTime.now()
-                                  .isAfter(DateTime.parse(event.startDate!)) &&
-                              DateTime.now()
-                                  .isBefore(DateTime.parse(event.endDate!)))
+                      color: (DateTime.now().isAfter(event.startDate!) &&
+                              DateTime.now().isBefore(event.endDate!))
                           ? Colors.blue
                           : Colors.white,
                     ),
