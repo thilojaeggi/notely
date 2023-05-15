@@ -47,28 +47,26 @@ class _WhatsNewState extends State<WhatsNew> {
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  (Platform.isIOS)
-                      ? ListTile(
+                      ListTile(
                           leading: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                CupertinoIcons.app_badge_fill,
+                                FontAwesome5.graduation_cap,
                                 size: 32,
                                 color: Colors.blue.shade500,
                               ),
                             ],
                           ),
                           title: Text(
-                            'Login screen',
+                            'Tests im Stundenplan',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w600),
                           ), //Title is the only Required Item
                           subtitle: Text(
-                            'Der Login screen wurde neu gestaltet.',
+                            'Lektionen mit Tests werden nun im Stundenplan mit einem kleinen Icon symbolisiert.',
                           ),
-                        )
-                      : SizedBox.shrink(),
+                        ),
                   ListTile(
                     title: Text(
                       'Fehlerbehebungen:',
@@ -89,12 +87,12 @@ class _WhatsNewState extends State<WhatsNew> {
                             ],
                           ),
                           title: Text(
-                            'Fehlerbehebung Benachrichtigung',
+                            'Kleinere Fehlerbehebungen',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(
-                            'Bei einer neuen Note wurde fälschlicherweise für jede bestehende Note auch eine Benachrichtigung versandt. Dies wurde behoben.',
+                            'Es wurden einige kleinere Fehler behoben.',
                             style: TextStyle(fontSize: 13.0),
                           ),
                         ),
