@@ -56,16 +56,14 @@ class _TimetablePageState extends State<TimetablePage> {
     _getEvents();
   }
 
-  Widget _eventWidget(BuildContext context, Event event) {
+  Widget _eventWidget(BuildContext context, Event event, List<Exam> exams) {
     bool isExam = false;
-    // Check if event is an exam by getting apiClient.getExams and checking if any exam has the same date as the event
-    // TODO: This is ugly, fix in future
-    APIClient apiClient = APIClient();
-    apiClient.getExams(true).then((exams) {
-      for (Exam exam in exams) {
-        isExam = (exam.startDate == event.startDate);
+    for (Exam exam in exams) {
+      if (exam.courseName == event.courseName &&
+          exam.startDate.day == event.startDate!.day) {
+        isExam = true;
       }
-    });
+    }
 
     return Card(
       elevation: 3,
@@ -73,7 +71,6 @@ class _TimetablePageState extends State<TimetablePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      shadowColor: isExam ? Colors.yellowAccent : Colors.grey,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
           onTap: () {
@@ -207,94 +204,119 @@ class _TimetablePageState extends State<TimetablePage> {
                   );
                 });
           },
-          child: Container(
-            padding: EdgeInsets.all(12),
-            child: IntrinsicHeight(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          event.startDate!.toString().substring(0, 5),
-                          style: TextStyle(
-                              fontSize: 18.0, fontWeight: FontWeight.w600),
-                          textAlign: TextAlign.center,
-                        ),
-                        Opacity(
-                          opacity: 0.75,
-                          child: Text(
-                            event.endDate!.toString().substring(0, 5),
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
+          child: Stack(
+            children: [
+              
+              isExam ? Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  child: Text("Test"),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 1),
+                  decoration: BoxDecoration(
+                                      color: Colors.blue,
+
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(10.0),
+                      topRight: Radius.circular(10.0),
                     ),
                   ),
-                  SizedBox(
-                    width: 9.0,
-                  ),
-                  Container(
-                    width: 3,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      color: (DateTime.now().isAfter(event.startDate!) &&
-                              DateTime.now().isBefore(event.endDate!))
-                          ? Colors.blue
-                          : Colors.white,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 9.0,
-                  ),
-                  Expanded(
-                    flex: 12,
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            event.courseName.toString(),
-                            textAlign: TextAlign.start,
-                            style: const TextStyle(
-                                fontSize: 21,
-                                height: 1.1,
-                                fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            event.teachers!.first.toString(),
-                            textAlign: TextAlign.start,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              height: 1.2,
+                ),
+              ) : SizedBox.shrink(),
+              Container(
+                padding: EdgeInsets.all(12),
+                child: IntrinsicHeight(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              // Format startdate as HH:MM without using substring
+                              event.startDate!.toString().substring(11, 16),
+
+                              style: TextStyle(
+                                  fontSize: 18.0, fontWeight: FontWeight.w600),
+                              textAlign: TextAlign.center,
                             ),
-                          ),
-                        ],
+                            Opacity(
+                              opacity: 0.75,
+                              child: Text(
+                                event.endDate!.toString().substring(11, 16),
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      SizedBox(
+                        width: 9.0,
+                      ),
+                      Container(
+                        width: 3,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(3),
+                          color: (DateTime.now().isAfter(event.startDate!) &&
+                                  DateTime.now().isBefore(event.endDate!))
+                              ? Colors.blue
+                              : Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .color,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 9.0,
+                      ),
+                      Expanded(
+                        flex: 12,
+                        child: Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                event.courseName.toString(),
+                                textAlign: TextAlign.start,
+                                style: const TextStyle(
+                                    fontSize: 21,
+                                    height: 1.1,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                event.teachers!.first.toString(),
+                                textAlign: TextAlign.start,
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  height: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        event.roomToken.toString(),
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.w500),
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    event.roomToken.toString(),
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.w500),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           )),
     );
   }
@@ -363,7 +385,30 @@ class _TimetablePageState extends State<TimetablePage> {
                               return LayoutBuilder(builder:
                                   (BuildContext context,
                                       BoxConstraints constraints) {
-                                return _eventWidget(context, event);
+                                return FutureBuilder<List<Exam>>(
+                                    // TODO: This is ugly, rework this
+                                    future: APIClient().getExams(true),
+                                    builder: (context, snapshot) {
+                                      switch (snapshot.connectionState) {
+                                        case ConnectionState.waiting:
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        case ConnectionState.done:
+                                          if (snapshot.hasError) {
+                                            return const Center(
+                                              child: Text("Error"),
+                                            );
+                                          }
+                                          List<Exam> _examList = snapshot.data!;
+                                          return _eventWidget(
+                                              context, event, _examList);
+                                        default:
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                      }
+                                    });
                               });
                             }),
                       )
