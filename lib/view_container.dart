@@ -66,7 +66,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
   void bottomTapped(int index) {
     setState(() {
       pageController.animateToPage(index,
-          duration: Duration(milliseconds: 500), curve: Curves.ease);
+          duration: const Duration(milliseconds: 500), curve: Curves.ease);
     });
   }
 

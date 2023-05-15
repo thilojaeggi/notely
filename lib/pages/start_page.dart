@@ -28,13 +28,13 @@ class _StartPageState extends State<StartPage> {
   double get cardHeight => MediaQuery.of(context).size.height / 5;
   late Future<List<Homework>> homeworkFuture;
 
-  StreamController<List<Grade>> _gradesStreamController =
+  final StreamController<List<Grade>> _gradesStreamController =
       StreamController<List<Grade>>();
 
-  StreamController<Student> _studentStreamController =
+  final StreamController<Student> _studentStreamController =
       StreamController<Student>();
 
-  StreamController<List<Exam>> _examsStreamController =
+  final StreamController<List<Exam>> _examsStreamController =
       StreamController<List<Exam>>();
 
   void _getGrades() async {
@@ -49,7 +49,7 @@ class _StartPageState extends State<StartPage> {
       _gradesStreamController.sink.add(latestGrades);
     } catch (e) {
       // Handle the StateError here
-      print('Error adding event to stream controller: $e');
+      debugPrint('Error adding event to stream controller: $e');
     }
   }
 
@@ -158,7 +158,7 @@ class _StartPageState extends State<StartPage> {
                     String? firstName = student?.firstName?.split(' ')[0];
                     return Text(
                       "${hellos[randomHelloIndex]} ${firstName ?? "..."}!",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.w600,
                       ),
@@ -213,7 +213,7 @@ class _StartPageState extends State<StartPage> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceEvenly,
                                           children: [
-                                            FittedBox(
+                                            const FittedBox(
                                               child: Text(
                                                 'Bald',
                                                 style: TextStyle(fontSize: 16),
@@ -252,7 +252,7 @@ class _StartPageState extends State<StartPage> {
                                                   return FittedBox(
                                                     child: Text(
                                                       examCount.toString(),
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         fontSize: 48,
                                                         fontWeight:
                                                             FontWeight.w500,
@@ -261,7 +261,7 @@ class _StartPageState extends State<StartPage> {
                                                     fit: BoxFit.scaleDown,
                                                   );
                                                 }),
-                                            FittedBox(
+                                            const FittedBox(
                                               child: Text(
                                                 'Tests',
                                                 style: TextStyle(fontSize: 16),
@@ -353,7 +353,7 @@ class _StartPageState extends State<StartPage> {
                                                   return FittedBox(
                                                     child: Text(
                                                       homeworkCount.toString(),
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         fontSize: 48,
                                                         fontWeight:
                                                             FontWeight.w500,
@@ -362,7 +362,7 @@ class _StartPageState extends State<StartPage> {
                                                     fit: BoxFit.scaleDown,
                                                   );
                                                 }),
-                                            FittedBox(
+                                            const FittedBox(
                                               child: Text(
                                                 'Hausaufgaben',
                                                 style: TextStyle(fontSize: 16),
@@ -405,8 +405,8 @@ class _StartPageState extends State<StartPage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Padding(
-                                            padding: const EdgeInsets.only(
+                                          const Padding(
+                                            padding: EdgeInsets.only(
                                                 left: 10.0),
                                             child: Text(
                                               "Neueste Noten",
@@ -450,47 +450,47 @@ class _StartPageState extends State<StartPage> {
                                                       margin: (index ==
                                                               gradeList.length -
                                                                   1)
-                                                          ? EdgeInsets.only(
+                                                          ? const EdgeInsets.only(
                                                               bottom: 11.0)
                                                           : (index == 0)
-                                                              ? EdgeInsets.only(
+                                                              ? const EdgeInsets.only(
                                                                   top: 8.0,
                                                                   bottom: 3.0)
-                                                              : EdgeInsets.only(
+                                                              : const EdgeInsets.only(
                                                                   bottom: 3.0),
                                                       width: double.infinity,
                                                       padding:
-                                                          EdgeInsets.all(12.0),
+                                                          const EdgeInsets.all(12.0),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
                                                             .withOpacity(0.2),
                                                         borderRadius:
                                                             BorderRadius.only(
                                                           topLeft: (index == 0)
-                                                              ? Radius.circular(
+                                                              ? const Radius.circular(
                                                                   8.0)
-                                                              : Radius.circular(
+                                                              : const Radius.circular(
                                                                   4.0),
                                                           topRight: (index == 0)
-                                                              ? Radius.circular(
+                                                              ? const Radius.circular(
                                                                   8.0)
-                                                              : Radius.circular(
+                                                              : const Radius.circular(
                                                                   4.0),
                                                           bottomLeft: (index ==
                                                                   gradeList
                                                                           .length -
                                                                       1)
-                                                              ? Radius.circular(
+                                                              ? const Radius.circular(
                                                                   6.0)
-                                                              : Radius.circular(
+                                                              : const Radius.circular(
                                                                   4.0),
                                                           bottomRight: (index ==
                                                                   gradeList
                                                                           .length -
                                                                       1)
-                                                              ? Radius.circular(
+                                                              ? const Radius.circular(
                                                                   6.0)
-                                                              : Radius.circular(
+                                                              : const Radius.circular(
                                                                   4.0),
                                                         ),
                                                       ),
@@ -507,7 +507,7 @@ class _StartPageState extends State<StartPage> {
                                                                     .title
                                                                     .toString(),
                                                                 style:
-                                                                    TextStyle(
+                                                                    const TextStyle(
                                                                   height: 1.0,
                                                                   fontSize: 15,
                                                                   color: Colors
@@ -526,7 +526,7 @@ class _StartPageState extends State<StartPage> {
                                                                           index]
                                                                       .mark
                                                                       .toString(),
-                                                              style: TextStyle(
+                                                              style: const TextStyle(
                                                                 height: 1.0,
                                                                 fontSize: 16,
                                                                 color: Colors

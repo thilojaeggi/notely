@@ -50,52 +50,52 @@ class Event {
       Null studentNames,
       Null studentIds}) {
     if (id != null) {
-      this._id = id;
+      _id = id;
     }
     if (startDate != null) {
-      this._startDate = startDate;
+      _startDate = startDate;
     }
     if (endDate != null) {
-      this._endDate = endDate;
+      _endDate = endDate;
     }
     if (text != null) {
-      this._text = text;
+      _text = text;
     }
     if (comment != null) {
-      this._comment = comment;
+      _comment = comment;
     }
     if (roomToken != null) {
-      this._roomToken = roomToken;
+      _roomToken = roomToken;
     }
     if (roomId != null) {
-      this._roomId = roomId;
+      _roomId = roomId;
     }
     if (teachers != null) {
-      this._teachers = teachers;
+      _teachers = teachers;
     }
     if (teacherIds != null) {
-      this._teacherIds = teacherIds;
+      _teacherIds = teacherIds;
     }
     if (teacherTokens != null) {
-      this._teacherTokens = teacherTokens;
+      _teacherTokens = teacherTokens;
     }
     if (courseId != null) {
-      this._courseId = courseId;
+      _courseId = courseId;
     }
     if (courseToken != null) {
-      this._courseToken = courseToken;
+      _courseToken = courseToken;
     }
     if (courseName != null) {
-      this._courseName = courseName;
+      _courseName = courseName;
     }
     if (status != null) {
-      this._status = status;
+      _status = status;
     }
     if (color != null) {
-      this._color = color;
+      _color = color;
     }
     if (eventType != null) {
-      this._eventType = eventType;
+      _eventType = eventType;
     }
   }
 
@@ -181,30 +181,30 @@ class Event {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this._id;
-    data['startDate'] = this._startDate;
-    data['endDate'] = this._endDate;
-    data['text'] = this._text;
-    data['comment'] = this._comment;
-    data['roomToken'] = this._roomToken;
-    data['roomId'] = this._roomId;
-    data['teachers'] = this._teachers;
-    data['teacherIds'] = this._teacherIds;
-    data['teacherTokens'] = this._teacherTokens;
-    data['courseId'] = this._courseId;
-    data['courseToken'] = this._courseToken;
-    data['courseName'] = this._courseName;
-    data['status'] = this._status;
-    data['color'] = this._color;
-    data['eventType'] = this._eventType;
-    data['eventRoomStatus'] = this._eventRoomStatus;
-    data['timetableText'] = this._timetableText;
-    data['infoFacilityManagement'] = this._infoFacilityManagement;
-    data['importset'] = this._importset;
-    data['lessons'] = this._lessons;
-    data['publishToInfoSystem'] = this._publishToInfoSystem;
-    data['studentNames'] = this._studentNames;
-    data['studentIds'] = this._studentIds;
+    data['id'] = _id;
+    data['startDate'] = _startDate;
+    data['endDate'] = _endDate;
+    data['text'] = _text;
+    data['comment'] = _comment;
+    data['roomToken'] = _roomToken;
+    data['roomId'] = _roomId;
+    data['teachers'] = _teachers;
+    data['teacherIds'] = _teacherIds;
+    data['teacherTokens'] = _teacherTokens;
+    data['courseId'] = _courseId;
+    data['courseToken'] = _courseToken;
+    data['courseName'] = _courseName;
+    data['status'] = _status;
+    data['color'] = _color;
+    data['eventType'] = _eventType;
+    data['eventRoomStatus'] = _eventRoomStatus;
+    data['timetableText'] = _timetableText;
+    data['infoFacilityManagement'] = _infoFacilityManagement;
+    data['importset'] = _importset;
+    data['lessons'] = _lessons;
+    data['publishToInfoSystem'] = _publishToInfoSystem;
+    data['studentNames'] = _studentNames;
+    data['studentIds'] = _studentIds;
     return data;
   }
 }

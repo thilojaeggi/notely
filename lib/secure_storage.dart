@@ -7,12 +7,12 @@ class SecureStorage {
   factory SecureStorage() => _instance;
 
   SecureStorage._internal()
-      : _storage = FlutterSecureStorage(
-          iOptions: const IOSOptions(
+      : _storage = const FlutterSecureStorage(
+          iOptions: IOSOptions(
             accessibility: KeychainAccessibility.first_unlock,
             accountName: 'notely',
           ),
-          aOptions: const AndroidOptions(
+          aOptions: AndroidOptions(
             sharedPreferencesName: 'notely',
             encryptedSharedPreferences: true,
           ),

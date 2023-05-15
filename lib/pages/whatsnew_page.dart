@@ -26,19 +26,19 @@ class _WhatsNewState extends State<WhatsNew> {
           ),
         ),
         child: Column(children: [
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
-          Text(
+          const Text(
             "Was ist neu?",
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               // Text Style Needed to Look like iOS 11
               fontSize: 46.0,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Expanded(
@@ -58,17 +58,17 @@ class _WhatsNewState extends State<WhatsNew> {
                               ),
                             ],
                           ),
-                          title: Text(
+                          title: const Text(
                             'Tests im Stundenplan',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w600),
                           ), //Title is the only Required Item
-                          subtitle: Text(
+                          subtitle: const Text(
                             'Lektionen mit Tests werden nun im Stundenplan mit einem kleinen Icon symbolisiert.',
                           ),
                         ),
                   ListTile(
-                    title: Text(
+                    title: const Text(
                       'Fehlerbehebungen:',
                       style:
                           TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
@@ -86,12 +86,12 @@ class _WhatsNewState extends State<WhatsNew> {
                               ),
                             ],
                           ),
-                          title: Text(
+                          title: const Text(
                             'Kleinere Fehlerbehebungen',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                           ),
-                          subtitle: Text(
+                          subtitle: const Text(
                             'Es wurden einige kleinere Fehler behoben.',
                             style: TextStyle(fontSize: 13.0),
                           ),
@@ -99,10 +99,10 @@ class _WhatsNewState extends State<WhatsNew> {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                 ],
@@ -116,8 +116,8 @@ class _WhatsNewState extends State<WhatsNew> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Padding(
-                padding: const EdgeInsets.all(6.0),
+              child: const Padding(
+                padding: EdgeInsets.all(6.0),
                 child: Text(
                   "Ok",
                   style: TextStyle(

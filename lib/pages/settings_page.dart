@@ -37,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> toggleNotifications(bool value) async {
-    print("Toggling notifications");
+    debugPrint("Toggling notifications");
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     SharedPreferences prefs = await SharedPreferences.getInstance();
 

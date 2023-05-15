@@ -36,7 +36,7 @@ class _TimetablePageState extends State<TimetablePage> {
       _eventStreamController.sink.add(latestGrades);
     } catch (e) {
       // Handle the StateError here
-      print('Error adding event to stream controller: $e');
+      debugPrint('Error adding event to stream controller: $e');
     }
   }
 
@@ -84,9 +84,9 @@ class _TimetablePageState extends State<TimetablePage> {
                   TextEditingController detailsController =
                       TextEditingController();
                   return AlertDialog(
-                    shape: RoundedRectangleBorder(
+                    shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                    title: Text("Hausaufgabe eintragen"),
+                    title: const Text("Hausaufgabe eintragen"),
                     content: Container(
                       width: 300,
                       child: ListView(
@@ -107,9 +107,9 @@ class _TimetablePageState extends State<TimetablePage> {
                                     .color!
                                     .withOpacity(0.4),
                               ),
-                              contentPadding: EdgeInsets.all(8.0),
+                              contentPadding: const EdgeInsets.all(8.0),
                               isDense: true,
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                             ),
                             controller: titleController,
                           ),
@@ -127,9 +127,9 @@ class _TimetablePageState extends State<TimetablePage> {
                                     .color!
                                     .withOpacity(0.4),
                               ),
-                              contentPadding: EdgeInsets.all(8.0),
+                              contentPadding: const EdgeInsets.all(8.0),
                               isDense: true,
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                             ),
                             controller: detailsController,
                           ),
@@ -138,13 +138,13 @@ class _TimetablePageState extends State<TimetablePage> {
                     ),
                     actions: [
                       TextButton(
-                        child: Text("Abbrechen"),
+                        child: const Text("Abbrechen"),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                       ElevatedButton(
-                        child: Text("Speichern"),
+                        child: const Text("Speichern"),
                         onPressed: () async {
                           // Get text of TextFields
                           String title = titleController.text;
@@ -178,15 +178,15 @@ class _TimetablePageState extends State<TimetablePage> {
                             showToast(
                               alignment: Alignment.bottomCenter,
                               child: Container(
-                                margin: EdgeInsets.only(bottom: 32.0),
-                                decoration: BoxDecoration(
+                                margin: const EdgeInsets.only(bottom: 32.0),
+                                decoration: const BoxDecoration(
                                   color: Colors.redAccent,
                                   borderRadius: BorderRadius.all(
                                     Radius.circular(12.0),
                                   ),
                                 ),
-                                padding: EdgeInsets.all(6.0),
-                                child: Text(
+                                padding: const EdgeInsets.all(6.0),
+                                child: const Text(
                                   "Etwas ist schiefgelaufen",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -210,9 +210,9 @@ class _TimetablePageState extends State<TimetablePage> {
               isExam ? Align(
                 alignment: Alignment.topRight,
                 child: Container(
-                  child: Text("Test"),
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 1),
-                  decoration: BoxDecoration(
+                  child: const Text("Test"),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 1),
+                  decoration: const BoxDecoration(
                                       color: Colors.blue,
 
                     borderRadius: BorderRadius.only(
@@ -221,9 +221,9 @@ class _TimetablePageState extends State<TimetablePage> {
                     ),
                   ),
                 ),
-              ) : SizedBox.shrink(),
+              ) : const SizedBox.shrink(),
               Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: IntrinsicHeight(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -239,7 +239,7 @@ class _TimetablePageState extends State<TimetablePage> {
                               // Format startdate as HH:MM without using substring
                               event.startDate!.toString().substring(11, 16),
 
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 18.0, fontWeight: FontWeight.w600),
                               textAlign: TextAlign.center,
                             ),
@@ -247,7 +247,7 @@ class _TimetablePageState extends State<TimetablePage> {
                               opacity: 0.75,
                               child: Text(
                                 event.endDate!.toString().substring(11, 16),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -257,7 +257,7 @@ class _TimetablePageState extends State<TimetablePage> {
                           ],
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 9.0,
                       ),
                       Container(
@@ -274,7 +274,7 @@ class _TimetablePageState extends State<TimetablePage> {
                                   .color,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 9.0,
                       ),
                       Expanded(
@@ -304,7 +304,7 @@ class _TimetablePageState extends State<TimetablePage> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Text(
@@ -327,11 +327,11 @@ class _TimetablePageState extends State<TimetablePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 8.0),
+          padding: const EdgeInsets.only(left: 8.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 "Stundenplan",
                 style: TextStyle(
                   fontSize: 52,
@@ -346,7 +346,7 @@ class _TimetablePageState extends State<TimetablePage> {
           initialDate: today,
           firstDate: DateTime.now(),
           lastDate:
-              DateTime(DateTime.now().year, 12, 31).add(Duration(days: 60)),
+              DateTime(DateTime.now().year, 12, 31).add(const Duration(days: 60)),
           onDateSelected: (date) {
             setState(() {
               today = date;
@@ -358,7 +358,7 @@ class _TimetablePageState extends State<TimetablePage> {
           dayColor: Theme.of(context).textTheme.headlineLarge!.color,
           activeDayColor: Colors.white,
           activeBackgroundDayColor: Colors.blueAccent,
-          dotsColor: Color(0xFF333A47),
+          dotsColor: const Color(0xFF333A47),
           locale: 'de',
         ),
         StreamBuilder<List<Event>>(
@@ -412,7 +412,7 @@ class _TimetablePageState extends State<TimetablePage> {
                               });
                             }),
                       )
-                    : Center(
+                    : const Center(
                         child: Text(
                           "Keine Lektionen eingetragen",
                           style: TextStyle(fontSize: 20.0),

@@ -64,21 +64,13 @@ class Absence {
   set studentId(String? studentId) => _studentId = studentId;
   String? get date => _date;
   set date(String? date) => _date = date;
-  String? get hourFrom => _hourFrom;
   set hourFrom(String? hourFrom) => _hourFrom = hourFrom;
-  String? get hourTo => _hourTo;
   set hourTo(String? hourTo) => _hourTo = hourTo;
-  String? get status => _status;
   set status(String? status) => _status = status;
-  String? get comment => _comment;
   set comment(String? comment) => _comment = comment;
-  bool? get isExamLesson => _isExamLesson;
   set isExamLesson(bool? isExamLesson) => _isExamLesson = isExamLesson;
-  String? get profile => _profile;
   set profile(String? profile) => _profile = profile;
-  String? get course => _course;
   set course(String? course) => _course = course;
-  String? get absenceId => _absenceId;
   set absenceId(String? absenceId) => _absenceId = absenceId;
 
   Absence.fromJson(Map<String, dynamic> json) {
