@@ -19,8 +19,8 @@ class GradesPage extends StatefulWidget {
 
 class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
-  Color good = Colors.blueAccent;
-  Color bad = Colors.redAccent;
+  Color good = Color.fromARGB(255, 0, 110, 255);
+  Color bad = Color.fromARGB(255, 255, 33, 46);
   double lowestGradePoints = 0.0;
   final ScrollController _scrollController = ScrollController();
 
@@ -247,7 +247,7 @@ class _GradesPageState extends State<GradesPage> {
                             color:
                                 Theme.of(context).brightness == Brightness.dark
                                     ? Colors.grey.shade900
-                                    : Colors.grey.shade200,
+                                    : Colors.transparent,
                             borderRadius: BorderRadius.circular(6)),
 
                         child: LineChart(
@@ -271,6 +271,7 @@ class _GradesPageState extends State<GradesPage> {
                               ),
                               gridData: FlGridData(
                                   horizontalInterval: 1, verticalInterval: 0.5),
+                              
                               lineTouchData: LineTouchData(
                                 getTouchedSpotIndicator:
                                     (barData, spotIndexes) {
@@ -311,7 +312,7 @@ class _GradesPageState extends State<GradesPage> {
                               ),
                               lineBarsData: [
                                 LineChartBarData(
-                                  
+                                  barWidth: 5,
                                   dotData: FlDotData(
                                     show: true,
                                     getDotPainter:
@@ -376,6 +377,46 @@ class _GradesPageState extends State<GradesPage> {
                                             .toDouble(),
                                       ),
                                   ],
+                                  belowBarData: BarAreaData(
+                                    show: true,
+                                    gradient: LinearGradient(
+                                      colors: (groupedCoursesMap.values
+                                                  .elementAt(index)
+                                                  .toList()
+                                                  .length >
+                                              1)
+                                          ? [
+                                              for (var i = 0;
+                                                  i <
+                                                      groupedCoursesMap.values
+                                                          .elementAt(index)
+                                                          .length;
+                                                  i++)
+                                                _gradeColor(List.from(
+                                                        groupedCoursesMap.values
+                                                            .elementAt(index))
+                                                    .reversed
+                                                    .toList()[i]
+                                                    .mark!
+                                                    .toDouble()).withOpacity(0.3)
+                                            ]
+                                          : [
+                                              _gradeColor(List.from(
+                                                      groupedCoursesMap.values
+                                                          .elementAt(index))
+                                                  .reversed
+                                                  .toList()[0]
+                                                  .mark!
+                                                  .toDouble()).withOpacity(0.3),
+                                              _gradeColor(List.from(
+                                                      groupedCoursesMap.values
+                                                          .elementAt(index))
+                                                  .reversed
+                                                  .toList()[0]
+                                                  .mark!
+                                                  .toDouble()).withOpacity(0.3)
+                                            ]),
+                                  )
                                 )
                               ]),
                         ),
