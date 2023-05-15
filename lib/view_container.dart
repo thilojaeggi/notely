@@ -80,7 +80,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     if (username == "demo" && password == "demo") return;
     final url = Globals.buildUrl("$school/authorize.php");
 
-    print(url);
+    debugPrint(url.toString());
     await http.post(url, body: {
       'login': username,
       'passwort': password,

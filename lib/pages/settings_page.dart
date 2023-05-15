@@ -52,16 +52,16 @@ class _SettingsPageState extends State<SettingsPage> {
         sound: true,
       );
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        print("Notifications are enabled");
+        debugPrint("Notifications are enabled");
         setState(() {
           notificationsEnabled = true;
         });
         messaging.subscribeToTopic("all");
         messaging.subscribeToTopic("newGradeNotification");
-        print("Subscribed to all topics");
+        debugPrint("Subscribed to all topics");
         await prefs.setBool("notificationsEnabled", true);
       } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        print("Tried to enable notifications but they are disabled in system");
+        debugPrint("Tried to enable notifications but they are disabled in system");
         showDialog(
           context: context,
           builder: (context) {
@@ -89,19 +89,19 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         );
         await prefs.setBool("notificationsEnabled", false);
-        print("Notifications are disabled in system");
+        debugPrint("Notifications are disabled in system");
       }
     } else {
-      print("Notifications were disabled");
+      debugPrint("Notifications were disabled");
       setState(() {
         notificationsEnabled = false;
       });
       messaging.unsubscribeFromTopic("all");
       messaging.unsubscribeFromTopic("newGradeNotification");
-      print("Unsubscribed from all topics");
+      debugPrint("Unsubscribed from all topics");
       await prefs.setBool("notificationsEnabled", false);
     }
-    print("Done toggling notifications");
+    debugPrint("Done toggling notifications");
   }
 
   void logout() async {
@@ -400,14 +400,14 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
     try {
       if (await FlutterDynamicIcon.supportsAlternateIcons) {
         await FlutterDynamicIcon.setAlternateIconName(iconName[index]);
-        print("App icon change successful");
+        debugPrint("App icon change successful");
         Navigator.pop(context);
         return;
       }
     } catch (e) {
-      print("Exception: ${e.toString()}");
+      debugPrint("Exception: ${e.toString()}");
     }
-    print("Failed to change app icon ");
+    debugPrint("Failed to change app icon ");
   }
 
   Widget buildIconTile(int index, String themeTxt, String imageName) {

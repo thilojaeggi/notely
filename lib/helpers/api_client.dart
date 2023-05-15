@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:notely/Models/Absence.dart';
 import 'package:notely/Models/Event.dart';
@@ -335,7 +336,7 @@ class APIClient {
   Future<List<Event>> getEvents(DateTime date, bool cached) async {
     final dateFormatted =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    print(dateFormatted);
+    debugPrint(dateFormatted);
     return get(
         '/rest/v1/me/events?min_date=$dateFormatted&max_date=$dateFormatted',
         (json) {

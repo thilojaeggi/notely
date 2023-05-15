@@ -384,7 +384,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
     final pickedDate = (Platform.isIOS || Platform.isMacOS || kDebugMode)
         ? await iosDatePicker(context)
         : await androidDatePicker(context);
-    print("Getting selected date");
+    debugPrint("Getting selected date");
     if (pickedDate != null) {
       selectedDate = pickedDate;
 
@@ -403,7 +403,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
             selectedDate.day,
             selectedTime.hour,
             selectedTime.minute);
-        print(combinedDateTime);
+        debugPrint(combinedDateTime.toString());
         setState(() {
           _date = combinedDateTime;
         });

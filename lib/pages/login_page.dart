@@ -39,26 +39,26 @@ class _LoginPageState extends State<LoginPage> {
         initialUrlRequest:
             URLRequest(url: WebUri("https://www.schul-netz.com/mobile/")),
         onWebViewCreated: (controller) {
-          print('HeadlessInAppWebView created!');
+          debugPrint('HeadlessInAppWebView created!');
         },
         onConsoleMessage: (controller, consoleMessage) {
-          print("CONSOLE MESSAGE: ${consoleMessage.message}");
+          debugPrint("CONSOLE MESSAGE: ${consoleMessage.message}");
         },
         onLoadStart: (controller, url) async {
-          print("onLoadStart $url");
+          debugPrint("onLoadStart $url");
         },
         onLoadStop: (controller, url) async {
-          print("onLoadStop $url");
+          debugPrint("onLoadStop $url");
           if (url
               .toString()
               .contains("https://www.schul-netz.com/mobile/login?mandant")) {
-            print("gotologin");
+            debugPrint("gotologin");
             await headlessWebView?.webViewController.evaluateJavascript(
                 source:
                     """document.querySelector('.mat-raised-button').click();""");
           }
           if (url.toString().contains("authorize.php")) {
-            print("authorize");
+            debugPrint("authorize");
             await headlessWebView?.webViewController
                 .evaluateJavascript(source: """
                 if(document.getElementById("login") && document.getElementById("passwort")){
@@ -70,11 +70,11 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         onUpdateVisitedHistory: (controller, url, androidIsReload) async {
-          print("onUpdateVisitedHistory $url");
+          debugPrint("onUpdateVisitedHistory $url");
           if (url
               .toString()
               .contains("https://www.schul-netz.com/mobile/start")) {
-            print("sucessfully authenticated for the first time");
+            debugPrint("sucessfully authenticated for the first time");
             await headlessWebView?.dispose();
             setState(() {
               _loginHasBeenPressed = false;
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
       'access-control-allow-origin': '*',
       'access-control-expose-headers': '*'
     }).then((response) async {
-      print(response.statusCode);
+      debugPrint(response.statusCode.toString());
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
         var trimmedString =
@@ -173,7 +173,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else if (response.statusCode == 200 &&
           response.headers['location'] == null) {
-        print("Hasn't authenticated for the first time");
+        debugPrint("Hasn't authenticated for the first time");
         await headlessWebView?.dispose();
         await headlessWebView?.run();
         headlessWebView?.webViewController.loadUrl(

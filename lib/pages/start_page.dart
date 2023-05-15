@@ -65,7 +65,7 @@ class _StartPageState extends State<StartPage> {
       _studentStreamController.sink.add(latestStudent);
     } catch (e) {
       // Handle the StateError here
-      print('Error adding event to stream controller: $e');
+      debugPrint('Error adding event to stream controller: $e');
     }
   }
 
@@ -84,7 +84,7 @@ class _StartPageState extends State<StartPage> {
 
     } catch (e) {
       // Handle the StateError here
-      print('Error adding event to stream controller: $e');
+      debugPrint('Error adding event to stream controller: $e');
     }
   }
 

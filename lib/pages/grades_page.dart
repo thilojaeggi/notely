@@ -95,7 +95,7 @@ class _GradesPageState extends State<GradesPage> {
       _gradesStreamController.add(_calculateGrades(newGrades));
     } catch (e) {
       // Handle the StateError here
-      print('Error adding event to stream controller: $e');
+      debugPrint('Error adding event to stream controller: $e');
     }
   }
 

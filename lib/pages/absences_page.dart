@@ -29,7 +29,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
       _absencesController.sink.add(latestAbsences);
     } catch (e) {
       // Handle the StateError here
-      print('Error adding event to stream controller: $e');
+      debugPrint('Error adding event to stream controller: $e');
     }
   }
 
