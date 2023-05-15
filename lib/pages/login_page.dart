@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
           print('HeadlessInAppWebView created!');
         },
         onConsoleMessage: (controller, consoleMessage) {
-          print("CONSOLE MESSAGE: " + consoleMessage.message);
+          print("CONSOLE MESSAGE: ${consoleMessage.message}");
         },
         onLoadStart: (controller, url) async {
           print("onLoadStart $url");
@@ -142,17 +142,17 @@ class _LoginPageState extends State<LoginPage> {
         apiClient.school = dropdownValue.toLowerCase();
         showToast(
           alignment: Alignment.bottomCenter,
-          duration: Duration(seconds: 1),
+          duration: const Duration(seconds: 1),
           child: Container(
-            margin: EdgeInsets.only(bottom: 32.0),
-            decoration: BoxDecoration(
+            margin: const EdgeInsets.only(bottom: 32.0),
+            decoration: const BoxDecoration(
               color: Colors.greenAccent,
               borderRadius: BorderRadius.all(
                 Radius.circular(12.0),
               ),
             ),
-            padding: EdgeInsets.all(6.0),
-            child: Text(
+            padding: const EdgeInsets.all(6.0),
+            child: const Text(
               "Erfolgreich angemeldet",
               style: TextStyle(
                 color: Colors.white,
@@ -179,21 +179,20 @@ class _LoginPageState extends State<LoginPage> {
         headlessWebView?.webViewController.loadUrl(
             urlRequest: URLRequest(
                 url: WebUri(
-                    "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F" +
-                        dropdownValue.toLowerCase())));
+                    "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F${dropdownValue.toLowerCase()}")));
       } else {
         showToast(
           alignment: Alignment.bottomCenter,
           child: Container(
-            margin: EdgeInsets.only(bottom: 32.0),
-            decoration: BoxDecoration(
+            margin: const EdgeInsets.only(bottom: 32.0),
+            decoration: const BoxDecoration(
               color: Colors.redAccent,
               borderRadius: BorderRadius.all(
                 Radius.circular(12.0),
               ),
             ),
-            padding: EdgeInsets.all(6.0),
-            child: Text(
+            padding: const EdgeInsets.all(6.0),
+            child: const Text(
               "Etwas ist schiefgelaufen",
               style: TextStyle(
                 color: Colors.white,
@@ -237,7 +236,7 @@ class _LoginPageState extends State<LoginPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
+                          padding: const EdgeInsets.only(bottom: 8.0),
                           child: Image.asset(
                             'assets/images/notely_n.png',
                             width: 100,
@@ -248,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Container(
                           clipBehavior: Clip.antiAlias,
-                          padding: EdgeInsets.symmetric(vertical: 6.0),
+                          padding: const EdgeInsets.symmetric(vertical: 6.0),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8.0),
                             color: Colors.white.withOpacity(0.1),
@@ -311,11 +310,11 @@ class _LoginPageState extends State<LoginPage> {
                                   })
                                   .values
                                   .toList(),
-                              dropdownColor: Color.fromARGB(239, 72, 113, 184),
+                              dropdownColor: const Color.fromARGB(239, 72, 113, 184),
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10.0,
                         ),
                         Container(
@@ -340,7 +339,7 @@ class _LoginPageState extends State<LoginPage> {
                             textInputAction: TextInputAction.next,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10.0,
                         ),
                         Container(
@@ -414,7 +413,7 @@ class _LoginPageState extends State<LoginPage> {
                                         fontSize: 20.0,
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     Icon(
@@ -440,9 +439,9 @@ class _LoginPageState extends State<LoginPage> {
                             context: context,
                             isScrollControlled: true,
                             backgroundColor: Colors.transparent,
-                            builder: (context) => HelpPage());
+                            builder: (context) => const HelpPage());
                       },
-                      child: Text(
+                      child: const Text(
                         "Hilfe?",
                         style: TextStyle(color: Colors.white, fontSize: 24.0),
                       )),
@@ -451,7 +450,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-        SizedBox.shrink(),
+        const SizedBox.shrink(),
       ],
     );
   }
