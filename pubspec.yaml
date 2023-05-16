@@ -40,7 +40,6 @@ dependencies:
   firebase_messaging: ^14.4.0
   loading_animation_widget: ^1.2.0+4
   shimmer: ^2.0.0
-  universal_feed: ^0.2.0
   app_settings: ^4.2.0
   flutter_dynamic_icon: ^2.1.0
   in_app_review: ^2.0.6
