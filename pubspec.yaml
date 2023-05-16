@@ -44,6 +44,7 @@ dependencies:
   app_settings: ^4.2.0
   flutter_dynamic_icon: ^2.1.0
   in_app_review: ^2.0.6
+  store_redirect: ^2.0.1
   flutter_localizations:
     sdk: flutter
 dev_dependencies:

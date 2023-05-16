@@ -10,6 +10,9 @@ import 'package:notely/Models/Homework.dart';
 import 'package:notely/helpers/HomeworkDatabase.dart';
 import 'package:notely/pages/exams_page.dart';
 import 'package:notely/pages/homework_page.dart';
+import 'package:notely/pages/why_neon.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:store_redirect/store_redirect.dart';
 
 import '../Models/Grade.dart';
 import '../Models/Student.dart';
@@ -81,7 +84,6 @@ class _StartPageState extends State<StartPage> {
       _examsStreamController.sink.add(latestExams);
       exams = latestExams;
       exams.sort((a, b) => a.startDate.compareTo(b.startDate));
-
     } catch (e) {
       // Handle the StateError here
       debugPrint('Error adding event to stream controller: $e');
@@ -406,8 +408,8 @@ class _StartPageState extends State<StartPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           const Padding(
-                                            padding: EdgeInsets.only(
-                                                left: 10.0),
+                                            padding:
+                                                EdgeInsets.only(left: 10.0),
                                             child: Text(
                                               "Neueste Noten",
                                               style: TextStyle(
@@ -450,47 +452,55 @@ class _StartPageState extends State<StartPage> {
                                                       margin: (index ==
                                                               gradeList.length -
                                                                   1)
-                                                          ? const EdgeInsets.only(
+                                                          ? const EdgeInsets
+                                                                  .only(
                                                               bottom: 11.0)
                                                           : (index == 0)
-                                                              ? const EdgeInsets.only(
+                                                              ? const EdgeInsets
+                                                                      .only(
                                                                   top: 8.0,
                                                                   bottom: 3.0)
-                                                              : const EdgeInsets.only(
+                                                              : const EdgeInsets
+                                                                      .only(
                                                                   bottom: 3.0),
                                                       width: double.infinity,
                                                       padding:
-                                                          const EdgeInsets.all(12.0),
+                                                          const EdgeInsets.all(
+                                                              12.0),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
                                                             .withOpacity(0.2),
                                                         borderRadius:
                                                             BorderRadius.only(
                                                           topLeft: (index == 0)
-                                                              ? const Radius.circular(
-                                                                  8.0)
-                                                              : const Radius.circular(
+                                                              ? const Radius
+                                                                  .circular(8.0)
+                                                              : const Radius
+                                                                      .circular(
                                                                   4.0),
                                                           topRight: (index == 0)
-                                                              ? const Radius.circular(
-                                                                  8.0)
-                                                              : const Radius.circular(
+                                                              ? const Radius
+                                                                  .circular(8.0)
+                                                              : const Radius
+                                                                      .circular(
                                                                   4.0),
                                                           bottomLeft: (index ==
                                                                   gradeList
                                                                           .length -
                                                                       1)
-                                                              ? const Radius.circular(
-                                                                  6.0)
-                                                              : const Radius.circular(
+                                                              ? const Radius
+                                                                  .circular(6.0)
+                                                              : const Radius
+                                                                      .circular(
                                                                   4.0),
                                                           bottomRight: (index ==
                                                                   gradeList
                                                                           .length -
                                                                       1)
-                                                              ? const Radius.circular(
-                                                                  6.0)
-                                                              : const Radius.circular(
+                                                              ? const Radius
+                                                                  .circular(6.0)
+                                                              : const Radius
+                                                                      .circular(
                                                                   4.0),
                                                         ),
                                                       ),
@@ -521,12 +531,9 @@ class _StartPageState extends State<StartPage> {
                                                           Expanded(
                                                             flex: 4,
                                                             child: Text(
-                                                              "Note: " +
-                                                                  gradeList[
-                                                                          index]
-                                                                      .mark
-                                                                      .toString(),
-                                                              style: const TextStyle(
+                                                              "Note: ${gradeList[index].mark}",
+                                                              style:
+                                                                  const TextStyle(
                                                                 height: 1.0,
                                                                 fontSize: 16,
                                                                 color: Colors
@@ -563,6 +570,94 @@ class _StartPageState extends State<StartPage> {
                 ],
               ),
             ),
+            const Spacer(),
+            FutureBuilder<bool>(
+                future: SharedPreferences.getInstance().then((prefs) {
+                  return prefs.getBool("neon_banner") ?? true;
+                }),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox();
+                  } else if (snapshot.hasError) {
+                    return const SizedBox();
+                  }
+                  bool neonBanner = snapshot.data!;
+
+                  return (neonBanner)
+                      ? Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Image.asset(
+                                'assets/images/notely_neon.png',
+                                isAntiAlias: true,
+                                fit: BoxFit.fitWidth,
+                                filterQuality: FilterQuality.medium,
+                              ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  style: IconButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.grey.shade900,
+                                  ),
+                                  onPressed: () async {
+                                    // Set Prefs to false
+                                    await SharedPreferences.getInstance()
+                                        .then((prefs) {
+                                      prefs.setBool("neon_banner", false);
+                                    });
+                                    setState(() {});
+                                  },
+                                  icon: const Icon(Icons.close),
+                                ),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.grey.shade900,
+                                    ),
+                                    onPressed: () {
+                                      showBottomSheet(
+                                          context: context,
+                                          enableDrag: true,
+                                          builder: (BuildContext context) {
+                                            return const WhyNeon();
+                                          });
+                                    },
+                                    child: const Text('Warum Werbung?'),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.black,
+                                    ),
+                                    onPressed: () {
+                                      StoreRedirect.redirect(
+                                          androidAppId: "com.neonbanking.app",
+                                          iOSAppId: "1387883068");
+                                    },
+                                    child: const Text('Konto eröffnen'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : const SizedBox.shrink();
+                }),
+            const SizedBox(
+              height: 30,
+            ),
+            const Spacer(),
           ],
         ),
       ),
