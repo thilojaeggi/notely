@@ -14,7 +14,7 @@ dependencies:
   http: ^0.13.4
   shared_preferences: ^2.0.15
   provider: ^6.0.3
-  theme_provider: ^0.5.0
+  theme_provider: ^0.6.0
   fl_chart: ^0.55.0
   rename: ^2.0.1
   flutter_secure_storage: ^6.0.0
@@ -23,7 +23,7 @@ dependencies:
   package_info_plus: ^1.4.3
   fl_toast: ^3.1.0
   dropdown_button2: ^2.1.0
-  intl: ^0.18.0
+  intl: ^0.17.0
   flutter_acrylic: ^1.0.0
   flutter_platform_alert: ^0.3.0
   flutter_inappwebview: ^6.0.0-beta.22
