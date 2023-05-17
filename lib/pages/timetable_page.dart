@@ -20,20 +20,32 @@ class TimetablePage extends StatefulWidget {
 class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
   DateTime today = DateTime.now();
-  StreamController<List<Event>> _eventStreamController =
+  late Future<List<Exam>> _examList;
+  final StreamController<List<Event>> _eventStreamController =
       StreamController<List<Event>>();
-  APIClient _apiClient = APIClient();
+  final APIClient _apiClient = APIClient();
 
   void _getEvents() async {
     if (!mounted) return;
     try {
-      List<Event> cachedGrades = await _apiClient.getEvents(today, true);
-      _eventStreamController.sink.add(cachedGrades);
+      List<Event> cachedEvents = await _apiClient.getEvents(today, true);
+      _eventStreamController.sink.add(cachedEvents);
 
       // Then get the latest data and update the UI again
-      List<Event> latestGrades = await _apiClient.getEvents(today, false);
+      List<Event> currentEvents = await _apiClient.getEvents(today, false);
+      List<Exam> cachedExams = await _apiClient
+          .getExams(true); // Cached exams is good enough I think
 
-      _eventStreamController.sink.add(latestGrades);
+      // Go through all events and exams and check if id and startDate match
+      for (int i = 0; i < currentEvents.length; i++) {
+        for (int j = 0; j < cachedExams.length; j++) {
+          if (currentEvents[i].id == cachedExams[j].id &&
+              currentEvents[i].startDate == cachedExams[j].startDate) {
+            currentEvents[i].isExam = true;
+          }
+        }
+      }
+      _eventStreamController.sink.add(currentEvents);
     } catch (e) {
       // Handle the StateError here
       debugPrint('Error adding event to stream controller: $e');
@@ -56,15 +68,7 @@ class _TimetablePageState extends State<TimetablePage> {
     _getEvents();
   }
 
-  Widget _eventWidget(BuildContext context, Event event, List<Exam> exams) {
-    bool isExam = false;
-    for (Exam exam in exams) {
-      if (exam.courseName == event.courseName &&
-          exam.startDate.day == event.startDate!.day) {
-        isExam = true;
-      }
-    }
-
+  Widget _eventWidget(BuildContext context, Event event) {
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10.0, right: 10.0),
@@ -87,7 +91,7 @@ class _TimetablePageState extends State<TimetablePage> {
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12.0))),
                     title: const Text("Hausaufgabe eintragen"),
-                    content: Container(
+                    content: SizedBox(
                       width: 300,
                       child: ListView(
                         shrinkWrap: true,
@@ -206,22 +210,23 @@ class _TimetablePageState extends State<TimetablePage> {
           },
           child: Stack(
             children: [
-              
-              isExam ? Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  child: const Text("Test"),
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 1),
-                  decoration: const BoxDecoration(
-                                      color: Colors.blue,
-
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(10.0),
-                      topRight: Radius.circular(10.0),
-                    ),
-                  ),
-                ),
-              ) : const SizedBox.shrink(),
+              event.isExam ?? false
+                  ? Align(
+                      alignment: Alignment.topRight,
+                      child: Container(
+                        child: const Text("Test"),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 1),
+                        decoration: const BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(10.0),
+                            topRight: Radius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
               Container(
                 padding: const EdgeInsets.all(12),
                 child: IntrinsicHeight(
@@ -345,8 +350,8 @@ class _TimetablePageState extends State<TimetablePage> {
         CalendarTimeline(
           initialDate: today,
           firstDate: DateTime.now(),
-          lastDate:
-              DateTime(DateTime.now().year, 12, 31).add(const Duration(days: 60)),
+          lastDate: DateTime(DateTime.now().year, 12, 31)
+              .add(const Duration(days: 60)),
           onDateSelected: (date) {
             setState(() {
               today = date;
@@ -385,30 +390,7 @@ class _TimetablePageState extends State<TimetablePage> {
                               return LayoutBuilder(builder:
                                   (BuildContext context,
                                       BoxConstraints constraints) {
-                                return FutureBuilder<List<Exam>>(
-                                    // TODO: This is ugly, rework this
-                                    future: APIClient().getExams(true),
-                                    builder: (context, snapshot) {
-                                      switch (snapshot.connectionState) {
-                                        case ConnectionState.waiting:
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        case ConnectionState.done:
-                                          if (snapshot.hasError) {
-                                            return const Center(
-                                              child: Text("Error"),
-                                            );
-                                          }
-                                          List<Exam> _examList = snapshot.data!;
-                                          return _eventWidget(
-                                              context, event, _examList);
-                                        default:
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                      }
-                                    });
+                                return _eventWidget(context, event);
                               });
                             }),
                       )
