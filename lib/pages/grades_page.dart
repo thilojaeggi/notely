@@ -46,7 +46,7 @@ class _GradesPageState extends State<GradesPage> {
     }
   }
 
-  StreamController<Map<String, dynamic>> _gradesStreamController =
+  final StreamController<Map<String, dynamic>> _gradesStreamController =
       StreamController<Map<String, dynamic>>();
 
   Map<String, dynamic> _calculateGrades(List<Grade> gradeList) {
@@ -271,7 +271,6 @@ class _GradesPageState extends State<GradesPage> {
                               ),
                               gridData: FlGridData(
                                   horizontalInterval: 1, verticalInterval: 0.5),
-                              
                               lineTouchData: LineTouchData(
                                 getTouchedSpotIndicator:
                                     (barData, spotIndexes) {
@@ -312,112 +311,122 @@ class _GradesPageState extends State<GradesPage> {
                               ),
                               lineBarsData: [
                                 LineChartBarData(
-                                  barWidth: 5,
-                                  dotData: FlDotData(
-                                    show: true,
-                                    getDotPainter:
-                                        (spot, percent, barData, index) =>
-                                            FlDotCirclePainter(
-                                      radius: 6,
-                                      color: _gradeColor(spot.y),
-                                      strokeColor: Colors.transparent,
+                                    barWidth: 5,
+                                    dotData: FlDotData(
+                                      show: true,
+                                      getDotPainter:
+                                          (spot, percent, barData, index) =>
+                                              FlDotCirclePainter(
+                                        radius: 6,
+                                        color: _gradeColor(spot.y),
+                                        strokeColor: Colors.transparent,
+                                      ),
                                     ),
-                                  ),
-                                  gradient: LinearGradient(
-                                      colors: (groupedCoursesMap.values
-                                                  .elementAt(index)
-                                                  .toList()
-                                                  .length >
-                                              1)
-                                          ? [
-                                              for (var i = 0;
-                                                  i <
-                                                      groupedCoursesMap.values
-                                                          .elementAt(index)
-                                                          .length;
-                                                  i++)
+                                    gradient: LinearGradient(
+                                        colors: (groupedCoursesMap.values
+                                                    .elementAt(index)
+                                                    .toList()
+                                                    .length >
+                                                1)
+                                            ? [
+                                                for (var i = 0;
+                                                    i <
+                                                        groupedCoursesMap.values
+                                                            .elementAt(index)
+                                                            .length;
+                                                    i++)
+                                                  _gradeColor(List.from(
+                                                          groupedCoursesMap
+                                                              .values
+                                                              .elementAt(index))
+                                                      .reversed
+                                                      .toList()[i]
+                                                      .mark!
+                                                      .toDouble())
+                                              ]
+                                            : [
                                                 _gradeColor(List.from(
                                                         groupedCoursesMap.values
                                                             .elementAt(index))
                                                     .reversed
-                                                    .toList()[i]
+                                                    .toList()[0]
+                                                    .mark!
+                                                    .toDouble()),
+                                                _gradeColor(List.from(
+                                                        groupedCoursesMap.values
+                                                            .elementAt(index))
+                                                    .reversed
+                                                    .toList()[0]
                                                     .mark!
                                                     .toDouble())
-                                            ]
-                                          : [
-                                              _gradeColor(List.from(
-                                                      groupedCoursesMap.values
-                                                          .elementAt(index))
-                                                  .reversed
-                                                  .toList()[0]
-                                                  .mark!
-                                                  .toDouble()),
-                                              _gradeColor(List.from(
-                                                      groupedCoursesMap.values
-                                                          .elementAt(index))
-                                                  .reversed
-                                                  .toList()[0]
-                                                  .mark!
-                                                  .toDouble())
-                                            ]),
-                                  spots: [
-                                    for (var i = 0;
-                                        i <
-                                            groupedCoursesMap.values
-                                                .elementAt(index)
-                                                .length;
-                                        i++)
-                                      FlSpot(
-                                        i.toDouble(),
-                                        List.from(groupedCoursesMap.values
-                                                .elementAt(index))
-                                            .reversed
-                                            .toList()[i]
-                                            .mark!
-                                            .toDouble(),
-                                      ),
-                                  ],
-                                  belowBarData: BarAreaData(
-                                    show: true,
-                                    gradient: LinearGradient(
-                                      colors: (groupedCoursesMap.values
+                                              ]),
+                                    spots: [
+                                      for (var i = 0;
+                                          i <
+                                              groupedCoursesMap.values
                                                   .elementAt(index)
-                                                  .toList()
-                                                  .length >
-                                              1)
-                                          ? [
-                                              for (var i = 0;
-                                                  i <
-                                                      groupedCoursesMap.values
-                                                          .elementAt(index)
-                                                          .length;
-                                                  i++)
-                                                _gradeColor(List.from(
-                                                        groupedCoursesMap.values
-                                                            .elementAt(index))
-                                                    .reversed
-                                                    .toList()[i]
-                                                    .mark!
-                                                    .toDouble()).withOpacity(0.3)
-                                            ]
-                                          : [
-                                              _gradeColor(List.from(
-                                                      groupedCoursesMap.values
-                                                          .elementAt(index))
-                                                  .reversed
-                                                  .toList()[0]
-                                                  .mark!
-                                                  .toDouble()).withOpacity(0.3),
-                                              _gradeColor(List.from(
-                                                      groupedCoursesMap.values
-                                                          .elementAt(index))
-                                                  .reversed
-                                                  .toList()[0]
-                                                  .mark!
-                                                  .toDouble()).withOpacity(0.3)
-                                            ]),
-                                  )
-                                )
+                                                  .length;
+                                          i++)
+                                        FlSpot(
+                                          i.toDouble(),
+                                          List.from(groupedCoursesMap.values
+                                                  .elementAt(index))
+                                              .reversed
+                                              .toList()[i]
+                                              .mark!
+                                              .toDouble(),
+                                        ),
+                                    ],
+                                    belowBarData: BarAreaData(
+                                      show: true,
+                                      gradient: LinearGradient(
+                                          colors: (groupedCoursesMap.values
+                                                      .elementAt(index)
+                                                      .toList()
+                                                      .length >
+                                                  1)
+                                              ? [
+                                                  for (var i = 0;
+                                                      i <
+                                                          groupedCoursesMap
+                                                              .values
+                                                              .elementAt(index)
+                                                              .length;
+                                                      i++)
+                                                    _gradeColor(List.from(
+                                                                groupedCoursesMap
+                                                                    .values
+                                                                    .elementAt(
+                                                                        index))
+                                                            .reversed
+                                                            .toList()[i]
+                                                            .mark!
+                                                            .toDouble())
+                                                        .withOpacity(0.3)
+                                                ]
+                                              : [
+                                                  _gradeColor(List.from(
+                                                              groupedCoursesMap
+                                                                  .values
+                                                                  .elementAt(
+                                                                      index))
+                                                          .reversed
+                                                          .toList()[0]
+                                                          .mark!
+                                                          .toDouble())
+                                                      .withOpacity(0.3),
+                                                  _gradeColor(List.from(
+                                                              groupedCoursesMap
+                                                                  .values
+                                                                  .elementAt(
+                                                                      index))
+                                                          .reversed
+                                                          .toList()[0]
+                                                          .mark!
+                                                          .toDouble())
+                                                      .withOpacity(0.3)
+                                                ]),
+                                    ))
                               ]),
                         ),
                       ),
