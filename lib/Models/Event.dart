@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class Event {
   String? _id;
   DateTime? _startDate;
@@ -15,6 +17,7 @@ class Event {
   String? _status;
   String? _color;
   String? _eventType;
+  bool? _isExam;
   Null _eventRoomStatus;
   Null _timetableText;
   Null _infoFacilityManagement;
@@ -41,6 +44,7 @@ class Event {
       String? status,
       String? color,
       String? eventType,
+      bool? isExam,
       Null eventRoomStatus,
       Null timetableText,
       Null infoFacilityManagement,
@@ -97,6 +101,9 @@ class Event {
     if (eventType != null) {
       _eventType = eventType;
     }
+    if (isExam != null) {
+      _isExam = isExam;
+    }
   }
 
   String? get id => _id;
@@ -132,6 +139,8 @@ class Event {
   set color(String? color) => _color = color;
   String? get eventType => _eventType;
   set eventType(String? eventType) => _eventType = eventType;
+  bool? get isExam => _isExam;
+  set isExam(bool? isExam) => _isExam = isExam;
   Null get eventRoomStatus => _eventRoomStatus;
   set eventRoomStatus(Null eventRoomStatus) =>
       _eventRoomStatus = eventRoomStatus;
