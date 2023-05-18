@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../Models/Grade.dart';
+import '../Models/grade.dart';
 
 class GradesPage extends StatefulWidget {
   const GradesPage({Key? key}) : super(key: key);

@@ -4,9 +4,9 @@ import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:notely/Models/Exam.dart';
-import 'package:notely/Models/Homework.dart';
-import 'package:notely/helpers/HomeworkDatabase.dart';
+import 'package:notely/Models/exam.dart';
+import 'package:notely/Models/homework.dart';
+import 'package:notely/helpers/homework_database.dart';
 import 'package:notely/helpers/api_client.dart';
 import '../Models/Event.dart';
 

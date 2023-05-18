@@ -6,9 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/Models/Homework.dart';
-import 'package:notely/config/CustomScrollBehavior.dart';
-import 'package:notely/helpers/HomeworkDatabase.dart';
+import 'package:notely/Models/homework.dart';
+import 'package:notely/config/custom_scroll_behavior.dart';
+import 'package:notely/helpers/homework_database.dart';
 
 class HomeworkPage extends StatefulWidget {
   const HomeworkPage(
