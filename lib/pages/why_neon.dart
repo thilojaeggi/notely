@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:store_redirect/store_redirect.dart';
 
-import '../config/CustomScrollBehavior.dart';
+import '../config/custom_scroll_behavior.dart';
 
 class WhyNeon extends StatefulWidget {
   const WhyNeon({Key? key}) : super(key: key);
