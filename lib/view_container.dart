@@ -182,7 +182,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                 color: Colors.transparent,
               ),
               child: BackdropFilter(
-                filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
                   selectedItemColor: Colors.blueAccent,
