@@ -4,7 +4,7 @@ publish_to: 'none'
 
 version: 1.1.4+14
 environment:
-  sdk: ">=2.18.5 <3.0.0"
+  sdk: '>=3.0.1 <4.0.0'
 
 dependencies:
   flutter:
@@ -23,7 +23,7 @@ dependencies:
   package_info_plus: ^1.4.3
   fl_toast: ^3.1.0
   dropdown_button2: ^2.1.0
-  intl: ^0.17.0
+  intl: ^0.18.0
   flutter_acrylic: ^1.0.0
   flutter_platform_alert: ^0.3.0
   flutter_inappwebview: ^6.0.0-beta.22
