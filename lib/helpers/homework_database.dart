@@ -1,4 +1,4 @@
-import 'package:notely/Models/homework.dart';
+import 'package:notely/models/homework.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 

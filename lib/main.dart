@@ -7,7 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
-import 'package:notely/Models/grade.dart';
+import 'package:notely/models/grade.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';

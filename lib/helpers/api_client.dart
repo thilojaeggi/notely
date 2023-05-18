@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:notely/Models/Absence.dart';
-import 'package:notely/Models/Event.dart';
-import 'package:notely/Models/Exam.dart';
-import 'package:notely/Models/Grade.dart';
-import 'package:notely/Models/Student.dart';
+import 'package:notely/models/Absence.dart';
+import 'package:notely/models/Event.dart';
+import 'package:notely/models/exam.dart';
+import 'package:notely/models/grade.dart';
+import 'package:notely/models/student.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class APIClient {

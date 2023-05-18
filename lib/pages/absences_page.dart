@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/helpers/api_client.dart';
-import '../Models/Absence.dart';
+import '../models/Absence.dart';
 
 class AbsencesPage extends StatefulWidget {
   const AbsencesPage({Key? key}) : super(key: key);
@@ -80,7 +80,6 @@ class _AbsencesPageState extends State<AbsencesPage> {
 
                 List<Absence?>? absenceList = snapshot.data!.reversed.toList();
                 return Scrollbar(
-                  
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: absenceList.length,
@@ -132,7 +131,8 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     absenceList[index]!
@@ -161,9 +161,12 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                     ),
                                   ),
                                   Text(
-                                    (absenceList.elementAt(index)!.status == "nz")
+                                    (absenceList.elementAt(index)!.status ==
+                                            "nz")
                                         ? 'Nicht zählend'
-                                        : (absenceList.elementAt(index)!.status ==
+                                        : (absenceList
+                                                    .elementAt(index)!
+                                                    .status ==
                                                 "e")
                                             ? 'Entschuldigt'
                                             : (absenceList

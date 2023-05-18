@@ -5,8 +5,8 @@ import 'package:notely/helpers/api_client.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:notely/Models/exam.dart';
-import 'package:notely/Models/homework.dart';
+import 'package:notely/models/exam.dart';
+import 'package:notely/models/homework.dart';
 import 'package:notely/helpers/homework_database.dart';
 import 'package:notely/pages/exams_page.dart';
 import 'package:notely/pages/homework_page.dart';
@@ -14,8 +14,8 @@ import 'package:notely/pages/why_neon.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_redirect/store_redirect.dart';
 
-import '../Models/grade.dart';
-import '../Models/student.dart';
+import '../models/grade.dart';
+import '../models/student.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);

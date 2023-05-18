@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/config/CustomScrollBehavior.dart';
-import '../Models/Exam.dart';
+import 'package:notely/config/custom_scroll_behavior.dart';
+import '../models/exam.dart';
 
 class ExamsPage extends StatefulWidget {
   const ExamsPage({Key? key, required this.examList}) : super(key: key);
@@ -84,7 +83,9 @@ class _ExamsPageState extends State<ExamsPage> {
                                           fit: BoxFit.scaleDown,
                                           alignment: Alignment.topLeft,
                                           child: Text(
-                                            examList[index].courseName.toString(),
+                                            examList[index]
+                                                .courseName
+                                                .toString(),
                                             style: const TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.w600),

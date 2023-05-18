@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/Models/homework.dart';
+import 'package:notely/models/homework.dart';
 import 'package:notely/config/custom_scroll_behavior.dart';
 import 'package:notely/helpers/homework_database.dart';
 

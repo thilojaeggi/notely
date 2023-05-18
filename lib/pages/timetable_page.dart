@@ -4,11 +4,11 @@ import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:notely/Models/exam.dart';
-import 'package:notely/Models/homework.dart';
+import 'package:notely/models/exam.dart';
+import 'package:notely/models/homework.dart';
 import 'package:notely/helpers/homework_database.dart';
 import 'package:notely/helpers/api_client.dart';
-import '../Models/Event.dart';
+import '../models/Event.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({Key? key}) : super(key: key);
