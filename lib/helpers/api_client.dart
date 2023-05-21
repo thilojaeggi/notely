@@ -12,7 +12,7 @@ class APIClient {
   static final APIClient _singleton = APIClient._internal();
   static const String _baseUrl = 'https://kaschuso.so.ch/public';
   late String _accessToken;
-  late String _school;
+  late String school;
   bool _fakeData = false;
 
   factory APIClient() {
@@ -25,15 +25,10 @@ class APIClient {
     _accessToken = accessToken;
   }
 
-  set school(String school) {
-    _school = school;
-  }
-
   set fakeData(bool fakeData) {
     _fakeData = fakeData;
   }
 
-  String get school => _school;
   dynamic getDemoData(String path) {
     if (path.contains("events")) {
       return [
@@ -286,7 +281,7 @@ class APIClient {
     if (_fakeData) {
       return getDemoData(path);
     }
-    if (_accessToken.isEmpty || _school.isEmpty) {
+    if (_accessToken.isEmpty || school.isEmpty) {
       throw Exception('Daten konnten nicht geladen werden');
     }
     if (cached) {
@@ -299,7 +294,7 @@ class APIClient {
         return fromJson(json.decode(cachedData));
       }
     }
-    final response = await http.get(Uri.parse('$_baseUrl/$_school$path'),
+    final response = await http.get(Uri.parse('$_baseUrl/$school$path'),
         headers: {'Authorization': 'Bearer $_accessToken'});
     if (response.statusCode == 200) {
       // Cache data in shared preferences
