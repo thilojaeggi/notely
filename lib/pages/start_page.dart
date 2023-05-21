@@ -138,7 +138,7 @@ class _StartPageState extends State<StartPage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      bottom: false,
+      bottom: true,
       child: Container(
         width: double.infinity,
         height: double.infinity,
@@ -655,9 +655,8 @@ class _StartPageState extends State<StartPage> {
                       : const SizedBox.shrink();
                 }),
             const SizedBox(
-              height: 30,
+              height: 5,
             ),
-            const Spacer(),
           ],
         ),
       ),
