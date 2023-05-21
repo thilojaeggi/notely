@@ -60,78 +60,77 @@ class _WhyNeonState extends State<WhyNeon> {
             child: Scrollbar(
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    // Create RichText with why notely needs financial support in german
-                    RichText(
-                      text: TextSpan(
-                        style: Theme.of(context).textTheme.bodyText1,
-                        children: const <TextSpan>[
-                          TextSpan(
-                            text: 'Notely ist eine kostenlose App, welche ',
+                child: SingleChildScrollView(
+                  child:
+                      // Create RichText with why notely needs financial support in german
+                      RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyText1,
+                      children: const <TextSpan>[
+                        TextSpan(
+                          text:
+                              'Notely ist eine kostenlose App, welche auf finanzielle Unterstützung',
+                        ),
+                        TextSpan(
+                          text: ' angewiesen ist',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                          TextSpan(
-                            text: ' auf finanzielle Unterstützung',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
+                        ),
+                        TextSpan(
+                          text:
+                              ' um weiter entwickelt zu werden und in den Stores verfügbar zu sein.',
+                        ),
+                        TextSpan(
+                          text: '\n\n',
+                        ),
+                        TextSpan(
                             text:
-                                ' angewiesen ist um weiter entwickelt zu werden und in den Stores verfügbar zu sein.',
+                                "Alleine dass Notely in den Stores erhältlich ist "),
+                        TextSpan(
+                          text: 'kostet jährlich 100 Fr.',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                          TextSpan(
-                            text: '\n\n',
+                        ),
+                        TextSpan(
+                          text:
+                              ' und die Entwicklung der App ist mit viel Aufwand von bereits mehreren Hundert Stunden verbunden.',
+                        ),
+                        TextSpan(
+                          text: '\n\n',
+                        ),
+                        TextSpan(
+                          text:
+                              'Um Notely weiterhin anbieten und weiterentwickeln zu können, kannst du nun durch das erstellen eines',
+                        ),
+                        TextSpan(
+                          text: ' kostenlosen Kontos ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                          TextSpan(
-                              text:
-                                  "Alleine dass Notely in den Stores erhältlich ist "),
-                          TextSpan(
-                            text: 'kostet jährlich 100 Fr.',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text:
-                                ' und die Entwicklung der App ist mit viel Aufwand von bereits mehreren Hundert Stunden verbunden.',
-                          ),
-                          TextSpan(
-                            text: '\n\n',
-                          ),
-                          TextSpan(
-                            text:
-                                'Um Notely weiterhin anbieten und weiterentwickeln zu können, kannst du nun durch das erstellen eines',
-                          ),
-                          TextSpan(
-                            text: ' kostenlosen Kontos ',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(text: 'bei der '),
-                          TextSpan(
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                              text: 'Schweizer Bank '),
-                          TextSpan(
-                            text: 'neon Notely finanziell unterstützen. \n\n',
-                          ),
-                          TextSpan(
-                            text:
-                                'Für jedes erstellte Konto erhält Notely eine Provision von 10 Fr. und du erhältst gratis 10 Fr. auf dein Konto und zusätzlich eine prepaid MasterCard welche du überall einsetzen kannst.',
-                          ),
-                          TextSpan(
-                            text: '\n\n',
-                          ),
-                          TextSpan(
-                            text:
-                                'Die Erstellung eines Kontos geht innert Minuten und ist kostenlos und unverbindlich. Du kannst das Konto jederzeit wieder kündigen falls du neon danach nicht mehr weiter verwenden möchtest.',
-                          ),
-                        ],
-                      ),
+                        ),
+                        TextSpan(text: 'bei der '),
+                        TextSpan(
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                            text: 'Schweizer Bank '),
+                        TextSpan(
+                          text: 'neon Notely finanziell unterstützen. \n\n',
+                        ),
+                        TextSpan(
+                          text:
+                              'Für jedes erstellte Konto erhält Notely eine Provision von 10 Fr. und du erhältst gratis 10 Fr. auf dein Konto und zusätzlich eine prepaid MasterCard welche du überall einsetzen kannst.',
+                        ),
+                        TextSpan(
+                          text: '\n\n',
+                        ),
+                        TextSpan(
+                          text:
+                              'Die Erstellung eines Kontos geht innert Minuten und ist kostenlos und unverbindlich. Du kannst das Konto jederzeit wieder schliesse falls du neon danach nicht mehr weiter verwenden möchtest.',
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
