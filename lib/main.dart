@@ -154,7 +154,7 @@ Future<void> main() async {
 Future<void> checkNotifications(FirebaseMessaging messaging) async {
   debugPrint("Checking notifications");
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool? notificationsEnabled = await prefs.getBool("notificationsEnabled");
+  bool? notificationsEnabled = prefs.getBool("notificationsEnabled");
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   if (!kIsWeb) {
     await setupFlutterNotifications();
