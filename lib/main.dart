@@ -87,7 +87,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
                   priority: Priority.high,
                   visibility: NotificationVisibility.public,
                 ),
-                iOS: DarwinNotificationDetails(
+                iOS: const DarwinNotificationDetails(
                   presentAlert: true,
                   presentBadge: true,
                   presentSound: true,
@@ -310,7 +310,7 @@ class _NotelyState extends State<Notely> {
             Globals().isDark = true;
             SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle.dark.copyWith(
-                    statusBarColor: Color(0xFF0d0d0d), // status bar color
+                    statusBarColor: const Color(0xFF0d0d0d), // status bar color
                     statusBarIconBrightness: Brightness.light,
                     statusBarBrightness: Brightness.dark // this one for iOS
                     ));
@@ -341,12 +341,12 @@ class _NotelyState extends State<Notely> {
         child: Builder(
           builder: (themeContext) => MaterialApp(
             title: 'Notely',
-            localizationsDelegates: [
+            localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: [
+            supportedLocales: const [
               Locale('de'),
             ],
             navigatorKey: navigatorKey,
@@ -362,19 +362,19 @@ class _NotelyState extends State<Notely> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           "Melde an..",
                           style: TextStyle(fontSize: 32.0),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         LoadingAnimationWidget.waveDots(
                             color: Colors.white, size: 48),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "Falls es länger Dauert überprüfe deine Internetverbindung.",
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 18.0),
@@ -388,7 +388,7 @@ class _NotelyState extends State<Notely> {
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
+                              children: const [
                                 Icon(
                                   Icons.error,
                                   size: 128,
@@ -411,8 +411,8 @@ class _NotelyState extends State<Notely> {
                   }
                   bool loggedIn = snapshot.data ?? false;
                   return loggedIn
-                      ? ScrollConfiguration(
-                          child: const ViewContainerWidget(),
+                      ? const ScrollConfiguration(
+                          child: ViewContainerWidget(),
                           behavior: CustomScrollBehavior(),
                         )
                       : const LoginPage();

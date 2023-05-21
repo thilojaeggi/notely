@@ -19,11 +19,11 @@ class _WhyNeonState extends State<WhyNeon> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: new BoxDecoration(
+      decoration: BoxDecoration(
         color: Theme.of(context).canvasColor.withOpacity(0.96),
-        borderRadius: new BorderRadius.only(
-          topLeft: const Radius.circular(16.0),
-          topRight: const Radius.circular(16.0),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
         ),
       ),
       child: Column(
@@ -33,9 +33,9 @@ class _WhyNeonState extends State<WhyNeon> {
             padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
             child: Row(
               children: [
-                FittedBox(
+                const FittedBox(
                   fit: BoxFit.contain,
-                  child: const Text(
+                  child: Text(
                     "Warum Werbung?",
                     style: TextStyle(
                       fontSize: 32,
@@ -49,14 +49,14 @@ class _WhyNeonState extends State<WhyNeon> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.close_rounded),
+                  icon: const Icon(Icons.close_rounded),
                 ),
               ],
             ),
           ),
           Expanded(
               child: ScrollConfiguration(
-            behavior: CustomScrollBehavior(),
+            behavior: const CustomScrollBehavior(),
             child: Scrollbar(
               child: Padding(
                 padding: const EdgeInsets.all(4.0),

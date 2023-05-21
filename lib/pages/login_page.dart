@@ -253,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                             boxShadow: [
                               OutlinedBoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  offset: new Offset(0, 0),
+                                  offset: const Offset(0, 0),
                                   blurRadius: 10.0,
                                   blurStyle: BlurStyle.outer)
                             ],
@@ -325,7 +325,7 @@ class _LoginPageState extends State<LoginPage> {
                             boxShadow: [
                               OutlinedBoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  offset: new Offset(0, 0),
+                                  offset: const Offset(0, 0),
                                   blurRadius: 10.0,
                                   blurStyle: BlurStyle.outer)
                             ],
@@ -350,7 +350,7 @@ class _LoginPageState extends State<LoginPage> {
                             boxShadow: [
                               OutlinedBoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  offset: new Offset(0, 0),
+                                  offset: const Offset(0, 0),
                                   blurRadius: 10.0,
                                   blurStyle: BlurStyle.outer)
                             ],

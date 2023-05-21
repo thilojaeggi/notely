@@ -19,8 +19,8 @@ class GradesPage extends StatefulWidget {
 
 class _GradesPageState extends State<GradesPage> {
   Color goodEnough = Colors.orange;
-  Color good = Color.fromARGB(255, 0, 110, 255);
-  Color bad = Color.fromARGB(255, 255, 33, 46);
+  Color good = const Color.fromARGB(255, 0, 110, 255);
+  Color bad = const Color.fromARGB(255, 255, 33, 46);
   double lowestGradePoints = 0.0;
   final ScrollController _scrollController = ScrollController();
 
@@ -29,9 +29,9 @@ class _GradesPageState extends State<GradesPage> {
     HapticFeedback.selectionClick();
 
     if (keyContext != null) {
-      Future.delayed(Duration(milliseconds: 250)).then((value) async {
+      Future.delayed(const Duration(milliseconds: 250)).then((value) async {
         await Scrollable.ensureVisible(keyContext,
-            duration: Duration(milliseconds: 1000));
+            duration: const Duration(milliseconds: 1000));
       });
     }
   }
@@ -214,7 +214,7 @@ class _GradesPageState extends State<GradesPage> {
                                   children: [
                                     Text(
                                       "Gewichtung: ${groupedCoursesMap.values.elementAt(index)[i].weight}",
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -236,7 +236,7 @@ class _GradesPageState extends State<GradesPage> {
                             ),
                           ),
                         ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.only(
                             right: 16, top: 16, bottom: 16),
@@ -295,7 +295,7 @@ class _GradesPageState extends State<GradesPage> {
                                           ? Colors.grey.shade200
                                           : Colors.grey.shade900,
                                   fitInsideHorizontally: true,
-                                  tooltipPadding: EdgeInsets.all(8.0),
+                                  tooltipPadding: const EdgeInsets.all(8.0),
                                   getTooltipItems:
                                       (List<LineBarSpot> lineBarsSpot) {
                                     return lineBarsSpot.map((lineBarSpot) {
@@ -445,12 +445,12 @@ class _GradesPageState extends State<GradesPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 8.0),
+          padding: const EdgeInsets.only(left: 8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
+              const Text(
                 "Noten",
                 style: TextStyle(
                   fontSize: 64,
@@ -458,7 +458,7 @@ class _GradesPageState extends State<GradesPage> {
                 ),
                 textAlign: TextAlign.start,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               (APIClient().school == "ksso")
@@ -469,9 +469,9 @@ class _GradesPageState extends State<GradesPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("Promotionspunkte"),
+                              const Text("Promotionspunkte"),
                               Shimmer.fromColors(
-                                child: Text(
+                                child: const Text(
                                   "..........",
                                   style: TextStyle(
                                     fontSize: 24,
@@ -494,7 +494,7 @@ class _GradesPageState extends State<GradesPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("Promotionspunkte"),
+                              const Text("Promotionspunkte"),
                               Text(
                                 "${lowestGradePoints.toString()}",
                                 style: TextStyle(
@@ -509,7 +509,7 @@ class _GradesPageState extends State<GradesPage> {
                             ],
                           ),
                         )
-                  : SizedBox.shrink(),
+                  : const SizedBox.shrink(),
             ],
           ),
         ),
@@ -518,7 +518,7 @@ class _GradesPageState extends State<GradesPage> {
               stream: _gradesStreamController.stream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasError) {

@@ -178,7 +178,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
             ),
             child: Container(
               clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.transparent,
               ),
               child: BackdropFilter(

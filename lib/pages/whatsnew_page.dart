@@ -18,11 +18,11 @@ class _WhatsNewState extends State<WhatsNew> {
     return SafeArea(
       child: Container(
         height: MediaQuery.of(context).size.height * 0.9,
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
           color: Theme.of(context).canvasColor.withOpacity(0.96),
-          borderRadius: new BorderRadius.only(
-            topLeft: const Radius.circular(16.0),
-            topRight: const Radius.circular(16.0),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16.0),
+            topRight: Radius.circular(16.0),
           ),
         ),
         child: Column(children: [
@@ -47,26 +47,26 @@ class _WhatsNewState extends State<WhatsNew> {
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                      ListTile(
-                          leading: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                FontAwesome5.graduation_cap,
-                                size: 32,
-                                color: Colors.blue.shade500,
-                              ),
-                            ],
-                          ),
-                          title: const Text(
-                            'Tests im Stundenplan',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w600),
-                          ), //Title is the only Required Item
-                          subtitle: const Text(
-                            'Lektionen mit Tests werden nun im Stundenplan mit einem kleinen Icon symbolisiert.',
-                          ),
+                  ListTile(
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FontAwesome5.graduation_cap,
+                          size: 32,
+                          color: Colors.blue.shade500,
                         ),
+                      ],
+                    ),
+                    title: const Text(
+                      'Tests im Stundenplan',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ), //Title is the only Required Item
+                    subtitle: const Text(
+                      'Lektionen mit Tests werden nun im Stundenplan mit einem kleinen Icon symbolisiert.',
+                    ),
+                  ),
                   ListTile(
                     title: const Text(
                       'Fehlerbehebungen:',
