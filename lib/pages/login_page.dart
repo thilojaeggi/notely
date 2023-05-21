@@ -4,7 +4,6 @@ import 'package:notely/OutlinedBoxShadow.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/help_page.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -310,7 +309,8 @@ class _LoginPageState extends State<LoginPage> {
                                   })
                                   .values
                                   .toList(),
-                              dropdownColor: const Color.fromARGB(239, 72, 113, 184),
+                              dropdownColor:
+                                  const Color.fromARGB(239, 72, 113, 184),
                             ),
                           ),
                         ),
