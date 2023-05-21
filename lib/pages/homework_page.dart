@@ -381,7 +381,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
     TimeOfDay selectedTime = TimeOfDay.now();
 
     // Show date picker
-    final pickedDate = (Platform.isIOS || Platform.isMacOS || kDebugMode)
+    final pickedDate = (Platform.isIOS || Platform.isMacOS)
         ? await iosDatePicker(context)
         : await androidDatePicker(context);
     debugPrint("Getting selected date");
