@@ -287,7 +287,7 @@ class APIClient {
     if (cached) {
       // Get cached data from shared preferences
       final cachedData = (!path.contains("events"))
-          ? prefs.getString('$path')
+          ? prefs.getString(path)
           : prefs.getString('events');
 
       if (cachedData != null) {
@@ -300,7 +300,7 @@ class APIClient {
       // Cache data in shared preferences
 
       (!path.contains("events"))
-          ? prefs.setString('$path', response.body)
+          ? prefs.setString(path, response.body)
           : prefs.setString('events', response.body);
 
       return fromJson(json.decode(response.body));
