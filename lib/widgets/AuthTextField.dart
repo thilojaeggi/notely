@@ -8,7 +8,8 @@ class AuthTextField extends StatelessWidget {
   final TextInputAction textInputAction;
   final Color backgroundColor;
   const AuthTextField(
-      {required this.icon,
+      {super.key,
+      required this.icon,
       required this.hintText,
       required this.editingController,
       required this.passwordField,
@@ -31,15 +32,13 @@ class AuthTextField extends StatelessWidget {
         autocorrect: false,
         maxLines: 1,
         decoration: InputDecoration(
-          hintStyle:  TextStyle(color: Colors.white.withOpacity(0.8)),
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
           hintText: hintText,
           prefixIcon: Icon(
             icon,
             color: Colors.white,
           ),
-          
           border: InputBorder.none,
-
         ),
       ),
     );
