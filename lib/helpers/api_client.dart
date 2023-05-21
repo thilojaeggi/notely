@@ -34,8 +34,8 @@ class APIClient {
       return [
         Event(
             id: 'eeafsdg',
-            startDate: DateTime.now().add(Duration(days: 7)),
-            endDate: DateTime.now().add(Duration(days: 7)),
+            startDate: DateTime.now().add(const Duration(days: 7)),
+            endDate: DateTime.now().add(const Duration(days: 7)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'A02',
@@ -59,8 +59,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: 'sdfsfef',
-            startDate: DateTime.now().add(Duration(days: 1)),
-            endDate: DateTime.now().add(Duration(days: 1)),
+            startDate: DateTime.now().add(const Duration(days: 1)),
+            endDate: DateTime.now().add(const Duration(days: 1)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'A02',
@@ -84,8 +84,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: 'fhgfh',
-            startDate: DateTime.now().add(Duration(days: 3)),
-            endDate: DateTime.now().add(Duration(days: 3)),
+            startDate: DateTime.now().add(const Duration(days: 3)),
+            endDate: DateTime.now().add(const Duration(days: 3)),
             text: 'English',
             comment: 'Test',
             roomToken: 'B13',
@@ -109,8 +109,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: '1',
-            startDate: DateTime.now().add(Duration(days: 2)),
-            endDate: DateTime.now().add(Duration(days: 2)),
+            startDate: DateTime.now().add(const Duration(days: 2)),
+            endDate: DateTime.now().add(const Duration(days: 2)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'EU2',
@@ -155,7 +155,7 @@ class APIClient {
             email: "max@mustermann.de",
             emailPrivate: "max@mustermann.de",
             profil1: "EngW",
-            entryDate: DateTime.now().subtract(Duration(days: 7)),
+            entryDate: DateTime.now().subtract(const Duration(days: 7)),
             regularClasses: [
               RegularClass(id: "test", token: "test", semester: "3")
             ],
@@ -167,8 +167,8 @@ class APIClient {
         return [
           Exam(
               id: '1',
-              startDate: DateTime.now().add(Duration(days: 2)),
-              endDate: DateTime.now().add(Duration(days: 2)),
+              startDate: DateTime.now().add(const Duration(days: 2)),
+              endDate: DateTime.now().add(const Duration(days: 2)),
               text: 'Trigonometrie',
               comment: '',
               roomToken: '1',
@@ -192,8 +192,8 @@ class APIClient {
               studentIds: null),
           Exam(
               id: '1',
-              startDate: DateTime.now().add(Duration(days: 4)),
-              endDate: DateTime.now().add(Duration(days: 4)),
+              startDate: DateTime.now().add(const Duration(days: 4)),
+              endDate: DateTime.now().add(const Duration(days: 4)),
               text: 'Pronouns and Prepositions',
               comment: '',
               roomToken: '1',
@@ -223,42 +223,42 @@ class APIClient {
               course: "Wirtschaft und Recht",
               subject: "Wirtschaft und Recht",
               title: "Welthandel und Wirtschaftspolitik",
-              date: DateTime.now().subtract(Duration(days: 1)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 1)).toString(),
               mark: 6,
               weight: 1),
           Grade(
               course: "Mathematik",
               subject: "Mathematik",
               title: "Bogenmasse und Trigonometrie",
-              date: DateTime.now().subtract(Duration(days: 1)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 1)).toString(),
               mark: 4.5,
               weight: 1),
           Grade(
               course: "Wirtschaft und Recht",
               subject: "Wirtschaft und Recht",
               title: "UNO und NATO",
-              date: DateTime.now().subtract(Duration(days: 2)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 2)).toString(),
               mark: 6,
               weight: 1),
           Grade(
               course: "Französisch",
               subject: "Französisch",
               title: "Tests de grammaire",
-              date: DateTime.now().subtract(Duration(days: 2)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 2)).toString(),
               mark: 5.5,
               weight: 1),
           Grade(
               course: "Mathematik",
               subject: "Mathematik",
               title: "Vektorrechnung",
-              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
               mark: 3.5,
               weight: 1),
           Grade(
               course: "Französisch",
               subject: "Französisch",
               title: "Rédaction",
-              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
               mark: 4.9,
               weight: 2),
         ];
@@ -266,7 +266,7 @@ class APIClient {
         return [
           Absence(
               id: "hfdg",
-              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
               course: "Französisch",
               hourFrom: "11:10:00",
               hourTo: "11:55:00",
@@ -323,7 +323,8 @@ class APIClient {
       final today = DateTime.now();
       return (json as List<dynamic>)
           .map((e) => Exam.fromJson(e))
-          .where((e) => e.startDate.isAfter(today.subtract(Duration(days: 1))))
+          .where((e) =>
+              e.startDate.isAfter(today.subtract(const Duration(days: 1))))
           .toList();
     }, cached);
   }
