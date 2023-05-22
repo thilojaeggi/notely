@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/config/CustomScrollBehavior.dart';
-import '../Models/Exam.dart';
+import 'package:notely/config/custom_scroll_behavior.dart';
+import '../models/exam.dart';
 
 class ExamsPage extends StatefulWidget {
   const ExamsPage({Key? key, required this.examList}) : super(key: key);
@@ -23,11 +22,11 @@ class _ExamsPageState extends State<ExamsPage> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: new BoxDecoration(
+      decoration: BoxDecoration(
         color: Theme.of(context).canvasColor.withOpacity(0.96),
-        borderRadius: new BorderRadius.only(
-          topLeft: const Radius.circular(16.0),
-          topRight: const Radius.circular(16.0),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
         ),
       ),
       child: Column(
@@ -50,7 +49,7 @@ class _ExamsPageState extends State<ExamsPage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.close_rounded),
+                  icon: const Icon(Icons.close_rounded),
                 ),
               ],
             ),
@@ -58,7 +57,7 @@ class _ExamsPageState extends State<ExamsPage> {
           Expanded(
             child: (examList.isNotEmpty)
                 ? ScrollConfiguration(
-                    behavior: CustomScrollBehavior(),
+                    behavior: const CustomScrollBehavior(),
                     child: Scrollbar(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -73,7 +72,7 @@ class _ExamsPageState extends State<ExamsPage> {
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: Container(
-                              padding: EdgeInsets.all(10.0),
+                              padding: const EdgeInsets.all(10.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -84,14 +83,16 @@ class _ExamsPageState extends State<ExamsPage> {
                                           fit: BoxFit.scaleDown,
                                           alignment: Alignment.topLeft,
                                           child: Text(
-                                            examList[index].courseName.toString(),
+                                            examList[index]
+                                                .courseName
+                                                .toString(),
                                             style: const TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.w600),
                                           ),
                                         ),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 20,
                                       ),
                                       Text(
@@ -133,7 +134,7 @@ class _ExamsPageState extends State<ExamsPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                      children: const [
                         Text(
                           "😄",
                           style: TextStyle(fontSize: 128),
@@ -146,7 +147,7 @@ class _ExamsPageState extends State<ExamsPage> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 20,
                         ),
                         Text(

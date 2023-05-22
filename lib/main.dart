@@ -7,7 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
-import 'package:notely/Models/Grade.dart';
+import 'package:notely/models/grade.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';
@@ -19,9 +19,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:http/http.dart' as http;
 import 'firebase_options.dart';
-import 'config/CustomScrollBehavior.dart';
+import 'config/custom_scroll_behavior.dart';
 import 'config/style.dart';
-import 'helpers/HomeworkDatabase.dart';
+import 'helpers/homework_database.dart';
 import 'pages/login_page.dart';
 
 final storage = SecureStorage();
@@ -30,7 +30,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final APIClient client = APIClient();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupFlutterNotifications();
-  print('Handling a background message ${message.messageId}');
+  debugPrint('Handling a background message ${message.messageId}');
   if (message.contentAvailable ||
       message.from == "/topics/newGradeNotification") {
     final storage = SecureStorage();
@@ -87,7 +87,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
                   priority: Priority.high,
                   visibility: NotificationVisibility.public,
                 ),
-                iOS: DarwinNotificationDetails(
+                iOS: const DarwinNotificationDetails(
                   presentAlert: true,
                   presentBadge: true,
                   presentSound: true,
@@ -95,7 +95,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           );
         }
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
     }
   }
@@ -152,9 +152,9 @@ Future<void> main() async {
 }
 
 Future<void> checkNotifications(FirebaseMessaging messaging) async {
-  print("Checking notifications");
+  debugPrint("Checking notifications");
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool? notificationsEnabled = await prefs.getBool("notificationsEnabled");
+  bool? notificationsEnabled = prefs.getBool("notificationsEnabled");
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   if (!kIsWeb) {
     await setupFlutterNotifications();
@@ -170,18 +170,18 @@ Future<void> checkNotifications(FirebaseMessaging messaging) async {
       sound: true,
     );
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print("Notifications are enabled");
+      debugPrint("Notifications are enabled");
       messaging.subscribeToTopic("all");
       messaging.subscribeToTopic("newGradeNotification");
       await prefs.setBool("notificationsEnabled", true);
     } else if (notificationsEnabled == null ||
         settings.authorizationStatus == AuthorizationStatus.denied) {
-      print("Notifications are disabled");
+      debugPrint("Notifications are disabled");
       try {
         messaging.unsubscribeFromTopic("all");
         messaging.unsubscribeFromTopic("newGradeNotification");
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
       await prefs.setBool("notificationsEnabled", false);
     }
@@ -204,7 +204,7 @@ Future<bool> login() async {
     return false;
   }
 
-  print("Found login data");
+  debugPrint("Found login data");
   final url = Globals.buildUrl("$school/authorize.php");
   final response = await http.post(url, body: {
     'login': username,
@@ -221,7 +221,7 @@ Future<bool> login() async {
         Uri.parse(locationHeader).queryParameters["access_token"].toString();
     client.accessToken = accessToken;
     client.school = school;
-    print("Logged in");
+    debugPrint("Logged in");
     return true;
   }
 
@@ -273,7 +273,7 @@ class _NotelyState extends State<Notely> {
       appLaunches = 0;
     }
     appLaunches++;
-    print(appLaunches);
+    debugPrint(appLaunches.toString());
 
     prefs.setInt('appLaunches', appLaunches);
     if (appLaunches == 10 && appLaunches != 0) {
@@ -306,16 +306,16 @@ class _NotelyState extends State<Notely> {
           // If previous theme saved, use saved theme
           controller.setTheme(savedTheme);
           if (controller.theme.data.brightness == Brightness.dark) {
-            print("Dark theme");
+            debugPrint("Dark theme");
             Globals().isDark = true;
             SystemChrome.setSystemUIOverlayStyle(
                 SystemUiOverlayStyle.dark.copyWith(
-                    statusBarColor: Color(0xFF0d0d0d), // status bar color
+                    statusBarColor: const Color(0xFF0d0d0d), // status bar color
                     statusBarIconBrightness: Brightness.light,
                     statusBarBrightness: Brightness.dark // this one for iOS
                     ));
           } else {
-            print("Light theme");
+            debugPrint("Light theme");
             Globals().isDark = false;
             SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
                 .copyWith(
@@ -341,12 +341,12 @@ class _NotelyState extends State<Notely> {
         child: Builder(
           builder: (themeContext) => MaterialApp(
             title: 'Notely',
-            localizationsDelegates: [
+            localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: [
+            supportedLocales: const [
               Locale('de'),
             ],
             navigatorKey: navigatorKey,
@@ -362,19 +362,19 @@ class _NotelyState extends State<Notely> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           "Melde an..",
                           style: TextStyle(fontSize: 32.0),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         LoadingAnimationWidget.waveDots(
                             color: Colors.white, size: 48),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "Falls es länger Dauert überprüfe deine Internetverbindung.",
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 18.0),
@@ -388,7 +388,7 @@ class _NotelyState extends State<Notely> {
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
+                              children: const [
                                 Icon(
                                   Icons.error,
                                   size: 128,
@@ -411,8 +411,8 @@ class _NotelyState extends State<Notely> {
                   }
                   bool loggedIn = snapshot.data ?? false;
                   return loggedIn
-                      ? ScrollConfiguration(
-                          child: const ViewContainerWidget(),
+                      ? const ScrollConfiguration(
+                          child: ViewContainerWidget(),
                           behavior: CustomScrollBehavior(),
                         )
                       : const LoginPage();

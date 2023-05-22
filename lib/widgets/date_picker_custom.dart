@@ -19,7 +19,7 @@ class _DatePickerCustomState extends State<DatePickerCustom> {
   int selectedIndex = 0;
   DateTime currentDate = DateTime.now();
   DateTime selectedDate = DateTime.now();
-  ScrollController _scrollController = new ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -66,7 +66,7 @@ class _DatePickerCustomState extends State<DatePickerCustom> {
                             : Colors.transparent,
                       ),
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -79,7 +79,7 @@ class _DatePickerCustomState extends State<DatePickerCustom> {
                               ),
                               child: Text(
                                 dayName.substring(0, 2),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 24.0,
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

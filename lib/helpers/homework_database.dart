@@ -1,4 +1,4 @@
-import 'package:notely/Models/Homework.dart';
+import 'package:notely/models/homework.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -48,7 +48,7 @@ class HomeworkDatabase {
 
   Future<List<Homework>> readAll() async {
     final db = await instance.database;
-    final orderBy = 'due_date ASC';
+    const orderBy = 'due_date ASC';
     final result = await db.query('homework', orderBy: orderBy);
     return result.map((map) => Homework.fromMap(map)).toList();
   }

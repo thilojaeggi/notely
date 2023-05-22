@@ -29,15 +29,15 @@ class _HelpPageState extends State<HelpPage> {
         child: ExpansionTile(
           title: Text(
             problem,
-            style: TextStyle(fontSize: 22.0),
+            style: const TextStyle(fontSize: 22.0),
           ),
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsets.all(14.0),
+              padding: const EdgeInsets.all(14.0),
               child: Text(
                 answer,
-                style: TextStyle(fontSize: 18.0),
+                style: const TextStyle(fontSize: 18.0),
               ),
             )
           ],
@@ -50,15 +50,15 @@ class _HelpPageState extends State<HelpPage> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: new BoxDecoration(
-        borderRadius: new BorderRadius.only(
-          topLeft: const Radius.circular(16.0),
-          topRight: const Radius.circular(16.0),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
         ),
-          color: Theme.of(context).canvasColor.withOpacity(0.96),
+        color: Theme.of(context).canvasColor.withOpacity(0.96),
       ),
       child: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -77,7 +77,7 @@ class _HelpPageState extends State<HelpPage> {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    icon: Icon(Icons.close_rounded),
+                    icon: const Icon(Icons.close_rounded),
                   ),
                 ],
               ),

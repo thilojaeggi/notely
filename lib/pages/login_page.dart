@@ -4,7 +4,6 @@ import 'package:notely/OutlinedBoxShadow.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/help_page.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -39,26 +38,26 @@ class _LoginPageState extends State<LoginPage> {
         initialUrlRequest:
             URLRequest(url: WebUri("https://www.schul-netz.com/mobile/")),
         onWebViewCreated: (controller) {
-          print('HeadlessInAppWebView created!');
+          debugPrint('HeadlessInAppWebView created!');
         },
         onConsoleMessage: (controller, consoleMessage) {
-          print("CONSOLE MESSAGE: " + consoleMessage.message);
+          debugPrint("CONSOLE MESSAGE: ${consoleMessage.message}");
         },
         onLoadStart: (controller, url) async {
-          print("onLoadStart $url");
+          debugPrint("onLoadStart $url");
         },
         onLoadStop: (controller, url) async {
-          print("onLoadStop $url");
+          debugPrint("onLoadStop $url");
           if (url
               .toString()
               .contains("https://www.schul-netz.com/mobile/login?mandant")) {
-            print("gotologin");
+            debugPrint("gotologin");
             await headlessWebView?.webViewController.evaluateJavascript(
                 source:
                     """document.querySelector('.mat-raised-button').click();""");
           }
           if (url.toString().contains("authorize.php")) {
-            print("authorize");
+            debugPrint("authorize");
             await headlessWebView?.webViewController
                 .evaluateJavascript(source: """
                 if(document.getElementById("login") && document.getElementById("passwort")){
@@ -70,11 +69,11 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         onUpdateVisitedHistory: (controller, url, androidIsReload) async {
-          print("onUpdateVisitedHistory $url");
+          debugPrint("onUpdateVisitedHistory $url");
           if (url
               .toString()
               .contains("https://www.schul-netz.com/mobile/start")) {
-            print("sucessfully authenticated for the first time");
+            debugPrint("sucessfully authenticated for the first time");
             await headlessWebView?.dispose();
             setState(() {
               _loginHasBeenPressed = false;
@@ -125,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
       'access-control-allow-origin': '*',
       'access-control-expose-headers': '*'
     }).then((response) async {
-      print(response.statusCode);
+      debugPrint(response.statusCode.toString());
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
         var trimmedString =
@@ -142,17 +141,17 @@ class _LoginPageState extends State<LoginPage> {
         apiClient.school = dropdownValue.toLowerCase();
         showToast(
           alignment: Alignment.bottomCenter,
-          duration: Duration(seconds: 1),
+          duration: const Duration(seconds: 1),
           child: Container(
-            margin: EdgeInsets.only(bottom: 32.0),
-            decoration: BoxDecoration(
+            margin: const EdgeInsets.only(bottom: 32.0),
+            decoration: const BoxDecoration(
               color: Colors.greenAccent,
               borderRadius: BorderRadius.all(
                 Radius.circular(12.0),
               ),
             ),
-            padding: EdgeInsets.all(6.0),
-            child: Text(
+            padding: const EdgeInsets.all(6.0),
+            child: const Text(
               "Erfolgreich angemeldet",
               style: TextStyle(
                 color: Colors.white,
@@ -173,27 +172,26 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else if (response.statusCode == 200 &&
           response.headers['location'] == null) {
-        print("Hasn't authenticated for the first time");
+        debugPrint("Hasn't authenticated for the first time");
         await headlessWebView?.dispose();
         await headlessWebView?.run();
         headlessWebView?.webViewController.loadUrl(
             urlRequest: URLRequest(
                 url: WebUri(
-                    "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F" +
-                        dropdownValue.toLowerCase())));
+                    "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F${dropdownValue.toLowerCase()}")));
       } else {
         showToast(
           alignment: Alignment.bottomCenter,
           child: Container(
-            margin: EdgeInsets.only(bottom: 32.0),
-            decoration: BoxDecoration(
+            margin: const EdgeInsets.only(bottom: 32.0),
+            decoration: const BoxDecoration(
               color: Colors.redAccent,
               borderRadius: BorderRadius.all(
                 Radius.circular(12.0),
               ),
             ),
-            padding: EdgeInsets.all(6.0),
-            child: Text(
+            padding: const EdgeInsets.all(6.0),
+            child: const Text(
               "Etwas ist schiefgelaufen",
               style: TextStyle(
                 color: Colors.white,
@@ -237,7 +235,7 @@ class _LoginPageState extends State<LoginPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
+                          padding: const EdgeInsets.only(bottom: 8.0),
                           child: Image.asset(
                             'assets/images/notely_n.png',
                             width: 100,
@@ -248,14 +246,14 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Container(
                           clipBehavior: Clip.antiAlias,
-                          padding: EdgeInsets.symmetric(vertical: 6.0),
+                          padding: const EdgeInsets.symmetric(vertical: 6.0),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8.0),
                             color: Colors.white.withOpacity(0.1),
                             boxShadow: [
                               OutlinedBoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  offset: new Offset(0, 0),
+                                  offset: const Offset(0, 0),
                                   blurRadius: 10.0,
                                   blurStyle: BlurStyle.outer)
                             ],
@@ -311,11 +309,12 @@ class _LoginPageState extends State<LoginPage> {
                                   })
                                   .values
                                   .toList(),
-                              dropdownColor: Color.fromARGB(239, 72, 113, 184),
+                              dropdownColor:
+                                  const Color.fromARGB(239, 72, 113, 184),
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10.0,
                         ),
                         Container(
@@ -326,7 +325,7 @@ class _LoginPageState extends State<LoginPage> {
                             boxShadow: [
                               OutlinedBoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  offset: new Offset(0, 0),
+                                  offset: const Offset(0, 0),
                                   blurRadius: 10.0,
                                   blurStyle: BlurStyle.outer)
                             ],
@@ -340,7 +339,7 @@ class _LoginPageState extends State<LoginPage> {
                             textInputAction: TextInputAction.next,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10.0,
                         ),
                         Container(
@@ -351,7 +350,7 @@ class _LoginPageState extends State<LoginPage> {
                             boxShadow: [
                               OutlinedBoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  offset: new Offset(0, 0),
+                                  offset: const Offset(0, 0),
                                   blurRadius: 10.0,
                                   blurStyle: BlurStyle.outer)
                             ],
@@ -414,7 +413,7 @@ class _LoginPageState extends State<LoginPage> {
                                         fontSize: 20.0,
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 5,
                                     ),
                                     Icon(
@@ -440,9 +439,9 @@ class _LoginPageState extends State<LoginPage> {
                             context: context,
                             isScrollControlled: true,
                             backgroundColor: Colors.transparent,
-                            builder: (context) => HelpPage());
+                            builder: (context) => const HelpPage());
                       },
-                      child: Text(
+                      child: const Text(
                         "Hilfe?",
                         style: TextStyle(color: Colors.white, fontSize: 24.0),
                       )),
@@ -451,7 +450,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-        SizedBox.shrink(),
+        const SizedBox.shrink(),
       ],
     );
   }

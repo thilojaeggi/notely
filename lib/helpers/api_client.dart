@@ -1,17 +1,18 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:notely/Models/Absence.dart';
-import 'package:notely/Models/Event.dart';
-import 'package:notely/Models/Exam.dart';
-import 'package:notely/Models/Grade.dart';
-import 'package:notely/Models/Student.dart';
+import 'package:notely/models/Absence.dart';
+import 'package:notely/models/Event.dart';
+import 'package:notely/models/exam.dart';
+import 'package:notely/models/grade.dart';
+import 'package:notely/models/student.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class APIClient {
   static final APIClient _singleton = APIClient._internal();
   static const String _baseUrl = 'https://kaschuso.so.ch/public';
   late String _accessToken;
-  late String _school;
+  late String school;
   bool _fakeData = false;
 
   factory APIClient() {
@@ -24,22 +25,17 @@ class APIClient {
     _accessToken = accessToken;
   }
 
-  set school(String school) {
-    _school = school;
-  }
-
   set fakeData(bool fakeData) {
     _fakeData = fakeData;
   }
 
-  String get school => _school;
   dynamic getDemoData(String path) {
     if (path.contains("events")) {
       return [
         Event(
             id: 'eeafsdg',
-            startDate: "2023-03-01T08:25:00.000Z",
-            endDate: "2023-03-01T09:10:00.000Z",
+            startDate: DateTime.now().add(const Duration(days: 7)),
+            endDate: DateTime.now().add(const Duration(days: 7)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'A02',
@@ -63,8 +59,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: 'sdfsfef',
-            startDate: "2023-03-01T09:15:00.000Z",
-            endDate: "2023-03-01T10:00:00.000Z",
+            startDate: DateTime.now().add(const Duration(days: 1)),
+            endDate: DateTime.now().add(const Duration(days: 1)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'A02',
@@ -88,8 +84,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: 'fhgfh',
-            startDate: "2023-03-01T10:25:00.000Z",
-            endDate: "2023-03-01T11:05:00.000Z",
+            startDate: DateTime.now().add(const Duration(days: 3)),
+            endDate: DateTime.now().add(const Duration(days: 3)),
             text: 'English',
             comment: 'Test',
             roomToken: 'B13',
@@ -113,8 +109,8 @@ class APIClient {
             studentIds: null),
         Event(
             id: '1',
-            startDate: "2023-03-01T11:10:00.000Z",
-            endDate: "2023-03-01T11:55:00.000Z",
+            startDate: DateTime.now().add(const Duration(days: 2)),
+            endDate: DateTime.now().add(const Duration(days: 2)),
             text: 'Math',
             comment: 'Test',
             roomToken: 'EU2',
@@ -159,7 +155,7 @@ class APIClient {
             email: "max@mustermann.de",
             emailPrivate: "max@mustermann.de",
             profil1: "EngW",
-            entryDate: DateTime.now().subtract(Duration(days: 7)),
+            entryDate: DateTime.now().subtract(const Duration(days: 7)),
             regularClasses: [
               RegularClass(id: "test", token: "test", semester: "3")
             ],
@@ -171,8 +167,8 @@ class APIClient {
         return [
           Exam(
               id: '1',
-              startDate: DateTime.now().add(Duration(days: 2)),
-              endDate: DateTime.now().add(Duration(days: 2)),
+              startDate: DateTime.now().add(const Duration(days: 2)),
+              endDate: DateTime.now().add(const Duration(days: 2)),
               text: 'Trigonometrie',
               comment: '',
               roomToken: '1',
@@ -196,8 +192,8 @@ class APIClient {
               studentIds: null),
           Exam(
               id: '1',
-              startDate: DateTime.now().add(Duration(days: 4)),
-              endDate: DateTime.now().add(Duration(days: 4)),
+              startDate: DateTime.now().add(const Duration(days: 4)),
+              endDate: DateTime.now().add(const Duration(days: 4)),
               text: 'Pronouns and Prepositions',
               comment: '',
               roomToken: '1',
@@ -227,42 +223,42 @@ class APIClient {
               course: "Wirtschaft und Recht",
               subject: "Wirtschaft und Recht",
               title: "Welthandel und Wirtschaftspolitik",
-              date: DateTime.now().subtract(Duration(days: 1)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 1)).toString(),
               mark: 6,
               weight: 1),
           Grade(
               course: "Mathematik",
               subject: "Mathematik",
               title: "Bogenmasse und Trigonometrie",
-              date: DateTime.now().subtract(Duration(days: 1)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 1)).toString(),
               mark: 4.5,
               weight: 1),
           Grade(
               course: "Wirtschaft und Recht",
               subject: "Wirtschaft und Recht",
               title: "UNO und NATO",
-              date: DateTime.now().subtract(Duration(days: 2)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 2)).toString(),
               mark: 6,
               weight: 1),
           Grade(
               course: "Französisch",
               subject: "Französisch",
               title: "Tests de grammaire",
-              date: DateTime.now().subtract(Duration(days: 2)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 2)).toString(),
               mark: 5.5,
               weight: 1),
           Grade(
               course: "Mathematik",
               subject: "Mathematik",
               title: "Vektorrechnung",
-              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
               mark: 3.5,
               weight: 1),
           Grade(
               course: "Französisch",
               subject: "Französisch",
               title: "Rédaction",
-              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
               mark: 4.9,
               weight: 2),
         ];
@@ -270,7 +266,7 @@ class APIClient {
         return [
           Absence(
               id: "hfdg",
-              date: DateTime.now().subtract(Duration(days: 5)).toString(),
+              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
               course: "Französisch",
               hourFrom: "11:10:00",
               hourTo: "11:55:00",
@@ -285,26 +281,31 @@ class APIClient {
     if (_fakeData) {
       return getDemoData(path);
     }
-    if (_accessToken.isEmpty || _school.isEmpty) {
+    if (_accessToken.isEmpty || school.isEmpty) {
       throw Exception('Daten konnten nicht geladen werden');
     }
-    if (cached) {
+   if (cached) {
       // Get cached data from shared preferences
       final cachedData = (!path.contains("events"))
-          ? prefs.getString('$path')
+          ? prefs.getString(path)
           : prefs.getString('events');
 
       if (cachedData != null) {
+        if(cachedData.contains('html')) {
+          prefs.remove(path);
+          prefs.remove('events');
+          return get(path, fromJson, cached);
+        }
         return fromJson(json.decode(cachedData));
       }
     }
-    final response = await http.get(Uri.parse('$_baseUrl/$_school$path'),
+    final response = await http.get(Uri.parse('$_baseUrl/$school$path'),
         headers: {'Authorization': 'Bearer $_accessToken'});
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && !response.body.contains("html")) {
+      
       // Cache data in shared preferences
-
       (!path.contains("events"))
-          ? prefs.setString('$path', response.body)
+          ? prefs.setString(path, response.body)
           : prefs.setString('events', response.body);
 
       return fromJson(json.decode(response.body));
@@ -327,7 +328,8 @@ class APIClient {
       final today = DateTime.now();
       return (json as List<dynamic>)
           .map((e) => Exam.fromJson(e))
-          .where((e) => e.startDate.isAfter(today.subtract(Duration(days: 1))))
+          .where((e) =>
+              e.startDate.isAfter(today.subtract(const Duration(days: 1))))
           .toList();
     }, cached);
   }
@@ -335,7 +337,7 @@ class APIClient {
   Future<List<Event>> getEvents(DateTime date, bool cached) async {
     final dateFormatted =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    print(dateFormatted);
+    debugPrint(dateFormatted);
     return get(
         '/rest/v1/me/events?min_date=$dateFormatted&max_date=$dateFormatted',
         (json) {

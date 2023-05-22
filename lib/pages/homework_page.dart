@@ -6,9 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/Models/Homework.dart';
-import 'package:notely/config/CustomScrollBehavior.dart';
-import 'package:notely/helpers/HomeworkDatabase.dart';
+import 'package:notely/models/homework.dart';
+import 'package:notely/config/custom_scroll_behavior.dart';
+import 'package:notely/helpers/homework_database.dart';
 
 class HomeworkPage extends StatefulWidget {
   const HomeworkPage(
@@ -36,11 +36,11 @@ class _HomeworkPageState extends State<HomeworkPage> {
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: new BoxDecoration(
+      decoration: BoxDecoration(
         color: Theme.of(context).canvasColor.withOpacity(0.96),
-        borderRadius: new BorderRadius.only(
-          topLeft: const Radius.circular(16.0),
-          topRight: const Radius.circular(16.0),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
         ),
       ),
       child: Column(
@@ -50,11 +50,11 @@ class _HomeworkPageState extends State<HomeworkPage> {
             padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
             child: Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: FittedBox(
                     // Make text full width
                     fit: BoxFit.scaleDown,
-                    child: const Text(
+                    child: Text(
                       "Hausaufgaben",
                       style: TextStyle(
                         fontSize: 46,
@@ -68,7 +68,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.close_rounded),
+                  icon: const Icon(Icons.close_rounded),
                 ),
               ],
             ),
@@ -78,7 +78,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
             children: [
               (homeworkList.isNotEmpty)
                   ? ScrollConfiguration(
-                      behavior: CustomScrollBehavior(),
+                      behavior: const CustomScrollBehavior(),
                       child: Scrollbar(
                         thumbVisibility: true,
                         child: ListView.builder(
@@ -95,7 +95,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                               ),
                               clipBehavior: Clip.antiAlias,
                               child: Container(
-                                padding: EdgeInsets.all(10.0),
+                                padding: const EdgeInsets.all(10.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -116,7 +116,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 10,
                                         ),
                                         Text(
@@ -182,7 +182,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                               });
                                               widget.callBack(homeworkList);
                                             },
-                                            child: Text(
+                                            child: const Text(
                                               "Löschen",
                                               style: TextStyle(
                                                   color: Colors.red,
@@ -229,7 +229,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                        children: const [
                           Text(
                             "😄",
                             style: TextStyle(fontSize: 128),
@@ -242,7 +242,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 20,
                           ),
                           Text(
@@ -264,7 +264,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                     height: 64,
                     width: 64,
                     child: FloatingActionButton(
-                      shape: RoundedRectangleBorder(
+                      shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(16))),
                       onPressed: () {
                         showDialog(
@@ -283,7 +283,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
                           },
                         );
                       },
-                      child: Icon(
+                      child: const Icon(
                         Icons.add,
                         size: 46,
                       ),
@@ -329,7 +329,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
               color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.black
                   : Colors.white,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16.0),
                 topRight: Radius.circular(16.0),
               ),
@@ -372,7 +372,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2022),
       lastDate: DateTime(3000),
-      locale: Locale('de'),
+      locale: const Locale('de'),
     );
   }
 
@@ -381,10 +381,10 @@ class _DisplayDialogState extends State<DisplayDialog> {
     TimeOfDay selectedTime = TimeOfDay.now();
 
     // Show date picker
-    final pickedDate = (Platform.isIOS || Platform.isMacOS || kDebugMode)
+    final pickedDate = (Platform.isIOS || Platform.isMacOS)
         ? await iosDatePicker(context)
         : await androidDatePicker(context);
-    print("Getting selected date");
+    debugPrint("Getting selected date");
     if (pickedDate != null) {
       selectedDate = pickedDate;
 
@@ -403,7 +403,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
             selectedDate.day,
             selectedTime.hour,
             selectedTime.minute);
-        print(combinedDateTime);
+        debugPrint(combinedDateTime.toString());
         setState(() {
           _date = combinedDateTime;
         });
@@ -420,9 +420,9 @@ class _DisplayDialogState extends State<DisplayDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0))),
-      title: Text("Hausaufgabe eintragen"),
+      title: const Text("Hausaufgabe eintragen"),
       content: Container(
         width: 300,
         child: ListView(
@@ -433,7 +433,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
                 _showDateTimePicker(context);
               },
               child: Container(
-                padding: EdgeInsets.all(7.0),
+                padding: const EdgeInsets.all(7.0),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: Theme.of(context)
@@ -470,9 +470,9 @@ class _DisplayDialogState extends State<DisplayDialog> {
                       .color!
                       .withOpacity(0.4),
                 ),
-                contentPadding: EdgeInsets.all(8.0),
+                contentPadding: const EdgeInsets.all(8.0),
                 isDense: true,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               controller: subjectController,
             ),
@@ -493,9 +493,9 @@ class _DisplayDialogState extends State<DisplayDialog> {
                       .color!
                       .withOpacity(0.4),
                 ),
-                contentPadding: EdgeInsets.all(8.0),
+                contentPadding: const EdgeInsets.all(8.0),
                 isDense: true,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               controller: titleController,
             ),
@@ -513,9 +513,9 @@ class _DisplayDialogState extends State<DisplayDialog> {
                       .color!
                       .withOpacity(0.4),
                 ),
-                contentPadding: EdgeInsets.all(8.0),
+                contentPadding: const EdgeInsets.all(8.0),
                 isDense: true,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               controller: detailsController,
             ),
@@ -524,13 +524,13 @@ class _DisplayDialogState extends State<DisplayDialog> {
       ),
       actions: [
         TextButton(
-          child: Text("Abbrechen"),
+          child: const Text("Abbrechen"),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
         ElevatedButton(
-          child: Text("Speichern"),
+          child: const Text("Speichern"),
           onPressed: () async {
             // Get text of TextFields
             String subject = subjectController.text;
@@ -567,15 +567,15 @@ class _DisplayDialogState extends State<DisplayDialog> {
               showToast(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  margin: EdgeInsets.only(bottom: 32.0),
-                  decoration: BoxDecoration(
+                  margin: const EdgeInsets.only(bottom: 32.0),
+                  decoration: const BoxDecoration(
                     color: Colors.redAccent,
                     borderRadius: BorderRadius.all(
                       Radius.circular(12.0),
                     ),
                   ),
-                  padding: EdgeInsets.all(6.0),
-                  child: Text(
+                  padding: const EdgeInsets.all(6.0),
+                  child: const Text(
                     "Etwas ist schiefgelaufen",
                     style: TextStyle(
                       color: Colors.white,

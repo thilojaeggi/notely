@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/helpers/api_client.dart';
-import '../Models/Absence.dart';
+import '../models/Absence.dart';
 
 class AbsencesPage extends StatefulWidget {
   const AbsencesPage({Key? key}) : super(key: key);
@@ -29,7 +29,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
       _absencesController.sink.add(latestAbsences);
     } catch (e) {
       // Handle the StateError here
-      print('Error adding event to stream controller: $e');
+      debugPrint('Error adding event to stream controller: $e');
     }
   }
 
@@ -52,7 +52,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(left: 8.0),
             child: Text(
               "Absenzen",
@@ -80,7 +80,6 @@ class _AbsencesPageState extends State<AbsencesPage> {
 
                 List<Absence?>? absenceList = snapshot.data!.reversed.toList();
                 return Scrollbar(
-                  
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: absenceList.length,
@@ -99,7 +98,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                 ? Colors.blue
                                 : Colors.red,
                         child: Container(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                               left: 7.0, right: 7.0, top: 2.0, bottom: 2.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +117,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 20,
                                   ),
                                   Text(
@@ -132,7 +131,8 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     absenceList[index]!
@@ -161,9 +161,12 @@ class _AbsencesPageState extends State<AbsencesPage> {
                                     ),
                                   ),
                                   Text(
-                                    (absenceList.elementAt(index)!.status == "nz")
+                                    (absenceList.elementAt(index)!.status ==
+                                            "nz")
                                         ? 'Nicht zählend'
-                                        : (absenceList.elementAt(index)!.status ==
+                                        : (absenceList
+                                                    .elementAt(index)!
+                                                    .status ==
                                                 "e")
                                             ? 'Entschuldigt'
                                             : (absenceList

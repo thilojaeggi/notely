@@ -66,7 +66,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
   void bottomTapped(int index) {
     setState(() {
       pageController.animateToPage(index,
-          duration: Duration(milliseconds: 500), curve: Curves.ease);
+          duration: const Duration(milliseconds: 500), curve: Curves.ease);
     });
   }
 
@@ -80,7 +80,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     if (username == "demo" && password == "demo") return;
     final url = Globals.buildUrl("$school/authorize.php");
 
-    print(url);
+    debugPrint(url.toString());
     await http.post(url, body: {
       'login': username,
       'passwort': password,
@@ -156,6 +156,10 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
         return Scaffold(
           extendBody: true,
           body: SafeArea(
+            bottom: false,
+            left: true,
+            right: true,
+            top: true,
             child: PageView.builder(
               controller: pageController,
               itemCount: _pages.length,
@@ -167,10 +171,6 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
                 return _pages[index];
               },
             ),
-            bottom: false,
-            left: true,
-            right: true,
-            top: true,
           ),
           bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
@@ -178,11 +178,11 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
             ),
             child: Container(
               clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.transparent,
               ),
               child: BackdropFilter(
-                filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
                   selectedItemColor: Colors.blueAccent,
