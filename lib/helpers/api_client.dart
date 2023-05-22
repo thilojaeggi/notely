@@ -284,21 +284,26 @@ class APIClient {
     if (_accessToken.isEmpty || school.isEmpty) {
       throw Exception('Daten konnten nicht geladen werden');
     }
-    if (cached) {
+   if (cached) {
       // Get cached data from shared preferences
       final cachedData = (!path.contains("events"))
           ? prefs.getString(path)
           : prefs.getString('events');
 
       if (cachedData != null) {
+        if(cachedData.contains('html')) {
+          prefs.remove(path);
+          prefs.remove('events');
+          return get(path, fromJson, cached);
+        }
         return fromJson(json.decode(cachedData));
       }
     }
     final response = await http.get(Uri.parse('$_baseUrl/$school$path'),
         headers: {'Authorization': 'Bearer $_accessToken'});
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && !response.body.contains("html")) {
+      
       // Cache data in shared preferences
-
       (!path.contains("events"))
           ? prefs.setString(path, response.body)
           : prefs.setString('events', response.body);
