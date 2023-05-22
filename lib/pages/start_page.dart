@@ -573,7 +573,7 @@ class _StartPageState extends State<StartPage> {
             const Spacer(),
             FutureBuilder<bool>(
                 future: SharedPreferences.getInstance().then((prefs) {
-                  return prefs.getBool("neon_banner") ?? true;
+                  return prefs.getBool("neon_banner") ?? false;
                 }),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
