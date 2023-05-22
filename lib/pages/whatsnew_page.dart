@@ -74,7 +74,27 @@ class _WhatsNewState extends State<WhatsNew> {
                           TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                     ),
                     subtitle: Column(
-                      children: [
+                      children: [ListTile(
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                FontAwesome5.bug,
+                                size: 24,
+                                color: Colors.blue.shade500,
+                              ),
+                            ],
+                          ),
+                          title: const Text(
+                            'Wartungsarbeiten und Ausfall',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: const Text(
+                            'Nach dem Ausfall von Kaschuso konnte es sein dass das laden in Dauerschleife war. Dies sollte nun behoben sein, falls nicht bitte die App neuinstallieren.',
+                            style: TextStyle(fontSize: 13.0),
+                          ),
+                        ),
                         ListTile(
                           leading: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
