@@ -22,7 +22,8 @@ jobs:
       - name: Install and set Flutter version
         uses: subosito/flutter-action@v2.8.0
         with:
-          channel: 'stable'
+            flutter-version: '3.7.7'
+            channel: 'stable'
           
       - name: Create the Keystore
         env:
