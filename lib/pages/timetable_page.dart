@@ -20,7 +20,6 @@ class TimetablePage extends StatefulWidget {
 class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
   DateTime today = DateTime.now();
-  late Future<List<Exam>> _examList;
   final StreamController<List<Event>> _eventStreamController =
       StreamController<List<Event>>();
   final APIClient _apiClient = APIClient();
