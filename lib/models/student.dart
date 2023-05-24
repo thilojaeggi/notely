@@ -2,12 +2,6 @@
 //
 //     final Student = StudentFromJson(jsonString);
 
-import 'dart:convert';
-
-Student StudentFromJson(String? str) => Student.fromJson(json.decode(str!));
-
-String? StudentToJson(Student data) => json.encode(data.toJson());
-
 class Student {
   Student({
     required this.id,
