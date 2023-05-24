@@ -499,7 +499,7 @@ class _GradesPageState extends State<GradesPage> {
                             children: [
                               const Text("Promotionspunkte"),
                               Text(
-                                "${lowestGradePoints.toString()}",
+                                lowestGradePoints.toString(),
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w400,
