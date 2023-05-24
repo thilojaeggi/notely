@@ -15,7 +15,7 @@ class AbsencesPage extends StatefulWidget {
 class _AbsencesPageState extends State<AbsencesPage> {
   final APIClient _apiClient = APIClient();
 
-  StreamController<List<Absence>> _absencesController =
+  final StreamController<List<Absence>> _absencesController =
       StreamController<List<Absence>>();
 
   void _getAbsences() async {
