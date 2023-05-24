@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class OutlinedBoxShadow extends BoxShadow {
+  @override
   final BlurStyle blurStyle;
 
   const OutlinedBoxShadow({
@@ -14,10 +15,9 @@ class OutlinedBoxShadow extends BoxShadow {
   Paint toPaint() {
     final Paint result = Paint()
       ..color = color
-      ..maskFilter = MaskFilter.blur(this.blurStyle, blurSigma);
+      ..maskFilter = MaskFilter.blur(blurStyle, blurSigma);
     assert(() {
-      if (debugDisableShadows)
-        result.maskFilter = null;
+      if (debugDisableShadows) result.maskFilter = null;
       return true;
     }());
     return result;
