@@ -474,6 +474,11 @@ class _GradesPageState extends State<GradesPage> {
                             children: [
                               const Text("Promotionspunkte"),
                               Shimmer.fromColors(
+                                baseColor: Theme.of(context).canvasColor,
+                                highlightColor: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color!,
                                 child: const Text(
                                   "..........",
                                   style: TextStyle(
@@ -482,11 +487,6 @@ class _GradesPageState extends State<GradesPage> {
                                   ),
                                   textAlign: TextAlign.end,
                                 ),
-                                baseColor: Theme.of(context).canvasColor,
-                                highlightColor: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color!,
                               ),
                             ],
                           ),

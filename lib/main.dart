@@ -412,8 +412,8 @@ class _NotelyState extends State<Notely> {
                   bool loggedIn = snapshot.data ?? false;
                   return loggedIn
                       ? const ScrollConfiguration(
-                          child: ViewContainerWidget(),
                           behavior: CustomScrollBehavior(),
+                          child: ViewContainerWidget(),
                         )
                       : const LoginPage();
                 }),

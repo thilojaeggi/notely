@@ -281,14 +281,14 @@ class _HomeworkPageState extends State<HomeworkPage> {
                           },
                         );
                       },
-                      child: const Icon(
-                        Icons.add,
-                        size: 46,
-                      ),
                       backgroundColor:
                           Theme.of(context).brightness == Brightness.dark
                               ? Colors.white
                               : Colors.black,
+                      child: const Icon(
+                        Icons.add,
+                        size: 46,
+                      ),
                     ),
                   ),
                 ),
