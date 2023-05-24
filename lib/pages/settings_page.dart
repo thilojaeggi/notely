@@ -63,6 +63,8 @@ class _SettingsPageState extends State<SettingsPage> {
       } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
         debugPrint(
             "Tried to enable notifications but they are disabled in system");
+        if (!mounted) return;
+
         showDialog(
           context: context,
           builder: (context) {
@@ -109,6 +111,8 @@ class _SettingsPageState extends State<SettingsPage> {
     SecureStorage().deleteAll();
     final prefs = await SharedPreferences.getInstance();
     prefs.remove("school");
+    if (!mounted) return;
+
     Navigator.pushReplacement(
         context,
         PageTransition(
@@ -404,6 +408,8 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
       if (await FlutterDynamicIcon.supportsAlternateIcons) {
         await FlutterDynamicIcon.setAlternateIconName(iconName[index]);
         debugPrint("App icon change successful");
+        if (!mounted) return;
+
         Navigator.pop(context);
         return;
       }

@@ -99,6 +99,7 @@ class _LoginPageState extends State<LoginPage> {
       apiClient.school = "demo";
       await storage.write(key: "username", value: username);
       await storage.write(key: "password", value: password);
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         PageTransition(
@@ -139,6 +140,8 @@ class _LoginPageState extends State<LoginPage> {
 
         apiClient.accessToken = trimmedString;
         apiClient.school = dropdownValue.toLowerCase();
+        if (!mounted) return;
+
         showToast(
           alignment: Alignment.bottomCenter,
           duration: const Duration(seconds: 1),

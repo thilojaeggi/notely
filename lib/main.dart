@@ -254,6 +254,8 @@ class _NotelyState extends State<Notely> {
     if (lastVersionCode == null ||
         lastVersionCode < currentVersionCode ||
         kDebugMode) {
+      if (!mounted) return;
+
       // The app was updated, show a modal popup
       showModalBottomSheet<void>(
           context: context,

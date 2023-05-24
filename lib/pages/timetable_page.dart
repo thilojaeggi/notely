@@ -200,6 +200,8 @@ class _TimetablePageState extends State<TimetablePage> {
                               context: context,
                             );
                           }
+                          if (!mounted) return;
+
                           Navigator.of(context).pop();
                         },
                       ),

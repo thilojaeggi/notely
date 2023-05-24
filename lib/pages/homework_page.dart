@@ -387,6 +387,8 @@ class _DisplayDialogState extends State<DisplayDialog> {
     if (pickedDate != null) {
       selectedDate = pickedDate;
 
+      if (!mounted) return;
+
       // Show time picker
       final pickedTime = await showTimePicker(
         context: context,
