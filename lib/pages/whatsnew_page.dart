@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 
@@ -74,7 +71,8 @@ class _WhatsNewState extends State<WhatsNew> {
                           TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                     ),
                     subtitle: Column(
-                      children: [ListTile(
+                      children: [
+                        ListTile(
                           leading: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

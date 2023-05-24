@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class Event {
   String? _id;
   DateTime? _startDate;
