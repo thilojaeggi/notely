@@ -375,15 +375,15 @@ class _TimetablePageState extends State<TimetablePage> {
                   child: Text("Error"),
                 );
               }
-              List<Event> _eventList = snapshot.data!;
+              List<Event> eventList = snapshot.data!;
               return Expanded(
-                child: (_eventList.isNotEmpty)
+                child: (eventList.isNotEmpty)
                     ? Scrollbar(
                         child: ListView.builder(
                             shrinkWrap: true,
-                            itemCount: _eventList.length,
+                            itemCount: eventList.length,
                             itemBuilder: (BuildContext ctxt, int index) {
-                              Event event = _eventList[index];
+                              Event event = eventList[index];
                               return LayoutBuilder(builder:
                                   (BuildContext context,
                                       BoxConstraints constraints) {
