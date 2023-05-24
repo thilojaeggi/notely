@@ -421,7 +421,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0))),
       title: const Text("Hausaufgabe eintragen"),
-      content: Container(
+      content: SizedBox(
         width: 300,
         child: ListView(
           shrinkWrap: true,
