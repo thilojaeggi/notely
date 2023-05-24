@@ -269,9 +269,7 @@ class _NotelyState extends State<Notely> {
     // Ask for review when the user has used the app for 5 times
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? appLaunches = prefs.getInt('appLaunches');
-    if (appLaunches == null) {
-      appLaunches = 0;
-    }
+    appLaunches ??= 0;
     appLaunches++;
     debugPrint(appLaunches.toString());
 
