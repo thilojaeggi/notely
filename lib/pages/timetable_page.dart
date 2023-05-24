@@ -213,7 +213,6 @@ class _TimetablePageState extends State<TimetablePage> {
                   ? Align(
                       alignment: Alignment.topRight,
                       child: Container(
-                        child: const Text("Test"),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 1),
                         decoration: const BoxDecoration(
@@ -223,6 +222,7 @@ class _TimetablePageState extends State<TimetablePage> {
                             topRight: Radius.circular(10.0),
                           ),
                         ),
+                        child: const Text("Test"),
                       ),
                     )
                   : const SizedBox.shrink(),
