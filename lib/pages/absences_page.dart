@@ -133,27 +133,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  absenceList[index]!
-                                          .hourFrom
-                                          .toString()
-                                          .substring(
-                                              0,
-                                              absenceList[index]!
-                                                      .hourFrom!
-                                                      .toString()
-                                                      .length -
-                                                  3) +
-                                      " - " +
-                                      absenceList[index]!
-                                          .hourTo
-                                          .toString()
-                                          .substring(
-                                              0,
-                                              absenceList[index]!
-                                                      .hourTo!
-                                                      .toString()
-                                                      .length -
-                                                  3),
+                                  "${absenceList[index]!.hourFrom.toString().substring(0, absenceList[index]!.hourFrom!.toString().length - 3)} - ${absenceList[index]!.hourTo.toString().substring(0, absenceList[index]!.hourTo!.toString().length - 3)}",
                                   style: const TextStyle(
                                     fontSize: 16,
                                   ),
