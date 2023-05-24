@@ -305,7 +305,8 @@ class DisplayDialog extends StatefulWidget {
   final DateTime initialDate;
   final Function(Homework) onHomeworkAdded;
 
-  DisplayDialog({required this.initialDate, required this.onHomeworkAdded});
+  const DisplayDialog(
+      {super.key, required this.initialDate, required this.onHomeworkAdded});
 
   @override
   _DisplayDialogState createState() => _DisplayDialogState();
