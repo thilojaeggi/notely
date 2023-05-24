@@ -216,11 +216,11 @@ class _StartPageState extends State<StartPage> {
                                               MainAxisAlignment.spaceEvenly,
                                           children: [
                                             const FittedBox(
+                                              fit: BoxFit.scaleDown,
                                               child: Text(
                                                 'Bald',
                                                 style: TextStyle(fontSize: 16),
                                               ),
-                                              fit: BoxFit.scaleDown,
                                             ),
                                             StreamBuilder<List<Exam>>(
                                                 stream: _examsStreamController
@@ -252,6 +252,7 @@ class _StartPageState extends State<StartPage> {
                                                     }
                                                   }
                                                   return FittedBox(
+                                                    fit: BoxFit.scaleDown,
                                                     child: Text(
                                                       examCount.toString(),
                                                       style: const TextStyle(
@@ -260,15 +261,14 @@ class _StartPageState extends State<StartPage> {
                                                             FontWeight.w500,
                                                       ),
                                                     ),
-                                                    fit: BoxFit.scaleDown,
                                                   );
                                                 }),
                                             const FittedBox(
+                                              fit: BoxFit.scaleDown,
                                               child: Text(
                                                 'Tests',
                                                 style: TextStyle(fontSize: 16),
                                               ),
-                                              fit: BoxFit.scaleDown,
                                             ),
                                           ],
                                         ),
@@ -353,6 +353,7 @@ class _StartPageState extends State<StartPage> {
                                                     }
                                                   }
                                                   return FittedBox(
+                                                    fit: BoxFit.scaleDown,
                                                     child: Text(
                                                       homeworkCount.toString(),
                                                       style: const TextStyle(
@@ -361,15 +362,14 @@ class _StartPageState extends State<StartPage> {
                                                             FontWeight.w500,
                                                       ),
                                                     ),
-                                                    fit: BoxFit.scaleDown,
                                                   );
                                                 }),
                                             const FittedBox(
+                                              fit: BoxFit.scaleDown,
                                               child: Text(
                                                 'Hausaufgaben',
                                                 style: TextStyle(fontSize: 16),
                                               ),
-                                              fit: BoxFit.scaleDown,
                                             ),
                                           ],
                                         ),
