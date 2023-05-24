@@ -61,7 +61,8 @@ class _SettingsPageState extends State<SettingsPage> {
         debugPrint("Subscribed to all topics");
         await prefs.setBool("notificationsEnabled", true);
       } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        debugPrint("Tried to enable notifications but they are disabled in system");
+        debugPrint(
+            "Tried to enable notifications but they are disabled in system");
         showDialog(
           context: context,
           builder: (context) {
@@ -144,8 +145,8 @@ class _SettingsPageState extends State<SettingsPage> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  launch(
-                      "https://play.google.com/store/apps/details?id=de.notely.app");
+                  launchUrl(Uri.parse(
+                      "https://play.google.com/store/apps/details?id=de.notely.app"));
                 },
                 child: const Text("App öffnen"),
               )
@@ -310,7 +311,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         final Uri emailLaunchUri = Uri(
                             scheme: 'mailto',
                             path: 'thilo.jaeggi@ksso.ch',
-                            query: 'subject=Notely Problem ${APIClient().school}&body=Dein Problem: ');
+                            query:
+                                'subject=Notely Problem ${APIClient().school}&body=Dein Problem: ');
                         launchUrl(emailLaunchUri);
                       },
                       visualDensity: const VisualDensity(vertical: 2),
@@ -373,7 +375,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: const EdgeInsets.only(bottom: 5),
                     child: Text(
                       "${DateTime.now().year.toString()} © Thilo Jaeggi",
-                      style: const TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
+                      style: const TextStyle(
+                          color: Color.fromRGBO(158, 158, 158, 1)),
                     ),
                   ),
                 ],
@@ -415,25 +418,24 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    clipBehavior: Clip.antiAlias,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: ListTile(
-          onTap: () {
-            changeAppIconCallback(index);
-          },
-          contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
-          leading: SizedBox(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(11),
-              child: Image.asset(
-                imageName,
-              ),
+        onTap: () {
+          changeAppIconCallback(index);
+        },
+        contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+        leading: SizedBox(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(11),
+            child: Image.asset(
+              imageName,
             ),
           ),
-          title: Text(themeTxt, style: const TextStyle(fontSize: 25)),
         ),
-      
+        title: Text(themeTxt, style: const TextStyle(fontSize: 25)),
+      ),
     );
   }
 
@@ -443,7 +445,6 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
       contentPadding: const EdgeInsets.only(left: 4.0, right: 4.0),
       buttonPadding: EdgeInsets.zero,
       actionsPadding: EdgeInsets.zero,
-    
       titlePadding: const EdgeInsets.only(left: 8.0, top: 8.0),
       insetPadding: EdgeInsets.zero,
       title: const Text("App Icon ändern"),
@@ -451,10 +452,8 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          
           children: [
             buildIconTile(0, "Klassisch", "assets/icons/icon-classic.png"),
-
             buildIconTile(1, "Aktuell", "assets/icons/notely.png"),
           ],
         ),
