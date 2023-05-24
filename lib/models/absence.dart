@@ -24,37 +24,37 @@ class Absence {
       String? course,
       String? absenceId}) {
     if (id != null) {
-      this._id = id;
+      _id = id;
     }
     if (studentId != null) {
-      this._studentId = studentId;
+      _studentId = studentId;
     }
     if (date != null) {
-      this._date = date;
+      _date = date;
     }
     if (hourFrom != null) {
-      this._hourFrom = hourFrom;
+      _hourFrom = hourFrom;
     }
     if (hourTo != null) {
-      this._hourTo = hourTo;
+      _hourTo = hourTo;
     }
     if (status != null) {
-      this._status = status;
+      _status = status;
     }
     if (comment != null) {
-      this._comment = comment;
+      _comment = comment;
     }
     if (isExamLesson != null) {
-      this._isExamLesson = isExamLesson;
+      _isExamLesson = isExamLesson;
     }
     if (profile != null) {
-      this._profile = profile;
+      _profile = profile;
     }
     if (course != null) {
-      this._course = course;
+      _course = course;
     }
     if (absenceId != null) {
-      this._absenceId = absenceId;
+      _absenceId = absenceId;
     }
   }
 
@@ -97,17 +97,17 @@ class Absence {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this._id;
-    data['studentId'] = this._studentId;
-    data['date'] = this._date;
-    data['hourFrom'] = this._hourFrom;
-    data['hourTo'] = this._hourTo;
-    data['status'] = this._status;
-    data['comment'] = this._comment;
-    data['isExamLesson'] = this._isExamLesson;
-    data['profile'] = this._profile;
-    data['course'] = this._course;
-    data['absenceId'] = this._absenceId;
+    data['id'] = _id;
+    data['studentId'] = _studentId;
+    data['date'] = _date;
+    data['hourFrom'] = _hourFrom;
+    data['hourTo'] = _hourTo;
+    data['status'] = _status;
+    data['comment'] = _comment;
+    data['isExamLesson'] = _isExamLesson;
+    data['profile'] = _profile;
+    data['course'] = _course;
+    data['absenceId'] = _absenceId;
     return data;
   }
 }
