@@ -25,7 +25,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  TextEditingController targetGradeController = new TextEditingController();
+  TextEditingController targetGradeController = TextEditingController();
   bool notificationsEnabled = false;
 
   Future<PackageInfo> _getPackageInfo() {
