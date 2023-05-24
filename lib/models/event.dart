@@ -1,5 +1,7 @@
 // ignoreforfile: prefervoidtonull
 
+// ignore_for_file: prefer_void_to_null
+
 class Event {
   String? id;
   DateTime? startDate;
