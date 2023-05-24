@@ -139,6 +139,8 @@ class _GradesPageState extends State<GradesPage> {
                 fontSize: 22,
                 fontWeight: FontWeight.w500,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           trailing: Text(
@@ -184,8 +186,9 @@ class _GradesPageState extends State<GradesPage> {
                                               .elementAt(index)[i]
                                               .title,
                                           style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
