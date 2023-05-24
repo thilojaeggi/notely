@@ -283,29 +283,27 @@ class _TimetablePageState extends State<TimetablePage> {
                       ),
                       Expanded(
                         flex: 12,
-                        child: Container(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                event.courseName.toString(),
-                                textAlign: TextAlign.start,
-                                style: const TextStyle(
-                                    fontSize: 21,
-                                    height: 1.1,
-                                    fontWeight: FontWeight.w600),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              event.courseName.toString(),
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                  fontSize: 21,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              event.teachers!.first.toString(),
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                height: 1.2,
                               ),
-                              Text(
-                                event.teachers!.first.toString(),
-                                textAlign: TextAlign.start,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  height: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(
