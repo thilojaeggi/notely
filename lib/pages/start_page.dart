@@ -186,92 +186,86 @@ class _StartPageState extends State<StartPage> {
                                 SizedBox(
                                   height: cardHeight,
                                   width: double.infinity,
-                                  child: Container(
-                                    child: Card(
-                                      elevation: 3.0,
-                                      shadowColor: Colors.grey.withOpacity(0.3),
-                                      shape: RoundedRectangleBorder(
+                                  child: Card(
+                                    elevation: 3.0,
+                                    shadowColor: Colors.grey.withOpacity(0.3),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        HapticFeedback.selectionClick();
+
+                                        showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (context) => ExamsPage(
+                                                  examList: exams,
+                                                ));
+                                      },
+                                      customBorder: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(8.0),
                                       ),
-                                      child: InkWell(
-                                        onTap: () {
-                                          HapticFeedback.selectionClick();
-
-                                          showModalBottomSheet(
-                                              context: context,
-                                              isScrollControlled: true,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              builder: (context) => ExamsPage(
-                                                    examList: exams,
-                                                  ));
-                                        },
-                                        customBorder: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            const FittedBox(
-                                              fit: BoxFit.scaleDown,
-                                              child: Text(
-                                                'Bald',
-                                                style: TextStyle(fontSize: 16),
-                                              ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          const FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              'Bald',
+                                              style: TextStyle(fontSize: 16),
                                             ),
-                                            StreamBuilder<List<Exam>>(
-                                                stream: _examsStreamController
-                                                    .stream,
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    );
-                                                  } else if (snapshot
-                                                      .hasError) {
-                                                    return const Center(
-                                                      child: Text("Error"),
-                                                    );
-                                                  }
-                                                  List<Exam> exams =
-                                                      snapshot.data!;
-
-                                                  int examCount = 0;
-                                                  for (var exam in exams) {
-                                                    if (exam.startDate.isBefore(
-                                                        DateTime.now().add(
-                                                            const Duration(
-                                                                days: 14)))) {
-                                                      examCount++;
-                                                    }
-                                                  }
-                                                  return FittedBox(
-                                                    fit: BoxFit.scaleDown,
-                                                    child: Text(
-                                                      examCount.toString(),
-                                                      style: const TextStyle(
-                                                        fontSize: 48,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
+                                          ),
+                                          StreamBuilder<List<Exam>>(
+                                              stream:
+                                                  _examsStreamController.stream,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
                                                   );
-                                                }),
-                                            const FittedBox(
-                                              fit: BoxFit.scaleDown,
-                                              child: Text(
-                                                'Tests',
-                                                style: TextStyle(fontSize: 16),
-                                              ),
+                                                } else if (snapshot.hasError) {
+                                                  return const Center(
+                                                    child: Text("Error"),
+                                                  );
+                                                }
+                                                List<Exam> exams =
+                                                    snapshot.data!;
+
+                                                int examCount = 0;
+                                                for (var exam in exams) {
+                                                  if (exam.startDate.isBefore(
+                                                      DateTime.now().add(
+                                                          const Duration(
+                                                              days: 14)))) {
+                                                    examCount++;
+                                                  }
+                                                }
+                                                return FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  child: Text(
+                                                    examCount.toString(),
+                                                    style: const TextStyle(
+                                                      fontSize: 48,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
+                                          const FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              'Tests',
+                                              style: TextStyle(fontSize: 16),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
