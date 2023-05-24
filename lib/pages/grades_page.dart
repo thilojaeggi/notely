@@ -144,7 +144,7 @@ class _GradesPageState extends State<GradesPage> {
             ),
           ),
           trailing: Text(
-            "Ø " + averageGradeMap.values.elementAt(index),
+            "Ø ${averageGradeMap.values.elementAt(index)}",
             style: const TextStyle(fontSize: 22),
           ),
           children: [
