@@ -1,20 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:notely/OutlinedBoxShadow.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/outlined_box_shadow.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:notely/secure_storage.dart';
+import 'package:notely/widgets/auth_text_field.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/style.dart';
 import '../view_container.dart';
-import '../widgets/AuthTextField.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
