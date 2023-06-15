@@ -52,13 +52,13 @@ class _LoginPageState extends State<LoginPage> {
               .toString()
               .contains("https://www.schul-netz.com/mobile/login?mandant")) {
             debugPrint("gotologin");
-            await headlessWebView?.webViewController.evaluateJavascript(
+            await headlessWebView!.webViewController!.evaluateJavascript(
                 source:
                     """document.querySelector('.mat-raised-button').click();""");
           }
           if (url.toString().contains("authorize.php")) {
             debugPrint("authorize");
-            await headlessWebView?.webViewController
+            await headlessWebView!.webViewController!
                 .evaluateJavascript(source: """
                 if(document.getElementById("login") && document.getElementById("passwort")){
                 document.getElementById("login").value = "${_usernameController.text}"; 
@@ -178,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
         debugPrint("Hasn't authenticated for the first time");
         await headlessWebView?.dispose();
         await headlessWebView?.run();
-        headlessWebView?.webViewController.loadUrl(
+        headlessWebView!.webViewController!.loadUrl(
             urlRequest: URLRequest(
                 url: WebUri(
                     "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F${dropdownValue.toLowerCase()}")));
