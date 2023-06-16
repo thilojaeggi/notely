@@ -20,14 +20,13 @@ dependencies:
   flutter_secure_storage: ^6.0.0
   page_transition: ^2.0.9
   day_night_switcher: ^0.2.0+1
-  package_info_plus: ^1.4.3
+  package_info_plus: ^4.0.2
   fl_toast: ^3.1.0
   dropdown_button2: ^2.1.0
-  intl: ^0.17.0
+  intl: ^0.18.0
   flutter_acrylic: ^1.0.0
   flutter_platform_alert: ^0.3.0
   flutter_inappwebview: ^6.0.0-beta.22
-  device_info_plus: ^4.1.2
   auto_size_text: ^3.0.0
   flutter_cache_manager: ^3.3.0
   mailto: ^2.0.0

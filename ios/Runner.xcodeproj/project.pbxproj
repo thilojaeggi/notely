@@ -12,34 +12,15 @@
 		5822E51629D898C400B67DA2 /* notely@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5822E51429D898C400B67DA2 /* notely@2x.png */; };
 		5822E51729D898C400B67DA2 /* notely@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5822E51529D898C400B67DA2 /* notely@3x.png */; };
 		582EE95B29C588F4006690F6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 582EE95A29C588F4006690F6 /* GoogleService-Info.plist */; };
-		582EE95C29C588F4006690F6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 582EE95A29C588F4006690F6 /* GoogleService-Info.plist */; };
 		589EFF0429D773C300638097 /* icon-classic@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 589EFF0129D773C300638097 /* icon-classic@2x.png */; };
 		589EFF0529D773C300638097 /* icon-classic@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 589EFF0229D773C300638097 /* icon-classic@3x.png */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		B6137D04289F279B002B5A39 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6137D03289F279B002B5A39 /* NetworkClient.swift */; };
-		B6137D08289F2816002B5A39 /* Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6137D07289F2816002B5A39 /* Lesson.swift */; };
-		B6A8E8E3289D3C7100170A6D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AC8DB32899E8D5000C18CF /* WidgetKit.framework */; };
-		B6A8E8E4289D3C7100170A6D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AC8DB52899E8D5000C18CF /* SwiftUI.framework */; };
-		B6A8E8E7289D3C7100170A6D /* ScheduleWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A8E8E6289D3C7100170A6D /* ScheduleWidget.swift */; };
-		B6A8E8EA289D3C7200170A6D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6A8E8E9289D3C7200170A6D /* Assets.xcassets */; };
-		B6A8E8EC289D3C7200170A6D /* ScheduleWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B6A8E8E8289D3C7100170A6D /* ScheduleWidget.intentdefinition */; };
 		B6A8E8ED289D3C7200170A6D /* ScheduleWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B6A8E8E8289D3C7100170A6D /* ScheduleWidget.intentdefinition */; };
-		B6A8E8F0289D3C7200170A6D /* ScheduleWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B6A8E8E2289D3C7100170A6D /* ScheduleWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CD42F9CFFCDFBA29F275C3B5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 061987DBC643B51C7E6B457C /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		B6A8E8EE289D3C7200170A6D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B6A8E8E1289D3C7100170A6D;
-			remoteInfo = ScheduleWidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
@@ -58,7 +39,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B6A8E8F0289D3C7200170A6D /* ScheduleWidgetExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -93,7 +73,6 @@
 		B6137D03289F279B002B5A39 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
 		B6137D07289F2816002B5A39 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
 		B6585EA429C01B3700955CF9 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
-		B6A8E8E2289D3C7100170A6D /* ScheduleWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScheduleWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6A8E8E6289D3C7100170A6D /* ScheduleWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleWidget.swift; sourceTree = "<group>"; };
 		B6A8E8E8289D3C7100170A6D /* ScheduleWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = ScheduleWidget.intentdefinition; sourceTree = "<group>"; };
 		B6A8E8E9289D3C7200170A6D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -108,15 +87,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				CD42F9CFFCDFBA29F275C3B5 /* Pods_Runner.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B6A8E8DF289D3C7100170A6D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B6A8E8E4289D3C7100170A6D /* SwiftUI.framework in Frameworks */,
-				B6A8E8E3289D3C7100170A6D /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,7 +151,6 @@
 			isa = PBXGroup;
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
-				B6A8E8E2289D3C7100170A6D /* ScheduleWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -237,7 +206,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				B6A8E8EF289D3C7200170A6D /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -245,25 +213,6 @@
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
-		};
-		B6A8E8E1289D3C7100170A6D /* ScheduleWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B6A8E8F1289D3C7200170A6D /* Build configuration list for PBXNativeTarget "ScheduleWidgetExtension" */;
-			buildPhases = (
-				B6A8E8DE289D3C7100170A6D /* Sources */,
-				B6A8E8DF289D3C7100170A6D /* Frameworks */,
-				B6A8E8E0289D3C7100170A6D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ScheduleWidgetExtension;
-			packageProductDependencies = (
-			);
-			productName = ScheduleWidgetExtension;
-			productReference = B6A8E8E2289D3C7100170A6D /* ScheduleWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -278,9 +227,6 @@
 					97C146ED1CF9000F007C117D = {
 						CreatedOnToolsVersion = 7.3.1;
 						LastSwiftMigration = 1100;
-					};
-					B6A8E8E1289D3C7100170A6D = {
-						CreatedOnToolsVersion = 14.0;
 					};
 				};
 			};
@@ -303,7 +249,6 @@
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
-				B6A8E8E1289D3C7100170A6D /* ScheduleWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -325,15 +270,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6A8E8E0289D3C7100170A6D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B6A8E8EA289D3C7200170A6D /* Assets.xcassets in Resources */,
-				582EE95C29C588F4006690F6 /* GoogleService-Info.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -344,6 +280,7 @@
 			files = (
 			);
 			inputPaths = (
+				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
 			);
 			name = "Thin Binary";
 			outputPaths = (
@@ -419,26 +356,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B6A8E8DE289D3C7100170A6D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B6A8E8E7289D3C7100170A6D /* ScheduleWidget.swift in Sources */,
-				B6A8E8EC289D3C7200170A6D /* ScheduleWidget.intentdefinition in Sources */,
-				B6137D04289F279B002B5A39 /* NetworkClient.swift in Sources */,
-				B6137D08289F2816002B5A39 /* Lesson.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		B6A8E8EF289D3C7200170A6D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B6A8E8E1289D3C7100170A6D /* ScheduleWidgetExtension */;
-			targetProxy = B6A8E8EE289D3C7200170A6D /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		97C146FA1CF9000F007C117D /* Main.storyboard */ = {
@@ -722,117 +640,6 @@
 			};
 			name = Release;
 		};
-		B6A8E8F2289D3C7200170A6D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = AppIcon;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9YF6CJQ2G8;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ScheduleWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ScheduleWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.thilojaeggi.notely.ScheduleWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		B6A8E8F3289D3C7200170A6D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = AppIcon;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9YF6CJQ2G8;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ScheduleWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ScheduleWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.thilojaeggi.notely.ScheduleWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
-		B6A8E8F4289D3C7200170A6D /* Profile */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = AppIcon;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9YF6CJQ2G8;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ScheduleWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ScheduleWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = ch.thilojaeggi.notely.ScheduleWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Profile;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -852,16 +659,6 @@
 				97C147061CF9000F007C117D /* Debug */,
 				97C147071CF9000F007C117D /* Release */,
 				249021D4217E4FDB00AE95B9 /* Profile */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B6A8E8F1289D3C7200170A6D /* Build configuration list for PBXNativeTarget "ScheduleWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B6A8E8F2289D3C7200170A6D /* Debug */,
-				B6A8E8F3289D3C7200170A6D /* Release */,
-				B6A8E8F4289D3C7200170A6D /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
