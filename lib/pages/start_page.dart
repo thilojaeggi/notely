@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notely/helpers/api_client.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -90,6 +92,39 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
+
+  // TODO: replace this test ad unit with your own ad unit.
+  final adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-2286905824384856/8408652296'
+      : 'ca-app-pub-2286905824384856/3392925495';
+
+  /// Loads a banner ad.
+  void loadAd() {
+    print("Loading ad...");
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          debugPrint('$ad loaded.');
+          setState(() {
+            _isLoaded = true;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('BannerAd failed to load: $err');
+          // Dispose the ad here to free resources.
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
   @override
   void dispose() {
     _gradesStreamController.close();
@@ -126,6 +161,8 @@ class _StartPageState extends State<StartPage> {
   @override
   initState() {
     super.initState();
+
+    loadAd();
 
     _getGrades();
     _getStudent();
@@ -447,15 +484,15 @@ class _StartPageState extends State<StartPage> {
                                                               gradeList.length -
                                                                   1)
                                                           ? const EdgeInsets
-                                                                  .only(
+                                                              .only(
                                                               bottom: 11.0)
                                                           : (index == 0)
                                                               ? const EdgeInsets
-                                                                      .only(
+                                                                  .only(
                                                                   top: 8.0,
                                                                   bottom: 3.0)
                                                               : const EdgeInsets
-                                                                      .only(
+                                                                  .only(
                                                                   bottom: 3.0),
                                                       width: double.infinity,
                                                       padding:
@@ -470,13 +507,13 @@ class _StartPageState extends State<StartPage> {
                                                               ? const Radius
                                                                   .circular(8.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                           topRight: (index == 0)
                                                               ? const Radius
                                                                   .circular(8.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                           bottomLeft: (index ==
                                                                   gradeList
@@ -485,7 +522,7 @@ class _StartPageState extends State<StartPage> {
                                                               ? const Radius
                                                                   .circular(6.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                           bottomRight: (index ==
                                                                   gradeList
@@ -494,7 +531,7 @@ class _StartPageState extends State<StartPage> {
                                                               ? const Radius
                                                                   .circular(6.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                         ),
                                                       ),
@@ -565,9 +602,23 @@ class _StartPageState extends State<StartPage> {
               ),
             ),
             const Spacer(),
+            Container(
+              child: (_bannerAd != null)
+                  ? Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SafeArea(
+                        child: SizedBox(
+                          width: _bannerAd!.size.width.toDouble(),
+                          height: _bannerAd!.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd!),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
             FutureBuilder<bool>(
                 future: SharedPreferences.getInstance().then((prefs) {
-                  return prefs.getBool("neon_banner") ?? false;
+                  return prefs.getBool("neon_banner") ?? true;
                 }),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
