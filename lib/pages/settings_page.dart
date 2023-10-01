@@ -33,7 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void openAppSettings() async {
-    AppSettings.openNotificationSettings();
+    AppSettings.openAppSettings();
   }
 
   Future<void> toggleNotifications(bool value) async {

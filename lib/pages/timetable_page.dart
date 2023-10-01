@@ -330,11 +330,11 @@ class _TimetablePageState extends State<TimetablePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
+            children: [
               Text(
                 "Stundenplan",
                 style: TextStyle(
