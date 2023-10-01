@@ -8,6 +8,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
+import 'package:notely/helpers/initialize_screen.dart';
 import 'package:notely/models/grade.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/whatsnew_page.dart';
@@ -354,71 +355,74 @@ class _NotelyState extends State<Notely> {
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
-            home: FutureBuilder<bool>(
-                future: isLoggedIn,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Material(
-                        child: Center(
+            home: InitializeScreen(
+              targetWidget: FutureBuilder<bool>(
+                  future: isLoggedIn,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Material(
+                          child: Center(
+                              child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Melde an..",
+                            style: TextStyle(fontSize: 32.0),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          LoadingAnimationWidget.waveDots(
+                              color: Colors.white, size: 48),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          const Text(
+                            "Falls es länger Dauert überprüfe deine Internetverbindung.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 18.0),
+                          )
+                        ],
+                      )));
+                    } else if (snapshot.hasError) {
+                      return const Material(
+                        child: SafeArea(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
                             child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Melde an..",
-                          style: TextStyle(fontSize: 32.0),
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.error,
+                                    size: 128,
+                                  ),
+                                  Text(
+                                    "Error",
+                                    style: TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    "Versuche es später erneut oder überprüfe deine Internetverbindung.",
+                                    style: TextStyle(fontSize: 18.0),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ]),
+                          ),
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        LoadingAnimationWidget.waveDots(
-                            color: Colors.white, size: 48),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Falls es länger Dauert überprüfe deine Internetverbindung.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18.0),
-                        )
-                      ],
-                    )));
-                  } else if (snapshot.hasError) {
-                    return const Material(
-                      child: SafeArea(
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.error,
-                                  size: 128,
-                                ),
-                                Text(
-                                  "Error",
-                                  style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "Versuche es später erneut oder überprüfe deine Internetverbindung.",
-                                  style: TextStyle(fontSize: 18.0),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ]),
-                        ),
-                      ),
-                    );
-                  }
-                  bool loggedIn = snapshot.data ?? false;
-                  return loggedIn
-                      ? const ScrollConfiguration(
-                          behavior: CustomScrollBehavior(),
-                          child: ViewContainerWidget(),
-                        )
-                      : const LoginPage();
-                }),
+                      );
+                    }
+                    bool loggedIn = snapshot.data ?? false;
+
+                    return loggedIn
+                        ? const ScrollConfiguration(
+                            behavior: CustomScrollBehavior(),
+                            child: ViewContainerWidget(),
+                          )
+                        : const LoginPage();
+                  }),
+            ),
           ),
         ),
       ),

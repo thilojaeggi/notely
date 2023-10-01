@@ -18,6 +18,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		B631139C2AC9E3160063D103 /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B631139B2AC9E3160063D103 /* AppTrackingTransparency.framework */; };
 		B6A8E8ED289D3C7200170A6D /* ScheduleWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B6A8E8E8289D3C7100170A6D /* ScheduleWidget.intentdefinition */; };
 		CD42F9CFFCDFBA29F275C3B5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 061987DBC643B51C7E6B457C /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
@@ -72,6 +73,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B6137D03289F279B002B5A39 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
 		B6137D07289F2816002B5A39 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
+		B631139B2AC9E3160063D103 /* AppTrackingTransparency.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppTrackingTransparency.framework; path = System/Library/Frameworks/AppTrackingTransparency.framework; sourceTree = SDKROOT; };
 		B6585EA429C01B3700955CF9 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		B6A8E8E6289D3C7100170A6D /* ScheduleWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleWidget.swift; sourceTree = "<group>"; };
 		B6A8E8E8289D3C7100170A6D /* ScheduleWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = ScheduleWidget.intentdefinition; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CD42F9CFFCDFBA29F275C3B5 /* Pods_Runner.framework in Frameworks */,
+				B631139C2AC9E3160063D103 /* AppTrackingTransparency.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,6 +120,7 @@
 		61CEE9E889250A951954143D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B631139B2AC9E3160063D103 /* AppTrackingTransparency.framework */,
 				061987DBC643B51C7E6B457C /* Pods_Runner.framework */,
 				B6AC8DB32899E8D5000C18CF /* WidgetKit.framework */,
 				B6AC8DB52899E8D5000C18CF /* SwiftUI.framework */,

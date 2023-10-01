@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:day_night_switcher/day_night_switcher.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/initialization_helper.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +29,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   TextEditingController targetGradeController = TextEditingController();
   bool notificationsEnabled = false;
+  final _initializationHelper = InitializationHelper();
+  late final Future<bool> _future;
 
   Future<PackageInfo> _getPackageInfo() {
     return PackageInfo.fromPlatform();
@@ -34,6 +38,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void openAppSettings() async {
     AppSettings.openAppSettings();
+  }
+
+  Future<bool> _isUnderGdpr() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (prefs.getInt("IABTCF_gdprApplies") ?? 0) == 1;
   }
 
   Future<void> toggleNotifications(bool value) async {
@@ -169,6 +178,8 @@ class _SettingsPageState extends State<SettingsPage> {
       });
     });
 
+    _future = _isUnderGdpr();
+
     super.initState();
   }
 
@@ -280,29 +291,63 @@ class _SettingsPageState extends State<SettingsPage> {
                               }),
                     ),
                   ),
-                  (Platform.isIOS)
-                      ? Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.only(bottom: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  if (Platform.isIOS)
+                    Card(
+                        elevation: 3,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListTile(
+                          onTap: changeAppIcon,
+                          visualDensity: const VisualDensity(vertical: 2),
+                          title: const Text(
+                            "App Icon ändern",
+                            style: TextStyle(
+                              fontSize: 23,
+                            ),
                           ),
-                          clipBehavior: Clip.antiAlias,
-                          child: ListTile(
-                            onTap: changeAppIcon,
-                            visualDensity: const VisualDensity(vertical: 2),
-                            title: const Text(
-                              "App Icon ändern",
-                              style: TextStyle(
-                                fontSize: 23,
+                          trailing: const Icon(
+                            Icons.image,
+                            size: 32,
+                          ),
+                        )),
+                  FutureBuilder<bool>(
+                      future: _future,
+                      builder: (context, snapshot) {
+                        return Column(
+                          children: [
+                            // Show it only if the user is under the GDPR
+                            if (snapshot.hasData && snapshot.data == true)
+                              ListTile(
+                                title: const Text(
+                                    'Datenschutzeinstellungen anpassen'),
+                                onTap: () async {
+                                  final scaffoldMessenger =
+                                      ScaffoldMessenger.of(context);
+
+                                  // Show the consent message again
+                                  final didChangePreferences =
+                                      await _initializationHelper
+                                          .changePrivacyPreferences();
+
+                                  // Give feedback to the user that their
+                                  // preferences have been correctly modified
+                                  scaffoldMessenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        didChangePreferences
+                                            ? 'Einstellungen aktualisiert'
+                                            : 'Ein Fehler ist aufgetreten',
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
-                            trailing: const Icon(
-                              Icons.image,
-                              size: 32,
-                            ),
-                          ))
-                      : const SizedBox.shrink(),
+                          ],
+                        );
+                      }),
                   Card(
                     elevation: 3,
                     margin: const EdgeInsets.only(bottom: 10),
