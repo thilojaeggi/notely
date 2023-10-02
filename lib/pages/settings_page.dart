@@ -42,7 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<bool> _isUnderGdpr() async {
     final prefs = await SharedPreferences.getInstance();
-    return (prefs.getInt("IABTCF_gdprApplies") ?? 0) == 1;
+    return (prefs.getInt("IABTCF_gdprApplies") ?? 1) == 1;
   }
 
   Future<void> toggleNotifications(bool value) async {
@@ -313,41 +313,6 @@ class _SettingsPageState extends State<SettingsPage> {
                             size: 32,
                           ),
                         )),
-                  FutureBuilder<bool>(
-                      future: _future,
-                      builder: (context, snapshot) {
-                        return Column(
-                          children: [
-                            // Show it only if the user is under the GDPR
-                            if (snapshot.hasData && snapshot.data == true)
-                              ListTile(
-                                title: const Text(
-                                    'Datenschutzeinstellungen anpassen'),
-                                onTap: () async {
-                                  final scaffoldMessenger =
-                                      ScaffoldMessenger.of(context);
-
-                                  // Show the consent message again
-                                  final didChangePreferences =
-                                      await _initializationHelper
-                                          .changePrivacyPreferences();
-
-                                  // Give feedback to the user that their
-                                  // preferences have been correctly modified
-                                  scaffoldMessenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        didChangePreferences
-                                            ? 'Einstellungen aktualisiert'
-                                            : 'Ein Fehler ist aufgetreten',
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                          ],
-                        );
-                      }),
                   Card(
                     elevation: 3,
                     margin: const EdgeInsets.only(bottom: 10),
@@ -377,6 +342,51 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
+                  FutureBuilder<bool>(
+                      future: _future,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data == true) {
+                          return Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.only(bottom: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child:
+                                // Show it only if the user is under the GDPR
+
+                                ListTile(
+                              visualDensity: const VisualDensity(vertical: 2),
+                              title: const Text(
+                                  'Datenschutzeinstellungen anpassen',
+                                  style: TextStyle(fontSize: 20)),
+                              onTap: () async {
+                                final scaffoldMessenger =
+                                    ScaffoldMessenger.of(context);
+
+                                // Show the consent message again
+                                final didChangePreferences =
+                                    await _initializationHelper
+                                        .changePrivacyPreferences();
+
+                                // Give feedback to the user that their
+                                // preferences have been correctly modified
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      didChangePreferences
+                                          ? 'Einstellungen aktualisiert'
+                                          : 'Ein Fehler ist aufgetreten',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
                   Card(
                     elevation: 3,
                     margin: const EdgeInsets.only(bottom: 10),

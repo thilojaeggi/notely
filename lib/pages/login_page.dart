@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/initialize_screen.dart';
 import 'package:notely/outlined_box_shadow.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:fl_toast/fl_toast.dart';
@@ -170,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
             type: PageTransitionType.fade,
             duration: const Duration(milliseconds: 450),
             alignment: Alignment.bottomCenter,
-            child: const ViewContainerWidget(),
+            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
           ),
         );
       } else if (response.statusCode == 200 &&

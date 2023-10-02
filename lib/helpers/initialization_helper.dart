@@ -6,7 +6,12 @@ class InitializationHelper {
   Future<FormError?> initialize() async {
     final completer = Completer<FormError?>();
 
-    final params = ConsentRequestParameters();
+    var params = ConsentRequestParameters(
+      consentDebugSettings: ConsentDebugSettings(
+        debugGeography: DebugGeography.debugGeographyEea,
+        testIdentifiers: ["E1029A70-CBAC-4A16-9CDC-B0C17B220B56"],
+      ),
+    );
     ConsentInformation.instance.requestConsentInfoUpdate(params, () async {
       if (await ConsentInformation.instance.isConsentFormAvailable()) {
         await _loadConsentForm();
@@ -60,8 +65,14 @@ class InitializationHelper {
   Future<bool> changePrivacyPreferences() async {
     final completer = Completer<bool>();
 
-    ConsentInformation.instance
-        .requestConsentInfoUpdate(ConsentRequestParameters(), () async {
+    var params = ConsentRequestParameters(
+      consentDebugSettings: ConsentDebugSettings(
+        debugGeography: DebugGeography.debugGeographyNotEea,
+        testIdentifiers: ["E1029A70-CBAC-4A16-9CDC-B0C17B220B56"],
+      ),
+    );
+
+    ConsentInformation.instance.requestConsentInfoUpdate(params, () async {
       if (await ConsentInformation.instance.isConsentFormAvailable()) {
         ConsentForm.loadConsentForm((consentForm) {
           consentForm.show((formError) async {
