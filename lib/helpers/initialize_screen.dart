@@ -33,7 +33,12 @@ class _InitializeScreenState extends State<InitializeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _initializationHelper.initialize();
       navigator.pushReplacement(
-        MaterialPageRoute(builder: (context) => widget.targetWidget),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              widget.targetWidget,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
+        ),
       );
     });
   }
