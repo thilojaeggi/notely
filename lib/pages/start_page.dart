@@ -106,7 +106,7 @@ class _StartPageState extends State<StartPage> {
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
       request: const AdRequest(),
-      size: AdSize.leaderboard,
+      size: AdSize.fullBanner,
       listener: BannerAdListener(
         // Called when an ad is successfully received.
         onAdLoaded: (ad) {

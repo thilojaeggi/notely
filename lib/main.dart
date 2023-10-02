@@ -242,33 +242,6 @@ class _NotelyState extends State<Notely> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final InAppReview inAppReview = InAppReview.instance;
 
-  Future<void> checkForUpdates(BuildContext context) async {
-    // Get the current version code of the app
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    int currentVersionCode = int.parse(packageInfo.buildNumber);
-
-    // Get the last version code of the app stored in SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? lastVersionCode = prefs.getInt('version_code');
-
-    String school = prefs.getString("school") ?? "";
-
-    if (lastVersionCode == null ||
-        lastVersionCode < currentVersionCode ||
-        kDebugMode) {
-      if (!mounted) return;
-
-      // The app was updated, show a modal popup
-      showModalBottomSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          builder: (BuildContext context) {
-            return WhatsNew(school: school);
-          });
-      prefs.setInt('version_code', currentVersionCode);
-    }
-  }
-
   Future<void> askForReview(BuildContext context) async {
     // Ask for review when the user has used the app for 5 times
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -290,7 +263,6 @@ class _NotelyState extends State<Notely> {
     super.initState();
     isLoggedIn = login();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.microtask(() => checkForUpdates(navigatorKey.currentContext!));
       Future.microtask(() => askForReview(navigatorKey.currentContext!));
     });
   }
@@ -354,74 +326,74 @@ class _NotelyState extends State<Notely> {
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
-            home: InitializeScreen(
-              targetWidget: FutureBuilder<bool>(
-                  future: isLoggedIn,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Material(
-                          child: Center(
-                              child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Melde an..",
-                            style: TextStyle(fontSize: 32.0),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          LoadingAnimationWidget.waveDots(
-                              color: Colors.white, size: 48),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          const Text(
-                            "Falls es länger Dauert überprüfe deine Internetverbindung.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 18.0),
-                          )
-                        ],
-                      )));
-                    } else if (snapshot.hasError) {
-                      return const Material(
-                        child: SafeArea(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
+            home: FutureBuilder<bool>(
+                future: isLoggedIn,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Material(
+                        child: Center(
                             child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.error,
-                                    size: 128,
-                                  ),
-                                  Text(
-                                    "Error",
-                                    style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    "Versuche es später erneut oder überprüfe deine Internetverbindung.",
-                                    style: TextStyle(fontSize: 18.0),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ]),
-                          ),
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Melde an..",
+                          style: TextStyle(fontSize: 32.0),
                         ),
-                      );
-                    }
-                    bool loggedIn = snapshot.data ?? false;
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        LoadingAnimationWidget.waveDots(
+                            color: Colors.white, size: 48),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Text(
+                          "Falls es länger Dauert überprüfe deine Internetverbindung.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18.0),
+                        )
+                      ],
+                    )));
+                  } else if (snapshot.hasError) {
+                    return const Material(
+                      child: SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error,
+                                  size: 128,
+                                ),
+                                Text(
+                                  "Error",
+                                  style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "Versuche es später erneut oder überprüfe deine Internetverbindung.",
+                                  style: TextStyle(fontSize: 18.0),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ]),
+                        ),
+                      ),
+                    );
+                  }
+                  bool loggedIn = snapshot.data ?? false;
 
-                    return loggedIn
-                        ? const ScrollConfiguration(
+                  return loggedIn
+                      ? const InitializeScreen(
+                          targetWidget: ScrollConfiguration(
                             behavior: CustomScrollBehavior(),
                             child: ViewContainerWidget(),
-                          )
-                        : const LoginPage();
-                  }),
-            ),
+                          ),
+                        )
+                      : const LoginPage();
+                }),
           ),
         ),
       ),
