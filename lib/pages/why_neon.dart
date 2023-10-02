@@ -65,7 +65,7 @@ class _WhyNeonState extends State<WhyNeon> {
                       // Create RichText with why notely needs financial support in german
                       RichText(
                     text: TextSpan(
-                      style: Theme.of(context).textTheme.bodyText1,
+                      style: Theme.of(context).textTheme.bodyLarge,
                       children: const <TextSpan>[
                         TextSpan(
                           text:

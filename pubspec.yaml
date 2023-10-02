@@ -2,7 +2,7 @@ name: notely
 description: A new Flutter project.
 publish_to: 'none'
 
-version: 1.1.4+14
+version: 1.1.5+15
 environment:
   sdk: ">=2.18.5 <3.0.0"
 
@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: ^0.13.4
   shared_preferences: ^2.0.15
+  google_mobile_ads: ^3.0.0
   provider: ^6.0.3
   theme_provider: ^0.6.0
   fl_chart: ^0.55.0
@@ -20,14 +21,16 @@ dependencies:
   flutter_secure_storage: ^6.0.0
   page_transition: ^2.0.9
   day_night_switcher: ^0.2.0+1
-  package_info_plus: ^1.4.3
+  package_info_plus: ^4.0.2
   fl_toast: ^3.1.0
   dropdown_button2: ^2.1.0
-  intl: ^0.17.0
+  intl: ^0.18.0
   flutter_acrylic: ^1.0.0
   flutter_platform_alert: ^0.3.0
-  flutter_inappwebview: ^6.0.0-beta.22
-  device_info_plus: ^4.1.2
+  flutter_inappwebview:
+    git:
+      url: https://github.com/nesquikm/flutter_inappwebview
+      ref: heads/v5.7.2+3_fix_xcode_17
   auto_size_text: ^3.0.0
   flutter_cache_manager: ^3.3.0
   mailto: ^2.0.0
@@ -35,12 +38,15 @@ dependencies:
   fluttericon: ^2.0.0
   sqflite: ^2.2.5
   flutter_local_notifications: ^13.0.0
-  calendar_timeline: ^1.1.2
+  calendar_timeline:
+    git:
+      url: https://github.com/ViktorKirjanov/calendar_timeline
+      ref: master 
   firebase_core: ^2.9.0
   firebase_messaging: ^14.4.0
   loading_animation_widget: ^1.2.0+4
   shimmer: ^2.0.0
-  app_settings: ^4.2.0
+  app_settings: ^5.1.1
   flutter_dynamic_icon: ^2.1.0
   in_app_review: ^2.0.6
   store_redirect: ^2.0.1

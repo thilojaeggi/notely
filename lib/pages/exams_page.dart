@@ -130,11 +130,11 @@ class _ExamsPageState extends State<ExamsPage> {
                       ),
                     ),
                   )
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
+                : const Padding(
+                    padding: EdgeInsets.all(16.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           "😄",
                           style: TextStyle(fontSize: 128),

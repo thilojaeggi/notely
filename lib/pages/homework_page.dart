@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/models/homework.dart';
@@ -225,11 +223,11 @@ class _HomeworkPageState extends State<HomeworkPage> {
                         ),
                       ),
                     )
-                  : Padding(
-                      padding: const EdgeInsets.all(16.0),
+                  : const Padding(
+                      padding: EdgeInsets.all(16.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Text(
                             "😄",
                             style: TextStyle(fontSize: 128),
@@ -283,14 +281,14 @@ class _HomeworkPageState extends State<HomeworkPage> {
                           },
                         );
                       },
-                      child: const Icon(
-                        Icons.add,
-                        size: 46,
-                      ),
                       backgroundColor:
                           Theme.of(context).brightness == Brightness.dark
                               ? Colors.white
                               : Colors.black,
+                      child: const Icon(
+                        Icons.add,
+                        size: 46,
+                      ),
                     ),
                   ),
                 ),
@@ -307,7 +305,8 @@ class DisplayDialog extends StatefulWidget {
   final DateTime initialDate;
   final Function(Homework) onHomeworkAdded;
 
-  DisplayDialog({required this.initialDate, required this.onHomeworkAdded});
+  const DisplayDialog(
+      {super.key, required this.initialDate, required this.onHomeworkAdded});
 
   @override
   _DisplayDialogState createState() => _DisplayDialogState();
@@ -388,6 +387,8 @@ class _DisplayDialogState extends State<DisplayDialog> {
     if (pickedDate != null) {
       selectedDate = pickedDate;
 
+      if (!mounted) return;
+
       // Show time picker
       final pickedTime = await showTimePicker(
         context: context,
@@ -423,7 +424,7 @@ class _DisplayDialogState extends State<DisplayDialog> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0))),
       title: const Text("Hausaufgabe eintragen"),
-      content: Container(
+      content: SizedBox(
         width: 300,
         child: ListView(
           shrinkWrap: true,

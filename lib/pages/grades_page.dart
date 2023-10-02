@@ -139,10 +139,12 @@ class _GradesPageState extends State<GradesPage> {
                 fontSize: 22,
                 fontWeight: FontWeight.w500,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           trailing: Text(
-            "Ø " + averageGradeMap.values.elementAt(index),
+            "Ø ${averageGradeMap.values.elementAt(index)}",
             style: const TextStyle(fontSize: 22),
           ),
           children: [
@@ -184,8 +186,9 @@ class _GradesPageState extends State<GradesPage> {
                                               .elementAt(index)[i]
                                               .title,
                                           style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -471,6 +474,11 @@ class _GradesPageState extends State<GradesPage> {
                             children: [
                               const Text("Promotionspunkte"),
                               Shimmer.fromColors(
+                                baseColor: Theme.of(context).canvasColor,
+                                highlightColor: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color!,
                                 child: const Text(
                                   "..........",
                                   style: TextStyle(
@@ -479,11 +487,6 @@ class _GradesPageState extends State<GradesPage> {
                                   ),
                                   textAlign: TextAlign.end,
                                 ),
-                                baseColor: Theme.of(context).canvasColor,
-                                highlightColor: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color!,
                               ),
                             ],
                           ),
@@ -496,7 +499,7 @@ class _GradesPageState extends State<GradesPage> {
                             children: [
                               const Text("Promotionspunkte"),
                               Text(
-                                "${lowestGradePoints.toString()}",
+                                lowestGradePoints.toString(),
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w400,

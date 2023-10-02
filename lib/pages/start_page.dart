@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notely/helpers/api_client.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -90,6 +92,39 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
+
+  // TODO: replace this test ad unit with your own ad unit.
+  final adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-2286905824384856/8408652296'
+      : 'ca-app-pub-2286905824384856/3392925495';
+
+  /// Loads a banner ad.
+  void loadAd() {
+    print("Loading ad...");
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      size: AdSize.fullBanner,
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          debugPrint('$ad loaded.');
+          setState(() {
+            _isLoaded = true;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('BannerAd failed to load: $err');
+          // Dispose the ad here to free resources.
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
   @override
   void dispose() {
     _gradesStreamController.close();
@@ -127,6 +162,8 @@ class _StartPageState extends State<StartPage> {
   initState() {
     super.initState();
 
+    loadAd();
+
     _getGrades();
     _getStudent();
     _getExams();
@@ -139,7 +176,7 @@ class _StartPageState extends State<StartPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: true,
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: Column(
@@ -174,7 +211,7 @@ class _StartPageState extends State<StartPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   IntrinsicHeight(
-                    child: Container(
+                    child: SizedBox(
                       width: double.infinity,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,92 +223,86 @@ class _StartPageState extends State<StartPage> {
                                 SizedBox(
                                   height: cardHeight,
                                   width: double.infinity,
-                                  child: Container(
-                                    child: Card(
-                                      elevation: 3.0,
-                                      shadowColor: Colors.grey.withOpacity(0.3),
-                                      shape: RoundedRectangleBorder(
+                                  child: Card(
+                                    elevation: 3.0,
+                                    shadowColor: Colors.grey.withOpacity(0.3),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        HapticFeedback.selectionClick();
+
+                                        showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            backgroundColor: Colors.transparent,
+                                            builder: (context) => ExamsPage(
+                                                  examList: exams,
+                                                ));
+                                      },
+                                      customBorder: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(8.0),
                                       ),
-                                      child: InkWell(
-                                        onTap: () {
-                                          HapticFeedback.selectionClick();
-
-                                          showModalBottomSheet(
-                                              context: context,
-                                              isScrollControlled: true,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              builder: (context) => ExamsPage(
-                                                    examList: exams,
-                                                  ));
-                                        },
-                                        customBorder: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            const FittedBox(
-                                              child: Text(
-                                                'Bald',
-                                                style: TextStyle(fontSize: 16),
-                                              ),
-                                              fit: BoxFit.scaleDown,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          const FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              'Bald',
+                                              style: TextStyle(fontSize: 16),
                                             ),
-                                            StreamBuilder<List<Exam>>(
-                                                stream: _examsStreamController
-                                                    .stream,
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    );
-                                                  } else if (snapshot
-                                                      .hasError) {
-                                                    return const Center(
-                                                      child: Text("Error"),
-                                                    );
-                                                  }
-                                                  List<Exam> exams =
-                                                      snapshot.data!;
-
-                                                  int examCount = 0;
-                                                  for (var exam in exams) {
-                                                    if (exam.startDate.isBefore(
-                                                        DateTime.now().add(
-                                                            const Duration(
-                                                                days: 14)))) {
-                                                      examCount++;
-                                                    }
-                                                  }
-                                                  return FittedBox(
-                                                    child: Text(
-                                                      examCount.toString(),
-                                                      style: const TextStyle(
-                                                        fontSize: 48,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                    fit: BoxFit.scaleDown,
+                                          ),
+                                          StreamBuilder<List<Exam>>(
+                                              stream:
+                                                  _examsStreamController.stream,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
                                                   );
-                                                }),
-                                            const FittedBox(
-                                              child: Text(
-                                                'Tests',
-                                                style: TextStyle(fontSize: 16),
-                                              ),
-                                              fit: BoxFit.scaleDown,
+                                                } else if (snapshot.hasError) {
+                                                  return const Center(
+                                                    child: Text("Error"),
+                                                  );
+                                                }
+                                                List<Exam> exams =
+                                                    snapshot.data!;
+
+                                                int examCount = 0;
+                                                for (var exam in exams) {
+                                                  if (exam.startDate.isBefore(
+                                                      DateTime.now().add(
+                                                          const Duration(
+                                                              days: 14)))) {
+                                                    examCount++;
+                                                  }
+                                                }
+                                                return FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  child: Text(
+                                                    examCount.toString(),
+                                                    style: const TextStyle(
+                                                      fontSize: 48,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
+                                          const FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              'Tests',
+                                              style: TextStyle(fontSize: 16),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -353,6 +384,7 @@ class _StartPageState extends State<StartPage> {
                                                     }
                                                   }
                                                   return FittedBox(
+                                                    fit: BoxFit.scaleDown,
                                                     child: Text(
                                                       homeworkCount.toString(),
                                                       style: const TextStyle(
@@ -361,15 +393,14 @@ class _StartPageState extends State<StartPage> {
                                                             FontWeight.w500,
                                                       ),
                                                     ),
-                                                    fit: BoxFit.scaleDown,
                                                   );
                                                 }),
                                             const FittedBox(
+                                              fit: BoxFit.scaleDown,
                                               child: Text(
                                                 'Hausaufgaben',
                                                 style: TextStyle(fontSize: 16),
                                               ),
-                                              fit: BoxFit.scaleDown,
                                             ),
                                           ],
                                         ),
@@ -453,15 +484,15 @@ class _StartPageState extends State<StartPage> {
                                                               gradeList.length -
                                                                   1)
                                                           ? const EdgeInsets
-                                                                  .only(
+                                                              .only(
                                                               bottom: 11.0)
                                                           : (index == 0)
                                                               ? const EdgeInsets
-                                                                      .only(
+                                                                  .only(
                                                                   top: 8.0,
                                                                   bottom: 3.0)
                                                               : const EdgeInsets
-                                                                      .only(
+                                                                  .only(
                                                                   bottom: 3.0),
                                                       width: double.infinity,
                                                       padding:
@@ -476,13 +507,13 @@ class _StartPageState extends State<StartPage> {
                                                               ? const Radius
                                                                   .circular(8.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                           topRight: (index == 0)
                                                               ? const Radius
                                                                   .circular(8.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                           bottomLeft: (index ==
                                                                   gradeList
@@ -491,7 +522,7 @@ class _StartPageState extends State<StartPage> {
                                                               ? const Radius
                                                                   .circular(6.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                           bottomRight: (index ==
                                                                   gradeList
@@ -500,7 +531,7 @@ class _StartPageState extends State<StartPage> {
                                                               ? const Radius
                                                                   .circular(6.0)
                                                               : const Radius
-                                                                      .circular(
+                                                                  .circular(
                                                                   4.0),
                                                         ),
                                                       ),
@@ -571,6 +602,20 @@ class _StartPageState extends State<StartPage> {
               ),
             ),
             const Spacer(),
+            Container(
+              child: (_bannerAd != null)
+                  ? Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SafeArea(
+                        child: SizedBox(
+                          width: _bannerAd!.size.width.toDouble(),
+                          height: _bannerAd!.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd!),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
             FutureBuilder<bool>(
                 future: SharedPreferences.getInstance().then((prefs) {
                   return prefs.getBool("neon_banner") ?? false;

@@ -1,20 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:notely/OutlinedBoxShadow.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/initialize_screen.dart';
+import 'package:notely/outlined_box_shadow.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:notely/secure_storage.dart';
+import 'package:notely/widgets/auth_text_field.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/style.dart';
 import '../view_container.dart';
-import '../widgets/AuthTextField.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -36,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
     if (!kIsWeb) {
       headlessWebView = HeadlessInAppWebView(
         initialUrlRequest:
-            URLRequest(url: WebUri("https://www.schul-netz.com/mobile/")),
+            URLRequest(url: Uri.parse("https://www.schul-netz.com/mobile/")),
         onWebViewCreated: (controller) {
           debugPrint('HeadlessInAppWebView created!');
         },
@@ -52,13 +53,13 @@ class _LoginPageState extends State<LoginPage> {
               .toString()
               .contains("https://www.schul-netz.com/mobile/login?mandant")) {
             debugPrint("gotologin");
-            await headlessWebView?.webViewController.evaluateJavascript(
+            await headlessWebView!.webViewController.evaluateJavascript(
                 source:
                     """document.querySelector('.mat-raised-button').click();""");
           }
           if (url.toString().contains("authorize.php")) {
             debugPrint("authorize");
-            await headlessWebView?.webViewController
+            await headlessWebView!.webViewController
                 .evaluateJavascript(source: """
                 if(document.getElementById("login") && document.getElementById("passwort")){
                 document.getElementById("login").value = "${_usernameController.text}"; 
@@ -99,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
       apiClient.school = "demo";
       await storage.write(key: "username", value: username);
       await storage.write(key: "password", value: password);
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         PageTransition(
@@ -139,6 +141,8 @@ class _LoginPageState extends State<LoginPage> {
 
         apiClient.accessToken = trimmedString;
         apiClient.school = dropdownValue.toLowerCase();
+        if (!mounted) return;
+
         showToast(
           alignment: Alignment.bottomCenter,
           duration: const Duration(seconds: 1),
@@ -167,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
             type: PageTransitionType.fade,
             duration: const Duration(milliseconds: 450),
             alignment: Alignment.bottomCenter,
-            child: const ViewContainerWidget(),
+            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
           ),
         );
       } else if (response.statusCode == 200 &&
@@ -175,9 +179,10 @@ class _LoginPageState extends State<LoginPage> {
         debugPrint("Hasn't authenticated for the first time");
         await headlessWebView?.dispose();
         await headlessWebView?.run();
-        headlessWebView?.webViewController.loadUrl(
+
+        headlessWebView!.webViewController.loadUrl(
             urlRequest: URLRequest(
-                url: WebUri(
+                url: Uri.parse(
                     "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F${dropdownValue.toLowerCase()}")));
       } else {
         showToast(

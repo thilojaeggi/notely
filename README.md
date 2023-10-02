@@ -151,7 +151,7 @@ That's it.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Notifications (WIP)
+- [x] Notifications
 - [X] Add Homework
 - [ ] Widget (WIP)
 

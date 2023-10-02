@@ -20,7 +20,6 @@ class TimetablePage extends StatefulWidget {
 class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
   DateTime today = DateTime.now();
-  late Future<List<Exam>> _examList;
   final StreamController<List<Event>> _eventStreamController =
       StreamController<List<Event>>();
   final APIClient _apiClient = APIClient();
@@ -201,6 +200,8 @@ class _TimetablePageState extends State<TimetablePage> {
                               context: context,
                             );
                           }
+                          if (!mounted) return;
+
                           Navigator.of(context).pop();
                         },
                       ),
@@ -214,7 +215,6 @@ class _TimetablePageState extends State<TimetablePage> {
                   ? Align(
                       alignment: Alignment.topRight,
                       child: Container(
-                        child: const Text("Test"),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 1),
                         decoration: const BoxDecoration(
@@ -224,6 +224,7 @@ class _TimetablePageState extends State<TimetablePage> {
                             topRight: Radius.circular(10.0),
                           ),
                         ),
+                        child: const Text("Test"),
                       ),
                     )
                   : const SizedBox.shrink(),
@@ -284,29 +285,27 @@ class _TimetablePageState extends State<TimetablePage> {
                       ),
                       Expanded(
                         flex: 12,
-                        child: Container(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                event.courseName.toString(),
-                                textAlign: TextAlign.start,
-                                style: const TextStyle(
-                                    fontSize: 21,
-                                    height: 1.1,
-                                    fontWeight: FontWeight.w600),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              event.courseName.toString(),
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                  fontSize: 21,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              event.teachers!.first.toString(),
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                height: 1.2,
                               ),
-                              Text(
-                                event.teachers!.first.toString(),
-                                textAlign: TextAlign.start,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  height: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(
@@ -331,11 +330,11 @@ class _TimetablePageState extends State<TimetablePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+        const Padding(
+          padding: EdgeInsets.only(left: 8.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
+            children: [
               Text(
                 "Stundenplan",
                 style: TextStyle(
@@ -378,15 +377,15 @@ class _TimetablePageState extends State<TimetablePage> {
                   child: Text("Error"),
                 );
               }
-              List<Event> _eventList = snapshot.data!;
+              List<Event> eventList = snapshot.data!;
               return Expanded(
-                child: (_eventList.isNotEmpty)
+                child: (eventList.isNotEmpty)
                     ? Scrollbar(
                         child: ListView.builder(
                             shrinkWrap: true,
-                            itemCount: _eventList.length,
+                            itemCount: eventList.length,
                             itemBuilder: (BuildContext ctxt, int index) {
-                              Event event = _eventList[index];
+                              Event event = eventList[index];
                               return LayoutBuilder(builder:
                                   (BuildContext context,
                                       BoxConstraints constraints) {

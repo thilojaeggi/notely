@@ -2,66 +2,60 @@
 //
 //     final Exam = ExamFromJson(jsonString);
 
-import 'dart:convert';
-
-List<Exam> ExamFromJson(String str) => List<Exam>.from(json.decode(str).map((x) => Exam.fromJson(x)));
-
-String ExamToJson(List<Exam> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
 class Exam {
-    Exam({
-        required this.id,
-        required this.startDate,
-        required this.endDate,
-        required this.text,
-        this.comment,
-        this.roomToken,
-        this.roomId,
-        this.teachers,
-        this.teacherIds,
-        this.teacherTokens,
-        required this.courseId,
-        required this.courseToken,
-        required this.courseName,
-        this.status,
-        this.color,
-        required this.eventType,
-        this.eventRoomStatus,
-        this.timetableText,
-        this.infoFacilityManagement,
-        this.importset,
-        this.lessons,
-        this.publishToInfoSystem,
-        this.studentNames,
-        this.studentIds,
-    });
+  Exam({
+    required this.id,
+    required this.startDate,
+    required this.endDate,
+    required this.text,
+    this.comment,
+    this.roomToken,
+    this.roomId,
+    this.teachers,
+    this.teacherIds,
+    this.teacherTokens,
+    required this.courseId,
+    required this.courseToken,
+    required this.courseName,
+    this.status,
+    this.color,
+    required this.eventType,
+    this.eventRoomStatus,
+    this.timetableText,
+    this.infoFacilityManagement,
+    this.importset,
+    this.lessons,
+    this.publishToInfoSystem,
+    this.studentNames,
+    this.studentIds,
+  });
 
-    String id;
-    DateTime startDate;
-    DateTime endDate;
-    String text;
-    dynamic comment;
-    dynamic roomToken;
-    dynamic roomId;
-    dynamic teachers;
-    dynamic teacherIds;
-    dynamic teacherTokens;
-    String courseId;
-    String courseToken;
-    String courseName;
-    dynamic status;
-    dynamic color;
-    String eventType;
-    dynamic eventRoomStatus;
-    dynamic timetableText;
-    dynamic infoFacilityManagement;
-    dynamic importset;
-    dynamic lessons;
-    dynamic publishToInfoSystem;
-    dynamic studentNames;
-    dynamic studentIds;
+  String id;
+  DateTime startDate;
+  DateTime endDate;
+  String text;
+  dynamic comment;
+  dynamic roomToken;
+  dynamic roomId;
+  dynamic teachers;
+  dynamic teacherIds;
+  dynamic teacherTokens;
+  String courseId;
+  String courseToken;
+  String courseName;
+  dynamic status;
+  dynamic color;
+  String eventType;
+  dynamic eventRoomStatus;
+  dynamic timetableText;
+  dynamic infoFacilityManagement;
+  dynamic importset;
+  dynamic lessons;
+  dynamic publishToInfoSystem;
+  dynamic studentNames;
+  dynamic studentIds;
 
-    factory Exam.fromJson(Map<String, dynamic> json) => Exam(
+  factory Exam.fromJson(Map<String, dynamic> json) => Exam(
         id: json["id"],
         startDate: DateTime.parse(json["startDate"]),
         endDate: DateTime.parse(json["endDate"]),
@@ -86,12 +80,14 @@ class Exam {
         publishToInfoSystem: json["publishToInfoSystem"],
         studentNames: json["studentNames"],
         studentIds: json["studentIds"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
-        "startDate": "${startDate.year.toString().padLeft(4, '0')}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}",
-        "endDate": "${endDate.year.toString().padLeft(4, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}",
+        "startDate":
+            "${startDate.year.toString().padLeft(4, '0')}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}",
+        "endDate":
+            "${endDate.year.toString().padLeft(4, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}",
         "text": text,
         "comment": comment,
         "roomToken": roomToken,
@@ -113,5 +109,5 @@ class Exam {
         "publishToInfoSystem": publishToInfoSystem,
         "studentNames": studentNames,
         "studentIds": studentIds,
-    };
+      };
 }

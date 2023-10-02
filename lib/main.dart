@@ -4,9 +4,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
+import 'package:notely/helpers/initialize_screen.dart';
 import 'package:notely/models/grade.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/pages/whatsnew_page.dart';
@@ -240,38 +242,11 @@ class _NotelyState extends State<Notely> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final InAppReview inAppReview = InAppReview.instance;
 
-  Future<void> checkForUpdates(BuildContext context) async {
-    // Get the current version code of the app
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    int currentVersionCode = int.parse(packageInfo.buildNumber);
-
-    // Get the last version code of the app stored in SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? lastVersionCode = prefs.getInt('version_code');
-
-    String school = prefs.getString("school") ?? "";
-
-    if (lastVersionCode == null ||
-        lastVersionCode < currentVersionCode ||
-        kDebugMode) {
-      // The app was updated, show a modal popup
-      showModalBottomSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          builder: (BuildContext context) {
-            return WhatsNew(school: school);
-          });
-      prefs.setInt('version_code', currentVersionCode);
-    }
-  }
-
   Future<void> askForReview(BuildContext context) async {
     // Ask for review when the user has used the app for 5 times
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? appLaunches = prefs.getInt('appLaunches');
-    if (appLaunches == null) {
-      appLaunches = 0;
-    }
+    appLaunches ??= 0;
     appLaunches++;
     debugPrint(appLaunches.toString());
 
@@ -288,7 +263,6 @@ class _NotelyState extends State<Notely> {
     super.initState();
     isLoggedIn = login();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.microtask(() => checkForUpdates(navigatorKey.currentContext!));
       Future.microtask(() => askForReview(navigatorKey.currentContext!));
     });
   }
@@ -382,13 +356,13 @@ class _NotelyState extends State<Notely> {
                       ],
                     )));
                   } else if (snapshot.hasError) {
-                    return Material(
+                    return const Material(
                       child: SafeArea(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
+                              children: [
                                 Icon(
                                   Icons.error,
                                   size: 128,
@@ -410,10 +384,13 @@ class _NotelyState extends State<Notely> {
                     );
                   }
                   bool loggedIn = snapshot.data ?? false;
+
                   return loggedIn
-                      ? const ScrollConfiguration(
-                          child: ViewContainerWidget(),
-                          behavior: CustomScrollBehavior(),
+                      ? const InitializeScreen(
+                          targetWidget: ScrollConfiguration(
+                            behavior: CustomScrollBehavior(),
+                            child: ViewContainerWidget(),
+                          ),
                         )
                       : const LoginPage();
                 }),

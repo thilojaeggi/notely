@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:day_night_switcher/day_night_switcher.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/initialization_helper.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,15 +27,22 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  TextEditingController targetGradeController = new TextEditingController();
+  TextEditingController targetGradeController = TextEditingController();
   bool notificationsEnabled = false;
+  final _initializationHelper = InitializationHelper();
+  late final Future<bool> _future;
 
   Future<PackageInfo> _getPackageInfo() {
     return PackageInfo.fromPlatform();
   }
 
   void openAppSettings() async {
-    AppSettings.openNotificationSettings();
+    AppSettings.openAppSettings();
+  }
+
+  Future<bool> _isUnderGdpr() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (prefs.getInt("IABTCF_gdprApplies") ?? 1) == 1;
   }
 
   Future<void> toggleNotifications(bool value) async {
@@ -61,7 +70,10 @@ class _SettingsPageState extends State<SettingsPage> {
         debugPrint("Subscribed to all topics");
         await prefs.setBool("notificationsEnabled", true);
       } else if (settings.authorizationStatus == AuthorizationStatus.denied) {
-        debugPrint("Tried to enable notifications but they are disabled in system");
+        debugPrint(
+            "Tried to enable notifications but they are disabled in system");
+        if (!mounted) return;
+
         showDialog(
           context: context,
           builder: (context) {
@@ -108,6 +120,8 @@ class _SettingsPageState extends State<SettingsPage> {
     SecureStorage().deleteAll();
     final prefs = await SharedPreferences.getInstance();
     prefs.remove("school");
+    if (!mounted) return;
+
     Navigator.pushReplacement(
         context,
         PageTransition(
@@ -144,8 +158,8 @@ class _SettingsPageState extends State<SettingsPage> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  launch(
-                      "https://play.google.com/store/apps/details?id=de.notely.app");
+                  launchUrl(Uri.parse(
+                      "https://play.google.com/store/apps/details?id=de.notely.app"));
                 },
                 child: const Text("App öffnen"),
               )
@@ -163,6 +177,8 @@ class _SettingsPageState extends State<SettingsPage> {
         notificationsEnabled = value.getBool("notificationsEnabled") ?? false;
       });
     });
+
+    _future = _isUnderGdpr();
 
     super.initState();
   }
@@ -275,29 +291,28 @@ class _SettingsPageState extends State<SettingsPage> {
                               }),
                     ),
                   ),
-                  (Platform.isIOS)
-                      ? Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.only(bottom: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  if (Platform.isIOS)
+                    Card(
+                        elevation: 3,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListTile(
+                          onTap: changeAppIcon,
+                          visualDensity: const VisualDensity(vertical: 2),
+                          title: const Text(
+                            "App Icon ändern",
+                            style: TextStyle(
+                              fontSize: 23,
+                            ),
                           ),
-                          clipBehavior: Clip.antiAlias,
-                          child: ListTile(
-                            onTap: changeAppIcon,
-                            visualDensity: const VisualDensity(vertical: 2),
-                            title: const Text(
-                              "App Icon ändern",
-                              style: TextStyle(
-                                fontSize: 23,
-                              ),
-                            ),
-                            trailing: const Icon(
-                              Icons.image,
-                              size: 32,
-                            ),
-                          ))
-                      : const SizedBox.shrink(),
+                          trailing: const Icon(
+                            Icons.image,
+                            size: 32,
+                          ),
+                        )),
                   Card(
                     elevation: 3,
                     margin: const EdgeInsets.only(bottom: 10),
@@ -310,7 +325,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         final Uri emailLaunchUri = Uri(
                             scheme: 'mailto',
                             path: 'thilo.jaeggi@ksso.ch',
-                            query: 'subject=Notely Problem ${APIClient().school}&body=Dein Problem: ');
+                            query:
+                                'subject=Notely Problem ${APIClient().school}&body=Dein Problem: ');
                         launchUrl(emailLaunchUri);
                       },
                       visualDensity: const VisualDensity(vertical: 2),
@@ -326,6 +342,51 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
+                  FutureBuilder<bool>(
+                      future: _future,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data == true) {
+                          return Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.only(bottom: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child:
+                                // Show it only if the user is under the GDPR
+
+                                ListTile(
+                              visualDensity: const VisualDensity(vertical: 2),
+                              title: const Text(
+                                  'Datenschutzeinstellungen anpassen',
+                                  style: TextStyle(fontSize: 20)),
+                              onTap: () async {
+                                final scaffoldMessenger =
+                                    ScaffoldMessenger.of(context);
+
+                                // Show the consent message again
+                                final didChangePreferences =
+                                    await _initializationHelper
+                                        .changePrivacyPreferences();
+
+                                // Give feedback to the user that their
+                                // preferences have been correctly modified
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      didChangePreferences
+                                          ? 'Einstellungen aktualisiert'
+                                          : 'Ein Fehler ist aufgetreten',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
                   Card(
                     elevation: 3,
                     margin: const EdgeInsets.only(bottom: 10),
@@ -373,7 +434,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: const EdgeInsets.only(bottom: 5),
                     child: Text(
                       "${DateTime.now().year.toString()} © Thilo Jaeggi",
-                      style: const TextStyle(color: Color.fromRGBO(158, 158, 158, 1)),
+                      style: const TextStyle(
+                          color: Color.fromRGBO(158, 158, 158, 1)),
                     ),
                   ),
                 ],
@@ -401,6 +463,8 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
       if (await FlutterDynamicIcon.supportsAlternateIcons) {
         await FlutterDynamicIcon.setAlternateIconName(iconName[index]);
         debugPrint("App icon change successful");
+        if (!mounted) return;
+
         Navigator.pop(context);
         return;
       }
@@ -415,25 +479,24 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    clipBehavior: Clip.antiAlias,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: ListTile(
-          onTap: () {
-            changeAppIconCallback(index);
-          },
-          contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
-          leading: SizedBox(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(11),
-              child: Image.asset(
-                imageName,
-              ),
+        onTap: () {
+          changeAppIconCallback(index);
+        },
+        contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+        leading: SizedBox(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(11),
+            child: Image.asset(
+              imageName,
             ),
           ),
-          title: Text(themeTxt, style: const TextStyle(fontSize: 25)),
         ),
-      
+        title: Text(themeTxt, style: const TextStyle(fontSize: 25)),
+      ),
     );
   }
 
@@ -443,7 +506,6 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
       contentPadding: const EdgeInsets.only(left: 4.0, right: 4.0),
       buttonPadding: EdgeInsets.zero,
       actionsPadding: EdgeInsets.zero,
-    
       titlePadding: const EdgeInsets.only(left: 8.0, top: 8.0),
       insetPadding: EdgeInsets.zero,
       title: const Text("App Icon ändern"),
@@ -451,10 +513,8 @@ class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          
           children: [
             buildIconTile(0, "Klassisch", "assets/icons/icon-classic.png"),
-
             buildIconTile(1, "Aktuell", "assets/icons/notely.png"),
           ],
         ),

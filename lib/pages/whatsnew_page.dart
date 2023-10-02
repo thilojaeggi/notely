@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 
@@ -59,64 +56,12 @@ class _WhatsNewState extends State<WhatsNew> {
                       ],
                     ),
                     title: const Text(
-                      'Tests im Stundenplan',
+                      'Performance Verbesserungen',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ), //Title is the only Required Item
                     subtitle: const Text(
-                      'Lektionen mit Tests werden nun im Stundenplan mit einem kleinen Icon symbolisiert.',
-                    ),
-                  ),
-                  ListTile(
-                    title: const Text(
-                      'Fehlerbehebungen:',
-                      style:
-                          TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
-                    ),
-                    subtitle: Column(
-                      children: [ListTile(
-                          leading: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                FontAwesome5.bug,
-                                size: 24,
-                                color: Colors.blue.shade500,
-                              ),
-                            ],
-                          ),
-                          title: const Text(
-                            'Wartungsarbeiten und Ausfall',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
-                          subtitle: const Text(
-                            'Nach dem Ausfall von Kaschuso konnte es sein dass das laden in Dauerschleife war. Dies sollte nun behoben sein, falls nicht bitte die App neuinstallieren.',
-                            style: TextStyle(fontSize: 13.0),
-                          ),
-                        ),
-                        ListTile(
-                          leading: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                FontAwesome5.bug,
-                                size: 24,
-                                color: Colors.blue.shade500,
-                              ),
-                            ],
-                          ),
-                          title: const Text(
-                            'Kleinere Fehlerbehebungen',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600),
-                          ),
-                          subtitle: const Text(
-                            'Es wurden einige kleinere Fehler behoben.',
-                            style: TextStyle(fontSize: 13.0),
-                          ),
-                        ),
-                      ],
+                      'Es wurden mehrere Performance Verbesserungen vorgenommen, welche die App schneller machen.',
                     ),
                   ),
                   const SizedBox(
