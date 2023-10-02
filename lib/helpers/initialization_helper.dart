@@ -12,7 +12,8 @@ class InitializationHelper {
         testIdentifiers: ["E1029A70-CBAC-4A16-9CDC-B0C17B220B56"],
       ),
     );
-    ConsentInformation.instance.requestConsentInfoUpdate(params, () async {
+    ConsentInformation.instance
+        .requestConsentInfoUpdate(ConsentRequestParameters(), () async {
       if (await ConsentInformation.instance.isConsentFormAvailable()) {
         await _loadConsentForm();
       } else {
@@ -65,14 +66,8 @@ class InitializationHelper {
   Future<bool> changePrivacyPreferences() async {
     final completer = Completer<bool>();
 
-    var params = ConsentRequestParameters(
-      consentDebugSettings: ConsentDebugSettings(
-        debugGeography: DebugGeography.debugGeographyNotEea,
-        testIdentifiers: ["E1029A70-CBAC-4A16-9CDC-B0C17B220B56"],
-      ),
-    );
-
-    ConsentInformation.instance.requestConsentInfoUpdate(params, () async {
+    ConsentInformation.instance
+        .requestConsentInfoUpdate(ConsentRequestParameters(), () async {
       if (await ConsentInformation.instance.isConsentFormAvailable()) {
         ConsentForm.loadConsentForm((consentForm) {
           consentForm.show((formError) async {
