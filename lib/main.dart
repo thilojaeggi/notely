@@ -49,8 +49,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       'login': username,
       'passwort': password,
       'response_type': 'token',
-      'client_id': 'cj79FSz1JQvZKpJY',
-      'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
+      'client_id': 'ppyybShnMerHdtBQ',
+      'state': 'Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi',
     });
     if (response.statusCode == 302) {
       String locationHeader = response.headers['location'].toString().replaceAll(
@@ -212,8 +212,8 @@ Future<bool> login() async {
     'login': username,
     'passwort': password,
     'response_type': 'token',
-    'client_id': 'cj79FSz1JQvZKpJY',
-    'state': 'mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl',
+    'client_id': 'ppyybShnMerHdtBQ',
+    'state': 'Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi',
   });
   if (response.statusCode == 302 && response.headers['location'] != null) {
     String locationHeader = response.headers['location'].toString().replaceAll(

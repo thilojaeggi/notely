@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
     final url = Globals.buildUrl(
-        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=cj79FSz1JQvZKpJY&state=mipeZwvnUtB4bJWCsoXhGi7d8AyQT5698jSa9ixl");
+        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=ppyybShnMerHdtBQ&state=Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi");
 
     if (username == "demo" && password == "demo") {
       apiClient.fakeData = true;
@@ -129,6 +129,7 @@ class _LoginPageState extends State<LoginPage> {
       debugPrint(response.statusCode.toString());
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
+        debugPrint(locationHeader);
         var trimmedString =
             locationHeader.substring(0, locationHeader.indexOf('&'));
         trimmedString = trimmedString
