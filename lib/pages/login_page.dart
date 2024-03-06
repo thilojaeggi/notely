@@ -13,7 +13,8 @@ import 'package:notely/widgets/auth_text_field.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:html/parser.dart' as parser;
+import 'package:html/dom.dart' as dom;
 import '../config/style.dart';
 import '../view_container.dart';
 
@@ -37,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
     if (!kIsWeb) {
       headlessWebView = HeadlessInAppWebView(
         initialUrlRequest:
-            URLRequest(url: Uri.parse("https://www.schul-netz.com/mobile/")),
+            URLRequest(url: Uri.parse("https://schulnetz.web.app/")),
         onWebViewCreated: (controller) {
           debugPrint('HeadlessInAppWebView created!');
         },
@@ -51,11 +52,21 @@ class _LoginPageState extends State<LoginPage> {
           debugPrint("onLoadStop $url");
           if (url
               .toString()
-              .contains("https://www.schul-netz.com/mobile/login?mandant")) {
+              .contains("https://schulnetz.web.app/login?mandant")) {
             debugPrint("gotologin");
-            await headlessWebView!.webViewController.evaluateJavascript(
-                source:
-                    """document.querySelector('.mat-raised-button').click();""");
+
+            await headlessWebView!.webViewController
+                .evaluateJavascript(source: """
+                    document.querySelectorAll('button').forEach(button => {
+  if (button.textContent.trim() === 'Log in') {
+    button.click();
+    console.log('clicked');
+  }
+});
+
+
+
+                    """);
           }
           if (url.toString().contains("authorize.php")) {
             debugPrint("authorize");
@@ -71,9 +82,7 @@ class _LoginPageState extends State<LoginPage> {
         },
         onUpdateVisitedHistory: (controller, url, androidIsReload) async {
           debugPrint("onUpdateVisitedHistory $url");
-          if (url
-              .toString()
-              .contains("https://www.schul-netz.com/mobile/start")) {
+          if (url.toString().contains("/login")) {
             debugPrint("sucessfully authenticated for the first time");
             await headlessWebView?.dispose();
             setState(() {
@@ -93,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
     final url = Globals.buildUrl(
-        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=ppyybShnMerHdtBQ&state=Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi");
+        "${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=ppyybShnMerHdtBQ&state=Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi/authorize.php&response_type=code&client_id=ppyybShnMerHdtBQ&state=TkhFWHlaOVNLeDQ1TGZSOExaUS1QY1NVelY0cnVGZkhUR1BZNnpYNE1QU1lX&redirect_uri=&scope=openid%20&code_challenge=o7GBGEkRSfRgfuTzL5XAoRU6JDy0B-t3kk84Vp8K9dE&code_challenge_method=S256&nonce=TkhFWHlaOVNLeDQ1TGZSOExaUS1QY1NVelY0cnVGZkhUR1BZNnpYNE1QU1lX");
 
     if (username == "demo" && password == "demo") {
       apiClient.fakeData = true;
@@ -127,6 +136,9 @@ class _LoginPageState extends State<LoginPage> {
       'access-control-expose-headers': '*'
     }).then((response) async {
       debugPrint(response.statusCode.toString());
+      debugPrint(response.body.toString());
+      debugPrint(response.headers.toString());
+
       if (response.statusCode == 302 && response.headers['location'] != null) {
         String locationHeader = response.headers['location'].toString();
         debugPrint(locationHeader);
@@ -184,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
         headlessWebView!.webViewController.loadUrl(
             urlRequest: URLRequest(
                 url: Uri.parse(
-                    "https://www.schul-netz.com/mobile/login?mandant=https:%2F%2Fkaschuso.so.ch%2Fpublic%2F${dropdownValue.toLowerCase()}")));
+                    "https://kaschuso.so.ch/public/${dropdownValue.toLowerCase()}/authorize.php?response_type=token&client_id=ppyybShnMerHdtBQ&state=M0w1SDU3NTVRdkJwamUxWnd5UHhPWlJXYXBaelBHUVFmY3VQQ2JiRUF5b1pz&redirect_uri=&scope=openid%20&code_challenge=HZfCQIX-u5DwZhXXBGxOtPD3VzlN0kXGMmZAlS4p0Y4&code_challenge_method=S256&nonce=M0w1SDU3NTVRdkJwamUxWnd5UHhPWlJXYXBaelBHUVFmY3VQQ2JiRUF5b1pz")));
       } else {
         showToast(
           alignment: Alignment.bottomCenter,
