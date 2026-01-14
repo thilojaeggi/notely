@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:notely/models/exam.dart';
 import 'package:notely/helpers/homework_database.dart';
 import 'package:notely/helpers/api_client.dart';
@@ -31,6 +34,8 @@ class _TimetablePageState extends State<TimetablePage> {
       final cachedExams = await _apiClient.getExams(true);
       _markExams(cachedEvents, cachedExams);
 
+      await _syncWidgetWithEvents(cachedEvents);
+
       _refreshEvents(date);
       return cachedEvents;
     } catch (e) {
@@ -45,6 +50,8 @@ class _TimetablePageState extends State<TimetablePage> {
       final cachedExams = await _apiClient.getExams(true);
       _markExams(currentEvents, cachedExams);
 
+      await _syncWidgetWithEvents(currentEvents);
+
       if (!mounted) return;
       setState(() {
         _eventsFuture = Future.value(currentEvents);
@@ -56,9 +63,96 @@ class _TimetablePageState extends State<TimetablePage> {
 
   void _markExams(List<Event> events, List<Exam> cachedExams) {
     for (final event in events) {
-      event.isExam = cachedExams.any((exam) =>
-          exam.id == event.id && exam.startDate == event.startDate);
+      event.isExam = cachedExams.any(
+          (exam) => exam.id == event.id && exam.startDate == event.startDate);
     }
+  }
+
+  Future<void> _syncWidgetWithEvents(List<Event> events) async {
+    try {
+      final now = DateTime.now();
+      final sortedEvents = events
+          .where((event) => event.startDate != null)
+          .toList()
+        ..sort((a, b) => a.startDate!.compareTo(b.startDate!));
+
+      Event? currentEvent;
+      Event? nextEvent;
+
+      for (final event in sortedEvents) {
+        final start = event.startDate!;
+        final end = event.endDate ?? start;
+
+        final hasStarted = !now.isBefore(start);
+        final isOngoing = now.isBefore(end);
+
+        if (currentEvent == null && hasStarted && isOngoing) {
+          currentEvent = event;
+        }
+        if (nextEvent == null && start.isAfter(now)) {
+          nextEvent = event;
+        }
+        if (currentEvent != null && nextEvent != null) {
+          break;
+        }
+      }
+
+      final dailyLessons = sortedEvents.map(_lessonDetails).toList();
+
+      final payload = {
+        'currentLesson': _lessonDetails(currentEvent),
+        'nextLesson': _lessonDetails(nextEvent),
+        'dailyLessons': dailyLessons,
+      };
+
+      await HomeWidget.saveWidgetData<String>(
+        'notely_lesson_data',
+        jsonEncode(payload),
+      );
+      await HomeWidget.updateWidget(
+        name: 'ScheduleWidget',
+        iOSName: 'ScheduleWidget',
+      );
+    } catch (e) {
+      debugPrint('Failed to sync widget data: $e');
+    }
+  }
+
+  Map<String, String> _lessonDetails(Event? event) {
+    if (event == null) {
+      return _emptyLessonDetails();
+    }
+
+    final lessonName = (event.courseName?.trim().isNotEmpty ?? false)
+        ? event.courseName!
+        : (event.text ?? '');
+    final teacher = (event.teachers != null && event.teachers!.isNotEmpty)
+        ? event.teachers!.first
+        : '';
+    final room = event.roomToken ?? '';
+    final time = (event.startDate != null) ? _formatTime(event.startDate!) : '';
+    final start = event.startDate?.toUtc().toIso8601String() ?? '';
+    final end = event.endDate?.toUtc().toIso8601String() ?? '';
+
+    return {
+      'lessonName': lessonName,
+      'room': room,
+      'teacher': teacher,
+      'time': time,
+      'start': start,
+      'end': end,
+    };
+  }
+
+  Map<String, String> _emptyLessonDetails() {
+    return {
+      'lessonName': '',
+      'room': '',
+      'teacher': '',
+      'time': '',
+      'start': '',
+      'end': '',
+    };
   }
 
 // Define start and end of the day as DateTime objects
@@ -96,7 +190,6 @@ class _TimetablePageState extends State<TimetablePage> {
     return '$hours Std. $minutes Min.';
   }
 
-
   Widget _eventWidget(BuildContext context, Event event) {
     // Return early if required fields are null
     if (event.startDate == null || event.endDate == null) {
@@ -124,6 +217,9 @@ class _TimetablePageState extends State<TimetablePage> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
           onTap: () {
+            if (kIsWeb) {
+              return;
+            }
             HapticFeedback.selectionClick();
             // Check if required fields are available before showing dialog
             if (event.id == null ||
@@ -304,7 +400,8 @@ class _TimetablePageState extends State<TimetablePage> {
   Widget build(BuildContext context) {
     final titleStyle = pageTitleTextStyle(context);
     return SafeArea(
-      top: true, bottom: false,
+      top: true,
+      bottom: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -341,7 +438,8 @@ class _TimetablePageState extends State<TimetablePage> {
               _eventsFuture = _loadEvents(date);
             },
             itemExtent: 60.0,
-            itemBuilder: (context, date, isSelected, isDisabled, isToday, onTap) {
+            itemBuilder:
+                (context, date, isSelected, isDisabled, isToday, onTap) {
               return InkWell(
                 onTap: onTap,
                 borderRadius: BorderRadius.circular(8.0),
@@ -357,38 +455,43 @@ class _TimetablePageState extends State<TimetablePage> {
                           child: Text(
                             DateFormat.MMM('de_CH').format(date),
                             textAlign: TextAlign.center,
-                            style:
-                                Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontSize: 12.0,
-                                      height: 2,
-                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontSize: 12.0,
+                                  height: 2,
+                                ),
                           ),
                         ),
                       ),
-      
+
                       // Day number – stays perfectly vertically centered
                       Center(
                         child: Text(
                           date.day.toString(),
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontSize: 32.0,
-                                fontWeight: FontWeight.w600,
-                                height: 1,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 32.0,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1,
+                                  ),
                         ),
                       ),
-      
+
                       Expanded(
                         child: Center(
                           child: Text(
                             DateFormat.E('de_CH').format(date),
                             textAlign: TextAlign.center,
-                            style:
-                                Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontSize: 18.0,
-                                      height: 1,
-                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontSize: 18.0,
+                                  height: 1,
+                                ),
                           ),
                         ),
                       ),
@@ -398,8 +501,9 @@ class _TimetablePageState extends State<TimetablePage> {
               );
             },
           ),
-                    const SizedBox(height: 10,),
-
+          const SizedBox(
+            height: 10,
+          ),
           FutureBuilder<List<Event>>(
               future: _eventsFuture,
               builder: (context, snapshot) {
