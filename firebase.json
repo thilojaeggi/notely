@@ -1,0 +1,67 @@
+{
+  "flutter": {
+    "platforms": {
+      "ios": {
+        "default": {
+          "projectId": "notely-ch",
+          "appId": "1:845125974911:ios:76de159134daa3760bb84a",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "notely-ch",
+          "configurations": {
+            "android": "1:845125974911:android:a95995adb91b1a720bb84a",
+            "ios": "1:845125974911:ios:76de159134daa3760bb84a",
+            "web": "1:845125974911:web:0299315e8748643a0bb84a"
+          }
+        }
+      },
+      "android": {
+        "default": {
+          "projectId": "notely-ch",
+          "appId": "1:845125974911:android:a95995adb91b1a720bb84a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      }
+    }
+  },
+  "hosting": {
+    "predeploy": "flutter build web --wasm --no-strip-wasm --source-maps",
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "europe-west1"
+    },
+    "headers": [
+      {
+        "source": "**/*",
+        "headers": [
+          {
+            "key": "Cross-Origin-Embedder-Policy",
+            "value": "require-corp"
+          },
+          {
+            "key": "Cross-Origin-Opener-Policy",
+            "value": "same-origin"
+          }
+        ]
+      },
+      {
+        "source": "/?(\\?*)",
+        "headers": [
+          {
+            "key": "Link",
+            "value": "</assets/FontManifest.json>; rel=preload; as=fetch; crossorigin"
+          }
+        ]
+      }
+    ]
+  }
+}
