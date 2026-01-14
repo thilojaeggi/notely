@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/helpers/grade_color.dart';
+import 'package:notely/helpers/subscription_manager.dart';
 import 'package:notely/models/exam.dart';
 import 'package:notely/models/grade.dart';
 import 'package:notely/models/homework.dart';
@@ -17,7 +18,6 @@ import 'package:notely/helpers/homework_database.dart';
 import 'package:notely/models/student.dart';
 import 'package:notely/pages/exams_page.dart';
 import 'package:notely/pages/homework_page.dart';
-
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -116,11 +116,15 @@ class _StartPageState extends State<StartPage> {
   bool _nativeAdIsLoaded = false;
 
   static const _iosNativeAdUnitId = 'ca-app-pub-2286905824384856/7515170733';
-  static const _androidNativeAdUnitId = 'ca-app-pub-2286905824384856/8660074907';
+  static const _androidNativeAdUnitId =
+      'ca-app-pub-2286905824384856/8660074907';
 
   String get _nativeAdUnitId {
     if (kIsWeb) return _androidNativeAdUnitId;
-    if (kDebugMode) return Platform.isIOS ? 'ca-app-pub-3940256099942544/3986624511' : 'ca-app-pub-3940256099942544/2247696110';
+    if (kDebugMode)
+      return Platform.isIOS
+          ? 'ca-app-pub-3940256099942544/3986624511'
+          : 'ca-app-pub-3940256099942544/2247696110';
     return Platform.isIOS ? _iosNativeAdUnitId : _androidNativeAdUnitId;
   }
 
@@ -135,7 +139,7 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
-  void _loadNativeAdFor(Brightness brightness) {
+  Future<void> _loadNativeAdFor(Brightness brightness) async {
     // dispose old ad if any
     _nativeAd?.dispose();
     _nativeAd = null;
@@ -308,7 +312,7 @@ class _StartPageState extends State<StartPage> {
       children: [
         Expanded(child: _buildUpcomingExamsCard()),
         const SizedBox(width: 8.0),
-        Expanded(child: _buildHomeworkCard()),
+        Expanded(child: kIsWeb ? Container() : _buildHomeworkCard()),
       ],
     );
   }
@@ -397,8 +401,9 @@ class _StartPageState extends State<StartPage> {
   Widget _buildGradesSection() {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final backgroundColor =
-        isDark ? Colors.white.withValues(alpha: 0.03) : theme.colorScheme.surface;
+    final backgroundColor = isDark
+        ? Colors.white.withValues(alpha: 0.03)
+        : theme.colorScheme.surface;
 
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -473,7 +478,8 @@ class _StartPageState extends State<StartPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final subtitleColor =
-        theme.textTheme.bodySmall?.color?.withValues(alpha: 0.65) ?? Colors.grey;
+        theme.textTheme.bodySmall?.color?.withValues(alpha: 0.65) ??
+            Colors.grey;
     final badgeColor = gradeColor(grade);
     final markText = grade.mark?.toString() ?? "-";
 
@@ -628,8 +634,9 @@ class _StatCard extends StatelessWidget {
     final borderColor = isDark
         ? Colors.white.withValues(alpha: 0.08)
         : Colors.black.withValues(alpha: 0.05);
-    final baseColor =
-        isDark ? Colors.white.withValues(alpha: 0.05) : theme.colorScheme.surface;
+    final baseColor = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : theme.colorScheme.surface;
     final titleStyle = theme.textTheme.titleSmall?.copyWith(
       letterSpacing: 0.2,
     );
