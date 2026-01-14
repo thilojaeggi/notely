@@ -84,10 +84,12 @@ Notely is a cross-platform app for the commonly used swiss school platform "Schu
 It's currently only compatible with schools within the canton of Solothurn. (KSSO, GIBS, KBS, etc..)
 
 <p float="left">
-  <img src="https://i.imgur.com/MhgODpl.png" width="24%" />
-  <img src="https://i.imgur.com/XTgV2hU.png" width="24%" /> 
-  <img src="https://i.imgur.com/pWeN3df.png" width="24%" />
-  <img src="https://i.imgur.com/4pkfS3A.png" width="24%" />
+  <img src="https://raw.githubusercontent.com/thilojaeggi/notely/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpeg" width="16.66%" />
+  <img src="https://raw.githubusercontent.com/thilojaeggi/notely/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpeg" width="16.66%" /> 
+  <img src="https://raw.githubusercontent.com/thilojaeggi/notely/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpeg" width="16.66%" />
+  <img src="https://raw.githubusercontent.com/thilojaeggi/notely/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpeg" width="16.66%" />
+  <img src="https://raw.githubusercontent.com/thilojaeggi/notely/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpeg" width="16.66%" />
+  <img src="https://raw.githubusercontent.com/thilojaeggi/notely/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpeg" width="16.66%" />
 </p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
