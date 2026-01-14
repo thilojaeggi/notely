@@ -1,12 +1,13 @@
 import 'dart:convert'; // NEW
+import 'dart:developer';
 import 'dart:math'; // NEW
 
 import 'package:crypto/crypto.dart' as crypto; // NEW
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:notely/Globals.dart';
+import 'package:notely/config/app_config.dart';
 import 'package:notely/helpers/api_client.dart';
 import 'package:notely/helpers/initialize_screen.dart';
 import 'package:notely/outlined_box_shadow.dart';
@@ -16,11 +17,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:notely/secure_storage.dart';
 import 'package:notely/widgets/auth_text_field.dart';
+import 'package:notely/widgets/two_factor_sheet.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
+import 'package:notely/helpers/otp_helper.dart';
+import 'package:notely/helpers/token_manager.dart';
 import '../config/style.dart';
 import '../view_container.dart';
 
@@ -31,197 +35,15 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _TwoFactorSheet extends StatefulWidget {
-  final TextEditingController textController;
-
-  const _TwoFactorSheet({required this.textController});
-
-  @override
-  State<_TwoFactorSheet> createState() => _TwoFactorSheetState();
-}
-
-class _TwoFactorSheetState extends State<_TwoFactorSheet> {
-  bool _hasInput = false;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.textController.addListener(_handleChange);
-  }
-
-  @override
-  void dispose() {
-    widget.textController.removeListener(_handleChange);
-    super.dispose();
-  }
-
-  void _handleChange() {
-    final hasText = widget.textController.text.trim().isNotEmpty;
-    if (hasText != _hasInput) {
-      setState(() {
-        _hasInput = hasText;
-      });
-    }
-  }
-
-  void _submit() {
-    Navigator.of(context).pop(widget.textController.text.trim());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cupertinoTheme = CupertinoTheme.of(context);
-    final backgroundColor = cupertinoTheme.scaffoldBackgroundColor;
-    final helperStyle = cupertinoTheme.textTheme.textStyle.copyWith(
-          fontSize: 15,
-          color: CupertinoColors.systemGrey.resolveFrom(context),
-        );
-    final fieldBackground =
-        CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
-
-    return AnimatedPadding(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(28),
-            topRight: Radius.circular(28),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: 30,
-              offset: const Offset(0, -12),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color:
-                          CupertinoColors.systemGrey4.resolveFrom(context),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '2-Faktor-Code',
-                        style: cupertinoTheme.textTheme.navTitleTextStyle
-                            .copyWith(fontSize: 22),
-                      ),
-                    ),
-                    CupertinoButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      padding: const EdgeInsets.all(8),
-                      minSize: 32,
-                      child: Icon(
-                        CupertinoIcons.xmark_circle_fill,
-                        size: 24,
-                        color:
-                            CupertinoColors.systemGrey.resolveFrom(context),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Bitte gib den aktuellen Code aus deiner Authentifizierungs-App ein.',
-                  style: helperStyle,
-                ),
-                const SizedBox(height: 18),
-                CupertinoTextField(
-                  controller: widget.textController,
-                  autofocus: true,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    letterSpacing: 6,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  cursorColor: Theme.of(context).colorScheme.primary,
-                  decoration: BoxDecoration(
-                    color: fieldBackground,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(6),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Der Code läuft nach kurzer Zeit ab und wird automatisch aktualisiert.',
-                  style: helperStyle,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CupertinoButton(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        color: fieldBackground,
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(
-                          'Abbrechen',
-                          style: cupertinoTheme.textTheme.textStyle.copyWith(
-                            color: CupertinoColors.label.resolveFrom(context),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: CupertinoButton.filled(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        onPressed: _hasInput ? _submit : null,
-                        child: const Text('Senden'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _LoginPageState extends State<LoginPage> {
   bool _loginHasBeenPressed = false;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   HeadlessInAppWebView? headlessWebView;
-  bool _headlessRunning = false;
   String dropdownValue = 'KSSO';
   bool _hasStoredCredentials = false;
   bool _autoSignInTriggered = false;
+  final TokenManager _tokenManager = TokenManager();
 
   static const Map<String, String> _schoolOptions = {
     'Kanti Solothurn': 'KSSO',
@@ -254,13 +76,11 @@ class _LoginPageState extends State<LoginPage> {
     final digest = crypto.sha256.convert(verifierUtf8);
     _codeChallenge = _base64UrlNoPadding(digest.bytes);
 
-    // state & nonce: also random
-    final stateBytes = List<int>.generate(16, (_) => rand.nextInt(256));
+    // INCREASED SIZE: state & nonce (match their long strings)
+    final stateBytes = List<int>.generate(43, (_) => rand.nextInt(256));
     _oauthState = _base64UrlNoPadding(stateBytes);
 
-    debugPrint('PKCE generated: verifier=${_codeVerifier!.substring(0, 8)}..., '
-        'challenge=${_codeChallenge!.substring(0, 8)}..., '
-        'state=$_oauthState');
+    debugPrint('PKCE generated with longer state: $_oauthState');
   }
 
   @override
@@ -273,9 +93,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _createHeadlessWebView() {
+    const initialUrl = "https://schulnetz.web.app/";
+    final initialUri = Uri.parse(
+        kIsWeb ? 'https://proxy.corsfix.com/?$initialUrl' : initialUrl);
     headlessWebView = HeadlessInAppWebView(
-      initialUrlRequest:
-          URLRequest(url: WebUri.uri(Uri.parse("https://schulnetz.web.app/"))),
+      initialUrlRequest: URLRequest(url: WebUri.uri(initialUri)),
       onWebViewCreated: (controller) {
         debugPrint('HeadlessInAppWebView created!');
       },
@@ -331,12 +153,12 @@ class _LoginPageState extends State<LoginPage> {
             // --- OTP / TOTP PAGE ---
             debugPrint("OTP page detected");
 
-            final otp = await _askForOtpCode();
+            final otp = await _getOtpCode();
             if (otp == null || otp.isEmpty) {
-              debugPrint("User cancelled or empty OTP");  
+              debugPrint("User cancelled or empty OTP");
               setState(() {
-              _loginHasBeenPressed = false;
-            });            
+                _loginHasBeenPressed = false;
+              });
               return;
             }
 
@@ -380,7 +202,8 @@ class _LoginPageState extends State<LoginPage> {
           final code = uri.queryParameters['code'];
           final state = uri.queryParameters['state'];
 
-          debugPrint('callback code=$code state=$state (expected state=$_oauthState)');
+          debugPrint(
+              'callback code=$code state=$state (expected state=$_oauthState)');
 
           if (code != null && state != null && state == _oauthState) {
             // We have a valid code – stop headless webview and exchange for token
@@ -420,9 +243,17 @@ class _LoginPageState extends State<LoginPage> {
     final storedPassword = await storage.read(key: "password") ?? '';
     final storedSchool = prefs.getString("school") ?? '';
     final normalizedSchool = storedSchool.toUpperCase();
+    final lowerSchool = normalizedSchool.toLowerCase();
     final hasValidSchool = _schoolOptions.containsValue(normalizedSchool);
-    final canAutoLogin =
-        storedUsername.isNotEmpty && storedPassword.isNotEmpty && hasValidSchool;
+    final canAutoLogin = storedUsername.isNotEmpty &&
+        storedPassword.isNotEmpty &&
+        hasValidSchool;
+
+    // Try to reuse a stored token first; falls back to full sign-in (including OTP) when expired.
+    if (hasValidSchool) {
+      final resumed = await _tryUseStoredToken(lowerSchool);
+      if (resumed) return;
+    }
 
     if (!mounted) return;
 
@@ -443,6 +274,40 @@ class _LoginPageState extends State<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _attemptAutoSignIn();
       });
+    }
+  }
+
+  Future<bool> _tryUseStoredToken(String schoolCode) async {
+    final apiClient = APIClient();
+    try {
+      final cached = await _tokenManager.getValidAccessToken(schoolCode);
+      if (cached == null || cached.isEmpty) {
+        return false;
+      }
+      final isValid = await apiClient.isAccessTokenValid(cached, schoolCode);
+      if (!isValid) {
+        return false;
+      }
+
+      apiClient.accessToken = cached;
+      apiClient.school = schoolCode;
+
+      if (!mounted) return true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            duration: const Duration(milliseconds: 450),
+            alignment: Alignment.bottomCenter,
+            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
+          ),
+        );
+      });
+      return true;
+    } catch (e, s) {
+      debugPrint('Failed to reuse stored token: $e\n$s');
+      return false;
     }
   }
 
@@ -467,7 +332,7 @@ class _LoginPageState extends State<LoginPage> {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return _TwoFactorSheet(
+        return TwoFactorSheet(
           textController: controller,
         );
       },
@@ -475,6 +340,25 @@ class _LoginPageState extends State<LoginPage> {
 
     controller.dispose();
     return result;
+  }
+
+  Future<String?> _getOtpCode() async {
+    try {
+      final storage = SecureStorage();
+      final storedSecret = await storage.readOtpSecret();
+      if (storedSecret != null && storedSecret.isNotEmpty) {
+        final generated = OtpHelper.generateTotp(storedSecret);
+        if (generated != null) {
+          debugPrint('Generated OTP from stored secret');
+          return generated;
+        }
+        debugPrint('Stored OTP secret was invalid');
+      }
+    } catch (e, s) {
+      debugPrint('Failed to generate stored OTP: $e\n$s');
+    }
+
+    return _askForOtpCode();
   }
 
   String? _extractAuthorizeError(String html) {
@@ -492,10 +376,7 @@ class _LoginPageState extends State<LoginPage> {
 
       final bodyText = document.body?.text ?? '';
       if (bodyText.toLowerCase().contains('fehler:')) {
-        return bodyText
-            .split('\n')
-            .map((line) => line.trim())
-            .firstWhere(
+        return bodyText.split('\n').map((line) => line.trim()).firstWhere(
               (line) => line.toLowerCase().startsWith('fehler'),
               orElse: () => 'Fehler bei der Anmeldung',
             );
@@ -541,23 +422,6 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  Future<void> _safeEvaluateJS(
-      InAppWebViewController controller, String source) async {
-    try {
-      await controller.evaluateJavascript(source: source);
-    } catch (e, s) {
-      debugPrint('evaluateJavascript error: $e\n$s');
-    }
-  }
-
-  String _escapeForJS(String value) {
-    return value
-        .replaceAll(r'\', r'\\')
-        .replaceAll('"', r'\"')
-        .replaceAll('\n', r'\n')
-        .replaceAll('\r', r'\r');
-  }
-
   Future<void> _disposeHeadlessWebView() async {
     if (headlessWebView != null) {
       try {
@@ -566,27 +430,11 @@ class _LoginPageState extends State<LoginPage> {
         debugPrint('Error disposing headlessWebView: $e\n$s');
       }
       headlessWebView = null;
-      _headlessRunning = false;
     }
-  }
-
-  DateTime? _deriveExpiry(dynamic expiresIn) {
-    if (expiresIn == null) {
-      return null;
-    }
-    int? seconds;
-    if (expiresIn is num) {
-      seconds = expiresIn.toInt();
-    } else if (expiresIn is String) {
-      seconds = int.tryParse(expiresIn);
-    }
-    if (seconds == null || seconds <= 0) {
-      return null;
-    }
-    return DateTime.now().add(Duration(seconds: seconds));
   }
 
   // NEW: exchange code for access_token via token.php
+// NEW: exchange code for access_token via token.php
   Future<void> _exchangeCodeForToken(String code) async {
     final storage = SecureStorage();
     final apiClient = APIClient();
@@ -597,9 +445,20 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final tokenUrl =
-        Uri.parse("https://kaschuso.so.ch/public/$school/token.php");
+    // 1. Use the correct URL including /public/ as seen in the working logs
+    final tokenUrlString = "https://kaschuso.so.ch/public/$school/token.php";
+    final tokenUrl = Uri.parse(
+        kIsWeb ? 'https://proxy.corsfix.com/?$tokenUrlString' : tokenUrlString);
 
+    // 2. Extract cookies from the Headless WebView session to maintain context
+    final cookieManager = CookieManager.instance();
+    final cookies =
+        await cookieManager.getCookies(url: WebUri("https://kaschuso.so.ch"));
+    String cookieString = cookies.map((e) => "${e.name}=${e.value}").join("; ");
+
+    debugPrint("Sending cookies to token.php: $cookieString");
+
+    // 3. Build the request body with the empty redirect_uri seen in the HAR [cite: 1, 3]
     final body = {
       'grant_type': 'authorization_code',
       'code': code,
@@ -608,65 +467,287 @@ class _LoginPageState extends State<LoginPage> {
       'client_id': 'ppyybShnMerHdtBQ',
     };
 
-    final resp = await http.post(
-      tokenUrl,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json, text/plain, */*',
-      },
-      body: body,
-    );
+    try {
+      final resp = await http.post(
+        tokenUrl,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json, text/plain, */*',
+          'Cookie': cookieString, // Attach session ID
+          'User-Agent':
+              'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+          'Origin': 'https://schulnetz.web.app',
+          'Referer': 'https://schulnetz.web.app',
+        },
+        body: body,
+      );
 
-    debugPrint('token.php status: ${resp.statusCode}');
-    debugPrint('token.php body: ${resp.body}');
+      debugPrint('token.php status: ${resp.statusCode}');
+      debugPrint('token.php body: ${resp.body}');
 
-    if (resp.statusCode == 200) {
-      final jsonData = jsonDecode(resp.body) as Map<String, dynamic>;
-      final accessToken = jsonData['access_token'] as String?;
-      final expiresAt = _deriveExpiry(jsonData['expires_in']);
+      if (resp.statusCode == 200 && resp.body.trim().isNotEmpty) {
+        final jsonData = jsonDecode(resp.body) as Map<String, dynamic>;
+        final accessToken = jsonData['access_token'] as String?;
+        final refreshToken = jsonData['refresh_token'] as String?;
+        final expiresIn = jsonData['expires_in'];
+        final expiresAt = TokenManager.deriveExpiry(expiresIn);
 
-      if (accessToken == null) {
-        debugPrint('No access_token field in token.php response');
-        return;
+        if (accessToken == null) {
+          debugPrint('No access_token field in token.php response');
+          return;
+        }
+
+        final username = _usernameController.text;
+        final password = _passwordController.text;
+
+        final prefs = await SharedPreferences.getInstance();
+        await storage.write(key: "username", value: username);
+        await storage.write(key: "password", value: password);
+        await prefs.setString("school", school);
+        await storage.saveAccessToken(
+          accessToken,
+          expiresAt: expiresAt,
+          refreshToken: refreshToken,
+        );
+
+        apiClient.accessToken = accessToken;
+        apiClient.school = school;
+
+        if (!mounted) return;
+
+        showToast(
+          alignment: Alignment.bottomCenter,
+          duration: const Duration(seconds: 1),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 32.0),
+            decoration: const BoxDecoration(
+              color: Colors.greenAccent,
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            ),
+            padding: const EdgeInsets.all(6.0),
+            child: const Text(
+              "Erfolgreich angemeldet",
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            ),
+          ),
+          context: context,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            duration: const Duration(milliseconds: 450),
+            alignment: Alignment.bottomCenter,
+            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
+          ),
+        );
+      } else {
+        debugPrint(
+            "Token response was empty or failed with status: ${resp.statusCode}");
+        throw Exception("Empty response from token.php");
       }
-
-      final username = _usernameController.text;
-      final password = _passwordController.text;
-
-      final prefs = await SharedPreferences.getInstance();
-      await storage.write(key: "username", value: username);
-      await storage.write(key: "password", value: password);
-      await prefs.setString("school", school);
-      await storage.saveAccessToken(accessToken, expiresAt: expiresAt);
-
-      apiClient.accessToken = accessToken;
-      apiClient.school = school;
-
+    } catch (e, s) {
+      debugPrint('Error during token exchange: $e\n$s');
       if (!mounted) return;
-
       showToast(
         alignment: Alignment.bottomCenter,
-        duration: const Duration(seconds: 1),
         child: Container(
           margin: const EdgeInsets.only(bottom: 32.0),
           decoration: const BoxDecoration(
-            color: Colors.greenAccent,
-            borderRadius: BorderRadius.all(
-              Radius.circular(12.0),
-            ),
+            color: Colors.redAccent,
+            borderRadius: BorderRadius.all(Radius.circular(12.0)),
           ),
           padding: const EdgeInsets.all(6.0),
           child: const Text(
-            "Erfolgreich angemeldet",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.0,
-            ),
+            "2FA-Token konnte nicht geholt werden",
+            style: TextStyle(color: Colors.white, fontSize: 16.0),
           ),
         ),
         context: context,
       );
+    }
+  }
 
+  Future<void> _signInWeb(
+      String username, String password, String schoolCode) async {
+    final storage = SecureStorage();
+    final apiClient = APIClient();
+    final prefs = await SharedPreferences.getInstance();
+    final apiBase = AppConfig.authProxyUrl;
+    print(apiBase);
+    try {
+      // 1. Send Credentials
+      final loginUrl = Uri.parse('$apiBase/auth/login');
+      final loginBody = jsonEncode({
+        "username": username,
+        "password": password,
+        "school": schoolCode,
+      });
+
+      final loginResp = await http.post(
+        loginUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: loginBody,
+      );
+
+      if (loginResp.statusCode != 200 && loginResp.statusCode != 201) {
+        throw Exception(
+            'Login failed: ${loginResp.statusCode} ${loginResp.body}');
+      }
+
+      final loginData = jsonDecode(loginResp.body);
+      final status = loginData['status'];
+
+      String? accessToken;
+      String? refreshToken;
+      dynamic expiresIn;
+
+      // 2. Handle OTP Requirement
+      if (status == 'OTP_REQUIRED') {
+        final sessionId = loginData['sessionId'];
+
+        // Prompt for OTP (or use stored secret)
+        final otp = await _getOtpCode();
+        if (otp == null || otp.isEmpty) {
+          if (mounted) {
+            setState(() {
+              _loginHasBeenPressed = false;
+            });
+          }
+          return;
+        }
+
+        // 3. Send OTP
+        final otpUrl = Uri.parse('$apiBase/auth/otp');
+        final otpBody = jsonEncode({
+          "sessionId": sessionId,
+          "otp": otp,
+        });
+
+        final otpResp = await http.post(
+          otpUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: otpBody,
+        );
+
+        if (otpResp.statusCode != 200 && otpResp.statusCode != 201) {
+          throw Exception('OTP validation failed: ${otpResp.statusCode}');
+        }
+
+        final otpData = jsonDecode(otpResp.body);
+        if (otpData['status'] == 'SUCCESS') {
+          accessToken = otpData['access_token'];
+          refreshToken = otpData['refresh_token'];
+          expiresIn = otpData['expires_in'];
+        } else {
+          throw Exception('OTP status not SUCCESS: ${otpData['status']}');
+        }
+      } else if (status == 'SUCCESS') {
+        // Direct success (no OTP)
+        accessToken = loginData['access_token'];
+        refreshToken = loginData['refresh_token'];
+        expiresIn = loginData['expires_in'];
+      } else {
+        throw Exception('Unknown login status: $status');
+      }
+
+      // 4. Save Token and Complete Login
+      if (accessToken != null) {
+        final schoolLower = schoolCode.toLowerCase();
+        final expiresAt = TokenManager.deriveExpiry(expiresIn);
+
+        await storage.write(key: "username", value: username);
+        await storage.write(key: "password", value: password);
+        await prefs.setString("school", schoolLower);
+
+        await storage.saveAccessToken(
+          accessToken,
+          expiresAt: expiresAt,
+          refreshToken: refreshToken,
+        );
+
+        apiClient.accessToken = accessToken;
+        apiClient.school = schoolLower;
+
+        if (!mounted) return;
+
+        showToast(
+          alignment: Alignment.bottomCenter,
+          duration: const Duration(seconds: 1),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 32.0),
+            decoration: const BoxDecoration(
+              color: Colors.greenAccent,
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            ),
+            padding: const EdgeInsets.all(6.0),
+            child: const Text(
+              "Erfolgreich angemeldet",
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            ),
+          ),
+          context: context,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            duration: const Duration(milliseconds: 450),
+            alignment: Alignment.bottomCenter,
+            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
+          ),
+        );
+      }
+    } catch (e, s) {
+      debugPrint('Web login error: $e\n$s');
+      if (mounted) {
+        setState(() {
+          _loginHasBeenPressed = false;
+        });
+        showToast(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 32.0),
+            decoration: const BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            ),
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Anmeldung fehlgeschlagen: $e",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          context: context,
+        );
+      }
+    }
+  }
+
+  Future<void> signIn() async {
+    final storage = SecureStorage();
+    final apiClient = APIClient();
+    final String username = _usernameController.text;
+    final String password = _passwordController.text;
+    final school = dropdownValue.toLowerCase();
+
+    // 1. Check for valid cached token to skip login if possible
+    final cachedToken = await _tokenManager.getValidAccessToken(school);
+    if (cachedToken != null &&
+        cachedToken.isNotEmpty &&
+        await apiClient.isAccessTokenValid(cachedToken, school)) {
+      apiClient.accessToken = cachedToken;
+      apiClient.school = school;
+      if (!mounted) return;
+      setState(() {
+        _loginHasBeenPressed = false;
+      });
       Navigator.pushReplacement(
         context,
         PageTransition(
@@ -676,52 +757,119 @@ class _LoginPageState extends State<LoginPage> {
           child: const InitializeScreen(targetWidget: ViewContainerWidget()),
         ),
       );
-    } else {
-      if (!mounted) return;
-      showToast(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 32.0),
-          decoration: const BoxDecoration(
-            color: Colors.redAccent,
-            borderRadius: BorderRadius.all(
-              Radius.circular(12.0),
-            ),
-          ),
-          padding: const EdgeInsets.all(6.0),
-          child: const Text(
-            "2FA-Token konnte nicht geholt werden",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.0,
-            ),
-          ),
-        ),
-        context: context,
-      );
+      return;
     }
+
+    // 2. Handle Demo Mode
+    if (username == "demo" && password == "demo") {
+      apiClient.fakeData = true;
+      apiClient.school = "demo";
+      await storage.write(key: "username", value: username);
+      await storage.write(key: "password", value: password);
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: const Duration(milliseconds: 450),
+          alignment: Alignment.bottomCenter,
+          child: const ViewContainerWidget(),
+        ),
+      );
+      return;
+    }
+
+    // 3. Web Login Flow (NEW)
+    if (kIsWeb || AppConfig.forceWebFlow) {
+      await _signInWeb(username, password, dropdownValue);
+      return;
+    }
+
+    // 4. Start PKCE flow
+    _generatePkceAndState();
+
+    // 5. Dispose and recreate Headless WebView to ensure a clean session
+    await _disposeHeadlessWebView();
+    _createHeadlessWebView();
+
+    if (headlessWebView == null) {
+      debugPrint('Failed to create HeadlessInAppWebView instance');
+      if (mounted) setState(() => _loginHasBeenPressed = false);
+      return;
+    }
+
+    await headlessWebView!.run();
+
+    // 6. Build the Authorization URL exactly as seen in the HAR
+    const redirectUri = "https://schulnetz.web.app/callback";
+    final authUrlString =
+        "https://kaschuso.so.ch/public/$school/authorize.php" // Keep /public/
+        "?response_type=code"
+        "&client_id=ppyybShnMerHdtBQ"
+        "&state=${_oauthState!}"
+        "&redirect_uri=" // Must be empty to match the HAR
+        "&scope=openid%20"
+        "&code_challenge=${_codeChallenge!}"
+        "&code_challenge_method=S256"
+        "&nonce=${_oauthState!}"
+        "&id=";
+    final authUrl =
+        kIsWeb ? 'https://proxy.corsfix.com/?$authUrlString' : authUrlString;
+    debugPrint("Launching Auth Flow: $authUrl");
+
+    // Load the URL. The WebView's onLoadStop will automatically
+    // handle entering the username/password and clicking login.
+    await headlessWebView!.webViewController?.loadUrl(
+      urlRequest: URLRequest(
+        url: WebUri.uri(Uri.parse(authUrl)),
+      ),
+    );
   }
 
+/*
   Future<void> signIn() async {
     final storage = SecureStorage();
     final apiClient = APIClient();
     final String username = _usernameController.text;
     final String password = _passwordController.text;
+    final school = dropdownValue.toLowerCase();
+
+    // If we already have a fresh token (or can refresh it), skip the whole re-auth flow.
+    final cachedToken = await _tokenManager.getValidAccessToken(school);
+    if (cachedToken != null &&
+        cachedToken.isNotEmpty &&
+        await apiClient.isAccessTokenValid(cachedToken, school)) {
+      apiClient.accessToken = cachedToken;
+      apiClient.school = school;
+      if (!mounted) return;
+      setState(() {
+        _loginHasBeenPressed = false;
+      });
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          duration: const Duration(milliseconds: 450),
+          alignment: Alignment.bottomCenter,
+          child: const InitializeScreen(targetWidget: ViewContainerWidget()),
+        ),
+      );
+      return;
+    }
 
     // Generate new PKCE + state (NEW)
     _generatePkceAndState();
 
-    final school = dropdownValue.toLowerCase();
-
-    final url = Globals.buildUrl(
-        "$school/authorize.php?response_type=code"
-        "&client_id=ppyybShnMerHdtBQ"
-        "&state=${_oauthState!}"
-        "&redirect_uri="
-        "&scope=openid%20"
-        "&code_challenge=${_codeChallenge!}"
-        "&code_challenge_method=S256"
-        "&nonce=${_oauthState!}");
+final redirectUri = "https://schulnetz.web.app/callback"; // Must match the HAR
+final url = Globals.buildUrl(
+    "$school/authorize.php?response_type=code"
+    "&client_id=ppyybShnMerHdtBQ"
+    "&state=${_oauthState!}"
+    "&redirect_uri=${Uri.encodeComponent(redirectUri)}" // Added this
+    "&scope=openid"
+    "&code_challenge=${_codeChallenge!}"
+    "&code_challenge_method=S256"
+    "&nonce=${_oauthState!}");
 
     if (username == "demo" && password == "demo") {
       apiClient.fakeData = true;
@@ -818,7 +966,6 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else if (response.statusCode == 200 &&
           response.headers['location'] == null) {
-        debugPrint("Hasn't authenticated for the first time – start headless PKCE flow");
 
         await _disposeHeadlessWebView();
         _createHeadlessWebView();
@@ -840,8 +987,8 @@ class _LoginPageState extends State<LoginPage> {
                 "?response_type=code"
                 "&client_id=ppyybShnMerHdtBQ"
                 "&state=${_oauthState!}"
-                "&redirect_uri="
-                "&scope=openid%20"
+                "&redirect_uri=https://schulnetz.web.app/callback"
+                "&scope=openid"
                 "&code_challenge=${_codeChallenge!}"
                 "&code_challenge_method=S256"
                 "&nonce=${_oauthState!}")),
@@ -874,7 +1021,7 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -884,6 +1031,8 @@ class _LoginPageState extends State<LoginPage> {
           body: Theme(
             data: Styles.themeData(true, context),
             child: Container(
+              height: double.infinity,
+              width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -898,215 +1047,228 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: <Widget>[
                   const Spacer(),
-                  Form(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Image.asset(
-                            'assets/images/notely_n.png',
-                            width: 100,
-                            height: 100,
-                            isAntiAlias: true,
-                            filterQuality: FilterQuality.medium,
-                          ),
-                        ),
-                        Container(
-                          clipBehavior: Clip.antiAlias,
-                          padding: const EdgeInsets.symmetric(vertical: 6.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: Colors.white.withOpacity(0.1),
-                            boxShadow: [
-                              OutlinedBoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                offset: const Offset(0, 0),
-                                blurRadius: 10.0,
-                                blurStyle: BlurStyle.outer,
-                              ),
-                            ],
-                          ),
-                          child: Theme(
-                            data: Theme.of(context).copyWith(
-                              focusColor: Colors.transparent,
-                              splashColor: Colors.white.withOpacity(0.15),
-                              highlightColor: Colors.white.withOpacity(0.05),
-                              hoverColor: Colors.white.withOpacity(0.08),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 12.0),
-                              child: DropdownButtonFormField<String>(
-                                value: dropdownValue,
-                                alignment: Alignment.centerLeft,
-                                focusColor: Colors.transparent,
-                                borderRadius: BorderRadius.circular(12),
-                                icon: const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: Colors.white,
-                                  size: 26,
-                                ),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                                decoration: const InputDecoration(
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  prefixIcon: Padding(
-                                    padding: EdgeInsets.only(left: 8.0),
-                                    child: Icon(
-                                      Icons.school,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  focusedBorder: InputBorder.none,
-                                  border: InputBorder.none,
-                                ),
-                                dropdownColor: const Color(0xFF1D2E5A),
-                                menuMaxHeight: 300,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    dropdownValue = newValue!;
-                                  });
-                                },
-                                items: _schoolOptions.entries
-                                    .map(
-                                      (entry) => DropdownMenuItem<String>(
-                                        alignment: Alignment.centerLeft,
-                                        value: entry.value,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 4.0),
-                                          child: Text(
-                                            entry.key,
-                                            textAlign: TextAlign.start,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: kIsWeb ? 400 : double.infinity,
+                      ),
+                      child: Form(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Image.asset(
+                                'assets/images/notely_n.png',
+                                width: 100,
+                                height: 100,
+                                isAntiAlias: true,
+                                filterQuality: FilterQuality.medium,
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10.0,
-                        ),
-                        Container(
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: Colors.white.withOpacity(0.1),
-                            boxShadow: [
-                              OutlinedBoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: const Offset(0, 0),
-                                  blurRadius: 10.0,
-                                  blurStyle: BlurStyle.outer)
-                            ],
-                          ),
-                          child: AuthTextField(
-                            backgroundColor: Colors.transparent,
-                            hintText: 'Benutzername',
-                            icon: Icons.person,
-                            editingController: _usernameController,
-                            passwordField: false,
-                            textInputAction: TextInputAction.next,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10.0,
-                        ),
-                        Container(
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: Colors.white.withOpacity(0.1),
-                            boxShadow: [
-                              OutlinedBoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: const Offset(0, 0),
-                                  blurRadius: 10.0,
-                                  blurStyle: BlurStyle.outer)
-                            ],
-                          ),
-                          child: AuthTextField(
-                            backgroundColor: Colors.transparent,
-                            hintText: 'Passwort',
-                            icon: Icons.lock,
-                            editingController: _passwordController,
-                            passwordField: true,
-                            textInputAction: TextInputAction.done,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: OutlinedButton(
-                            onPressed: () async {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              setState(() {
-                                _loginHasBeenPressed = true;
-                              });
-                              await signIn();
-                            },
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.all(10),
-                              shape: RoundedRectangleBorder(
+                            Container(
+                              clipBehavior: Clip.antiAlias,
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 6.0),
+                              decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              side: BorderSide(
-                                width: 3.0,
-                                color: _loginHasBeenPressed
-                                    ? Colors.white
-                                    : Colors.transparent,
-                              ),
-                              backgroundColor: _loginHasBeenPressed
-                                  ? Colors.transparent
-                                  : Colors.white,
-                              animationDuration: const Duration(
-                                milliseconds: 450,
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                left: 8.0,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "Anmelden",
-                                    style: TextStyle(
-                                      color: _loginHasBeenPressed
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontSize: 20.0,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Icon(
-                                    CupertinoIcons.arrow_right,
-                                    color: _loginHasBeenPressed
-                                        ? Colors.white
-                                        : Colors.black,
-                                    size: 30.0,
+                                color: Colors.white.withValues(alpha: 0.1),
+                                boxShadow: [
+                                  OutlinedBoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    offset: const Offset(0, 0),
+                                    blurRadius: 10.0,
+                                    blurStyle: BlurStyle.outer,
                                   ),
                                 ],
                               ),
+                              child: Theme(
+                                data: Theme.of(context).copyWith(
+                                  focusColor: Colors.transparent,
+                                  splashColor:
+                                      Colors.white.withValues(alpha: 0.15),
+                                  highlightColor:
+                                      Colors.white.withValues(alpha: 0.05),
+                                  hoverColor:
+                                      Colors.white.withValues(alpha: 0.08),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 12.0),
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: dropdownValue,
+                                    alignment: Alignment.centerLeft,
+                                    focusColor: Colors.transparent,
+                                    borderRadius: BorderRadius.circular(12),
+                                    icon: const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: Colors.white,
+                                      size: 26,
+                                    ),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      hintStyle: TextStyle(color: Colors.white),
+                                      prefixIcon: Padding(
+                                        padding: EdgeInsets.only(left: 8.0),
+                                        child: Icon(
+                                          Icons.school,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      focusedBorder: InputBorder.none,
+                                      border: InputBorder.none,
+                                    ),
+                                    dropdownColor: const Color(0xFF1D2E5A),
+                                    menuMaxHeight: 300,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        dropdownValue = newValue!;
+                                      });
+                                    },
+                                    items: _schoolOptions.entries
+                                        .map(
+                                          (entry) => DropdownMenuItem<String>(
+                                            alignment: Alignment.centerLeft,
+                                            value: entry.value,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 4.0),
+                                              child: Text(
+                                                entry.key,
+                                                textAlign: TextAlign.start,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Container(
+                              clipBehavior: Clip.antiAlias,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color: Colors.white.withValues(alpha: 0.1),
+                                boxShadow: [
+                                  OutlinedBoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
+                                      offset: const Offset(0, 0),
+                                      blurRadius: 10.0,
+                                      blurStyle: BlurStyle.outer)
+                                ],
+                              ),
+                              child: AuthTextField(
+                                backgroundColor: Colors.transparent,
+                                hintText: 'Benutzername',
+                                icon: Icons.person,
+                                editingController: _usernameController,
+                                passwordField: false,
+                                textInputAction: TextInputAction.next,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Container(
+                              clipBehavior: Clip.antiAlias,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color: Colors.white.withValues(alpha: 0.1),
+                                boxShadow: [
+                                  OutlinedBoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
+                                      offset: const Offset(0, 0),
+                                      blurRadius: 10.0,
+                                      blurStyle: BlurStyle.outer)
+                                ],
+                              ),
+                              child: AuthTextField(
+                                backgroundColor: Colors.transparent,
+                                hintText: 'Passwort',
+                                icon: Icons.lock,
+                                editingController: _passwordController,
+                                passwordField: true,
+                                textInputAction: TextInputAction.done,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  setState(() {
+                                    _loginHasBeenPressed = true;
+                                  });
+                                  await signIn();
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.all(10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  side: BorderSide(
+                                    width: 3.0,
+                                    color: _loginHasBeenPressed
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                  ),
+                                  backgroundColor: _loginHasBeenPressed
+                                      ? Colors.transparent
+                                      : Colors.white,
+                                  animationDuration: const Duration(
+                                    milliseconds: 450,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 8.0,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "Anmelden",
+                                        style: TextStyle(
+                                          color: _loginHasBeenPressed
+                                              ? Colors.white
+                                              : Colors.black,
+                                          fontSize: 20.0,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Icon(
+                                        CupertinoIcons.arrow_right,
+                                        color: _loginHasBeenPressed
+                                            ? Colors.white
+                                            : Colors.black,
+                                        size: 30.0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                   const Spacer(),

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -22,104 +20,78 @@ import 'package:home_widget/home_widget.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:http/http.dart' as http;
+
 import 'firebase_options.dart';
 import 'config/style.dart';
 import 'helpers/homework_database.dart';
 import 'pages/login_page.dart';
 import 'helpers/navigation_service.dart';
+import 'package:universal_io/universal_io.dart' show Platform;
 
 final storage = SecureStorage();
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final APIClient client = APIClient();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await setupFlutterNotifications();
+  !kIsWeb ? await setupFlutterNotifications() : null;
   debugPrint('Handling a background message ${message.messageId}');
   if (message.contentAvailable ||
       message.from == "/topics/newGradeNotification") {
-    final storage = SecureStorage();
     final prefs = await SharedPreferences.getInstance();
     final school = (prefs.getString("school") ?? "ksso").toLowerCase();
     if (school.isEmpty) return;
 
     bool hasValidToken = false;
     final tokenManager = TokenManager();
-    final cachedToken = await tokenManager.getValidAccessToken(school);
-    if (cachedToken != null &&
-        cachedToken.isNotEmpty &&
-        await client.isAccessTokenValid(cachedToken, school)) {
-      client.accessToken = cachedToken;
+    final accessToken = await tokenManager.getValidAccessToken(school);
+    if (accessToken != null && accessToken.isNotEmpty) {
+      client.accessToken = accessToken;
       hasValidToken = true;
-    } else {
-      final username = await storage.read(key: "username") ?? '';
-      final password = await storage.read(key: "password") ?? '';
-      if (username.isEmpty || password.isEmpty) return;
-
-      final url = Globals.buildUrl("$school/authorize.php");
-      final response = await http.post(url, body: {
-        'login': username,
-        'passwort': password,
-        'response_type': 'token',
-        'client_id': 'ppyybShnMerHdtBQ',
-        'state': 'Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi',
-      });
-      if (response.statusCode == 302) {
-        String locationHeader = response.headers['location']
-            .toString()
-            .replaceAll("#", "?");
-        String accessToken = Uri.parse(locationHeader)
-            .queryParameters["access_token"]
-            .toString();
-        await storage.saveAccessToken(accessToken);
-        client.accessToken = accessToken;
-        hasValidToken = true;
-      }
     }
 
     if (!hasValidToken) return;
     client.school = school;
-      try {
-        List<Grade> oldGrades = await client.getGrades(true);
-        List<Grade> newGrades = await client.getGrades(false);
+    try {
+      List<Grade> oldGrades = await client.getGrades(true);
+      List<Grade> newGrades = await client.getGrades(false);
 
-        if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
+      if (newGrades.length <= oldGrades.length || oldGrades.isEmpty) return;
 
-        // Get grades that are in newGrades but not in oldGrades, not using contains cause it doesn't work -.-
-        newGrades = newGrades.where((element) {
-          return !oldGrades.any((oldGrade) => oldGrade.id == element.id);
-        }).toList();
+      // Get grades that are in newGrades but not in oldGrades, not using contains cause it doesn't work -.-
+      newGrades = newGrades.where((element) {
+        return !oldGrades.any((oldGrade) => oldGrade.id == element.id);
+      }).toList();
 
-        for (Grade grade in newGrades) {
-          // send notification
-          flutterLocalNotificationsPlugin.show(
-            grade.id.hashCode,
-            "Notely",
-            "Du hast eine neue ${grade.subject} Note.",
-            NotificationDetails(
-                android: AndroidNotificationDetails(
-                  channel.id,
-                  channel.name,
-                  channelDescription: channel.description,
-                  icon: 'ic_stat_school',
-                  playSound: true,
-                  enableVibration: true,
-                  importance: Importance.high,
-                  priority: Priority.high,
-                  visibility: NotificationVisibility.public,
-                ),
-                iOS: const DarwinNotificationDetails(
-                  presentAlert: true,
-                  presentBadge: true,
-                  presentSound: true,
-                )),
-          );
-        }
-      } catch (e) {
-        debugPrint(e.toString());
+      for (Grade grade in newGrades) {
+        // send notification
+        flutterLocalNotificationsPlugin.show(
+          grade.id.hashCode,
+          "Notely",
+          "Du hast eine neue ${grade.subject} Note.",
+          NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channelDescription: channel.description,
+                icon: 'ic_stat_school',
+                playSound: true,
+                enableVibration: true,
+                importance: Importance.high,
+                priority: Priority.high,
+                visibility: NotificationVisibility.public,
+              ),
+              iOS: const DarwinNotificationDetails(
+                presentAlert: true,
+                presentBadge: true,
+                presentSound: true,
+              )),
+        );
       }
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
+}
 
 /// Create a [AndroidNotificationChannel] for heads up notifications
 late AndroidNotificationChannel channel;
@@ -157,8 +129,8 @@ Future<void> setupFlutterNotifications() async {
     sound: true,
   );
   FirebaseMessaging.instance.getToken().then((value) {
-  debugPrint(value);
-});
+    debugPrint(value);
+  });
   isFlutterLocalNotificationsInitialized = true;
 }
 
@@ -173,8 +145,11 @@ Future<void> main() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
-  await HomeworkDatabase.instance.database;
-  await checkNotifications(messaging);
+  if (!kIsWeb) {
+    await HomeworkDatabase.instance.database;
+    await checkNotifications(messaging);
+  }
+
   await SubscriptionManager().initialize();
   await analytics.setAnalyticsCollectionEnabled(true);
   runApp(const Notely());
@@ -190,7 +165,7 @@ Future<void> initializeRevenueCat() async {
   } else {
     throw UnsupportedError('Platform not supported');
   }
-  
+
   await Purchases.configure(PurchasesConfiguration(apiKey));
 }
 
@@ -238,6 +213,7 @@ Future<bool> login() async {
   final username = await storage.read(key: "username") ?? '';
   final password = await storage.read(key: "password") ?? '';
   final tokenManager = TokenManager();
+
   if (username == "demo" && password == "demo") {
     client.fakeData = true;
     client.school = "demo";
@@ -248,49 +224,13 @@ Future<bool> login() async {
     return false;
   }
 
-  final cachedToken = await tokenManager.getValidAccessToken(school);
-  if (cachedToken != null &&
-      cachedToken.isNotEmpty &&
-      await client.isAccessTokenValid(cachedToken, school)) {
-    client.accessToken = cachedToken;
+  // Use TokenManager to handle everything (cache, refresh, re-auth)
+  final token = await tokenManager.getValidAccessToken(school);
+
+  if (token != null && token.isNotEmpty) {
+    client.accessToken = token;
     client.school = school;
-    debugPrint("Using cached access token");
-    return true;
-  }
-
-  if (username.isEmpty || password.isEmpty) {
-    return false;
-  }
-
-  debugPrint("Found login data");
-  final url = Globals.buildUrl("$school/authorize.php");
-  final response = await http.post(
-    url,
-    body: {
-      'login': username,
-      'passwort': password,
-
-      // Updated OAuth2 + PKCE params:
-      'response_type': 'code',
-      'client_id': 'ppyybShnMerHdtBQ',
-      'state': 'T3gwTkZUSUZ0alR3QnNhaEdjUXB6fjFmRHlZNW5iRGQxVTZna0o4NC1CeHdS',
-      'redirect_uri': '', // If blank in URL, keep blank
-      'scope': 'openid offline_access',
-      'code_challenge': 'QeHw5yEQ00XhOGuOzY-B5GeujPEt_HIsPViAB65rtpE',
-      'code_challenge_method': 'S256',
-      'nonce': 'T3gwTkZUSUZ0alR3QnNhaEdjUXB6fjFmRHlZNW5iRGQxVTZna0o4NC1CeHdS',
-    },
-  );
-  if (response.statusCode == 302 && response.headers['location'] != null) {
-    String locationHeader = response.headers['location'].toString().replaceAll(
-        "#",
-        "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
-    String accessToken =
-        Uri.parse(locationHeader).queryParameters["access_token"].toString();
-    await storage.saveAccessToken(accessToken);
-    client.accessToken = accessToken;
-    client.school = school;
-    debugPrint("Logged in");
+    debugPrint("Logged in via TokenManager");
     return true;
   }
 
@@ -392,6 +332,9 @@ class _NotelyState extends State<Notely> {
             ],
             navigatorKey: NavigationService.navigatorKey,
             debugShowCheckedModeBanner: false,
+            navigatorObservers: [
+              FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+            ],
             theme: ThemeProvider.themeOf(themeContext).data,
             home: FutureBuilder<bool>(
                 future: isLoggedIn,
