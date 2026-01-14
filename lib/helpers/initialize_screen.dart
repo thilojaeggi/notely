@@ -50,6 +50,9 @@ class _InitializeScreenState extends State<InitializeScreen> {
       // The app was updated, show a modal popup
       showModalBottomSheet<void>(
           context: context,
+          constraints: const BoxConstraints(
+            maxWidth: 700,
+          ),
           isScrollControlled: true,
           builder: (BuildContext context) {
             return WhatsNew(school: school);
