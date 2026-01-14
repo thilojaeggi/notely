@@ -5,6 +5,7 @@ class SecureStorage {
   static const String _accessTokenKey = 'access_token';
   static const String _accessTokenExpiryKey = 'access_token_expires_at';
   static const String _refreshTokenKey = 'refresh_token';
+  static const String _otpSecretKey = 'otp_secret';
   final FlutterSecureStorage _storage;
 
   factory SecureStorage() => _instance;
@@ -80,5 +81,17 @@ class SecureStorage {
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _accessTokenExpiryKey);
     await _storage.delete(key: _refreshTokenKey);
+  }
+
+  Future<void> saveOtpSecret(String secret) async {
+    await _storage.write(key: _otpSecretKey, value: secret);
+  }
+
+  Future<String?> readOtpSecret() async {
+    return _storage.read(key: _otpSecretKey);
+  }
+
+  Future<void> clearOtpSecret() async {
+    await _storage.delete(key: _otpSecretKey);
   }
 }
