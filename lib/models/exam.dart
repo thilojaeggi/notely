@@ -1,13 +1,45 @@
-// To parse this JSON data, do
-//
-//     final Exam = ExamFromJson(jsonString);
+DateTime _parseExamDate(String? raw) {
+  if (raw == null || raw.trim().isEmpty) {
+    return DateTime.now();
+  }
+  var normalized = raw.trim();
+  if (!normalized.contains('T') && normalized.contains(' ')) {
+    normalized = normalized.replaceFirst(' ', 'T');
+  }
+  if (RegExp(r'T\d{2}:\d{2}$').hasMatch(normalized)) {
+    normalized = '$normalized:00';
+  }
+  return DateTime.parse(normalized);
+}
+
+DateTime? _tryParseExamDate(String? raw) {
+  try {
+    return _parseExamDate(raw);
+  } catch (_) {
+    return null;
+  }
+}
+
+List<String>? _parseStringList(dynamic data) {
+  if (data == null) return null;
+  if (data is List) {
+    return data
+        .map((item) => item == null ? '' : item.toString())
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+  final text = data.toString();
+  return text.isEmpty ? null : [text];
+}
+
+String? _formatExamDate(DateTime? value) => value?.toIso8601String();
 
 class Exam {
-  Exam({
+  const Exam({
     required this.id,
     required this.startDate,
     required this.endDate,
-    required this.text,
+    this.text,
     this.comment,
     this.roomToken,
     this.roomId,
@@ -28,66 +60,76 @@ class Exam {
     this.publishToInfoSystem,
     this.studentNames,
     this.studentIds,
+    this.client,
+    this.clientName,
+    this.weight,
+    this.absTrackedTimestamp,
   });
 
-  String id;
-  DateTime startDate;
-  DateTime endDate;
-  String text;
-  dynamic comment;
-  dynamic roomToken;
-  dynamic roomId;
-  dynamic teachers;
-  dynamic teacherIds;
-  dynamic teacherTokens;
-  String courseId;
-  String courseToken;
-  String courseName;
-  dynamic status;
-  dynamic color;
-  String eventType;
-  dynamic eventRoomStatus;
-  dynamic timetableText;
-  dynamic infoFacilityManagement;
-  dynamic importset;
-  dynamic lessons;
-  dynamic publishToInfoSystem;
-  dynamic studentNames;
-  dynamic studentIds;
+  final String id;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String? text;
+  final String? comment;
+  final String? roomToken;
+  final String? roomId;
+  final List<String>? teachers;
+  final List<String>? teacherIds;
+  final List<String>? teacherTokens;
+  final String courseId;
+  final String courseToken;
+  final String courseName;
+  final String? status;
+  final String? color;
+  final String eventType;
+  final String? eventRoomStatus;
+  final String? timetableText;
+  final String? infoFacilityManagement;
+  final dynamic importset;
+  final dynamic lessons;
+  final dynamic publishToInfoSystem;
+  final List<String>? studentNames;
+  final List<String>? studentIds;
+  final String? client;
+  final String? clientName;
+  final int? weight;
+  final DateTime? absTrackedTimestamp;
 
   factory Exam.fromJson(Map<String, dynamic> json) => Exam(
-        id: json["id"],
-        startDate: DateTime.parse(json["startDate"]),
-        endDate: DateTime.parse(json["endDate"]),
+        id: json["id"] ?? '',
+        startDate: _parseExamDate(json["startDate"]),
+        endDate: _parseExamDate(json["endDate"]),
         text: json["text"],
         comment: json["comment"],
         roomToken: json["roomToken"],
         roomId: json["roomId"],
-        teachers: json["teachers"],
-        teacherIds: json["teacherIds"],
-        teacherTokens: json["teacherTokens"],
-        courseId: json["courseId"],
-        courseToken: json["courseToken"],
-        courseName: json["courseName"],
+        teachers: _parseStringList(json["teachers"]),
+        teacherIds: _parseStringList(json["teacherIds"]),
+        teacherTokens: _parseStringList(json["teacherTokens"]),
+        courseId: json["courseId"] ?? '',
+        courseToken: json["courseToken"] ?? '',
+        courseName: json["courseName"] ?? '',
         status: json["status"],
         color: json["color"],
-        eventType: json["eventType"],
+        eventType: json["eventType"] ?? '',
         eventRoomStatus: json["eventRoomStatus"],
         timetableText: json["timetableText"],
         infoFacilityManagement: json["infoFacilityManagement"],
         importset: json["importset"],
         lessons: json["lessons"],
         publishToInfoSystem: json["publishToInfoSystem"],
-        studentNames: json["studentNames"],
-        studentIds: json["studentIds"],
+        studentNames: _parseStringList(json["studentNames"]),
+        studentIds: _parseStringList(json["studentIds"]),
+        client: json["client"],
+        clientName: json["clientname"],
+        weight: (json["weight"] is num) ? (json["weight"] as num).toInt() : null,
+        absTrackedTimestamp: _tryParseExamDate(json["absTrackedTimestamp"]),
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "startDate":
-            "${startDate.year.toString().padLeft(4, '0')}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}",
-        "endDate":
-            "${endDate.year.toString().padLeft(4, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}",
+        "startDate": _formatExamDate(startDate),
+        "endDate": _formatExamDate(endDate),
         "text": text,
         "comment": comment,
         "roomToken": roomToken,
@@ -109,5 +151,9 @@ class Exam {
         "publishToInfoSystem": publishToInfoSystem,
         "studentNames": studentNames,
         "studentIds": studentIds,
+        "client": client,
+        "clientname": clientName,
+        "weight": weight,
+        "absTrackedTimestamp": _formatExamDate(absTrackedTimestamp),
       };
 }

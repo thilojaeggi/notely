@@ -1,3 +1,5 @@
+// ignore: file_names
+// this is probably a bug since the file is definitely not capitalized
 class Absence {
   String? id;
   String? studentId;
@@ -5,6 +7,7 @@ class Absence {
   String? hourFrom;
   String? hourTo;
   String? status;
+  String? statusLong;
   String? comment;
   bool? isExamLesson;
   String? profile;
@@ -12,51 +15,18 @@ class Absence {
   String? absenceId;
 
   Absence(
-      {String? id,
-      String? studentId,
-      String? date,
-      String? hourFrom,
-      String? hourTo,
-      String? status,
-      String? comment,
-      bool? isExamLesson,
-      String? profile,
-      String? course,
-      String? absenceId}) {
-    if (id != null) {
-      id = id;
-    }
-    if (studentId != null) {
-      studentId = studentId;
-    }
-    if (date != null) {
-      date = date;
-    }
-    if (hourFrom != null) {
-      hourFrom = hourFrom;
-    }
-    if (hourTo != null) {
-      hourTo = hourTo;
-    }
-    if (status != null) {
-      status = status;
-    }
-    if (comment != null) {
-      comment = comment;
-    }
-    if (isExamLesson != null) {
-      isExamLesson = isExamLesson;
-    }
-    if (profile != null) {
-      profile = profile;
-    }
-    if (course != null) {
-      course = course;
-    }
-    if (absenceId != null) {
-      absenceId = absenceId;
-    }
-  }
+      {this.id,
+      this.studentId,
+      this.date,
+      this.hourFrom,
+      this.hourTo,
+      this.status,
+      this.statusLong,
+      this.comment,
+      this.isExamLesson,
+      this.profile,
+      this.course,
+      this.absenceId});
 
   Absence.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -65,6 +35,7 @@ class Absence {
     hourFrom = json['hourFrom'];
     hourTo = json['hourTo'];
     status = json['status'];
+    statusLong = json['statusLong'];
     comment = json['comment'];
     isExamLesson = json['isExamLesson'];
     profile = json['profile'];
@@ -80,6 +51,7 @@ class Absence {
     data['hourFrom'] = hourFrom;
     data['hourTo'] = hourTo;
     data['status'] = status;
+    data['statusLong'] = statusLong;
     data['comment'] = comment;
     data['isExamLesson'] = isExamLesson;
     data['profile'] = profile;

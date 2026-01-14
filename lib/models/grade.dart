@@ -11,47 +11,16 @@ class Grade {
   bool? isConfirmed;
 
   Grade(
-      {String? id,
-      String? course,
-      String? courseType,
-      String? subject,
-      String? subjectToken,
-      String? title,
-      String? date,
-      num? mark,
-      num? weight,
-      bool? isConfirmed}) {
-    if (id != null) {
-      id = id;
-    }
-    if (course != null) {
-      course = course;
-    }
-    if (courseType != null) {
-      courseType = courseType;
-    }
-    if (subject != null) {
-      subject = subject;
-    }
-    if (subjectToken != null) {
-      subjectToken = subjectToken;
-    }
-    if (title != null) {
-      title = title;
-    }
-    if (date != null) {
-      date = date;
-    }
-    if (mark != null) {
-      mark = mark;
-    }
-    if (weight != null) {
-      weight = weight;
-    }
-    if (isConfirmed != null) {
-      isConfirmed = isConfirmed;
-    }
-  }
+      {this.id,
+      this.course,
+      this.courseType,
+      this.subject,
+      this.subjectToken,
+      this.title,
+      this.date,
+      this.mark,
+      this.weight,
+      this.isConfirmed});
 
   Grade.fromJson(Map<String, dynamic> json) {
     id = json['id'];

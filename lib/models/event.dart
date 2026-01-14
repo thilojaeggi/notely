@@ -55,57 +55,23 @@ class Event {
       Null publishToInfoSystem,
       Null studentNames,
       Null studentIds}) {
-    if (id != null) {
-      id = id;
-    }
-    if (startDate != null) {
-      startDate = startDate;
-    }
-    if (endDate != null) {
-      endDate = endDate;
-    }
-    if (text != null) {
-      text = text;
-    }
-    if (comment != null) {
-      comment = comment;
-    }
-    if (roomToken != null) {
-      roomToken = roomToken;
-    }
-    if (roomId != null) {
-      roomId = roomId;
-    }
-    if (teachers != null) {
-      teachers = teachers;
-    }
-    if (teacherIds != null) {
-      teacherIds = teacherIds;
-    }
-    if (teacherTokens != null) {
-      teacherTokens = teacherTokens;
-    }
-    if (courseId != null) {
-      courseId = courseId;
-    }
-    if (courseToken != null) {
-      courseToken = courseToken;
-    }
-    if (courseName != null) {
-      courseName = courseName;
-    }
-    if (status != null) {
-      status = status;
-    }
-    if (color != null) {
-      color = color;
-    }
-    if (eventType != null) {
-      eventType = eventType;
-    }
-    if (isExam != null) {
-      isExam = isExam;
-    }
+    this.id = id;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.text = text;
+    this.comment = comment;
+    this.roomToken = roomToken;
+    this.roomId = roomId;
+    this.teachers = teachers;
+    this.teacherIds = teacherIds;
+    this.teacherTokens = teacherTokens;
+    this.courseId = courseId;
+    this.courseToken = courseToken;
+    this.courseName = courseName;
+    this.status = status;
+    this.color = color;
+    this.eventType = eventType;
+    this.isExam = isExam;
   }
 
   Event.fromJson(Map<String, dynamic> json) {
