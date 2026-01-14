@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notely/helpers/text_styles.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({Key? key}) : super(key: key);
@@ -8,7 +9,7 @@ class HelpPage extends StatefulWidget {
         "Die Zugangsdaten sind dieselben wie auf der Kaschuso Website, überprüfe dass die richtige Schule gewählt ist und du dein Passwort richtig eingegeben hast.\nDein Benutzername ist normalerweise \"vorname.nachname\".",
     "Erste Anmeldung geht nicht?":
         "Falls du dich zum ersten mal anmeldest und es trotz richtigen Zugangsdaten nicht funktioniert, melde dich zuerst auf der Kaschuso Website bei \"schulnetz-mobile\" an.\nProbiere es danach erneut.",
-    "Bringt alles nichts?": "Kontaktiere mich unter thilo.jaeggi@ksso.ch",
+    "Bringt alles nichts?": "Kontaktiere mich unter thilo@notely.ch",
   };
 
   @override
@@ -23,7 +24,7 @@ class _HelpPageState extends State<HelpPage> {
         borderRadius: BorderRadius.circular(10),
       ),
       clipBehavior: Clip.antiAlias,
-      shadowColor: Colors.transparent.withOpacity(0.5),
+      shadowColor: Colors.transparent.withValues(alpha: 0.5),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
@@ -48,6 +49,7 @@ class _HelpPageState extends State<HelpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final titleStyle = pageTitleTextStyle(context);
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
@@ -55,7 +57,7 @@ class _HelpPageState extends State<HelpPage> {
           topLeft: Radius.circular(16.0),
           topRight: Radius.circular(16.0),
         ),
-        color: Theme.of(context).canvasColor.withOpacity(0.96),
+        color: Theme.of(context).canvasColor.withValues(alpha: 0.96),
       ),
       child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -64,12 +66,9 @@ class _HelpPageState extends State<HelpPage> {
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     "Hilfe",
-                    style: TextStyle(
-                      fontSize: 64,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: titleStyle,
                     textAlign: TextAlign.start,
                   ),
                   const Spacer(),
