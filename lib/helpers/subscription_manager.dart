@@ -27,7 +27,6 @@ class SubscriptionManager {
   Future<bool> isSubscribed() async {
     try {
       CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-      print(customerInfo.entitlements.all[_entitlementId]?.isActive ?? false);
       return customerInfo.entitlements.all[_entitlementId]?.isActive ?? false;
     } catch (e) {
       print('Failed to check subscription status: $e');
