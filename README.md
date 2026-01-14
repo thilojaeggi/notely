@@ -44,7 +44,7 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
+[![GNU Affero General Public License v3.0][license-shield]][license-url]
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -71,11 +71,11 @@
   </ol>
 </details>
 
-You can download & install Notely from either the App Store, Google Play Store or F-Droid.
+You can download & install Notely from either the App Store, Google Play Store or use it on the [web](https://notely.thilojaeggi.ch).
 
 <a href="https://apps.apple.com/ch/app/notely-kaschuso/id1633030820"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Logo" width="200"></a>
 <a href="https://play.google.com/store/apps/details?id=ch.thilojaeggi.notely"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Logo" width="200"></a>
-<a href="https://f-droid.org/en/packages/ch.thilojaeggi.notely"><img src="https://gitlab.com/fdroid/artwork/-/raw/master/badge/get-it-on-en-us.png" alt="Logo" width="200"></a>
+
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
@@ -182,7 +182,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE.md` for more information.
+Distributed under the GNU Affero General Public License v3.0. See `LICENSE.md` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -191,7 +191,7 @@ Distributed under the MIT License. See `LICENSE.md` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Thilo Jaeggi - thiloj@protonmail.ch
+Thilo Jaeggi - thilo@notely.ch
 
 Project Link: [https://github.com/thilojaeggi/Notely](https://github.com/thilojaeggi/Notely)
 
