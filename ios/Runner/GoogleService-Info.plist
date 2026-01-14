@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>845125974911-bhdp6nejefpjbvui5lc9va64m4nmaph2.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.845125974911-bhdp6nejefpjbvui5lc9va64m4nmaph2</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCJ-iUd3WEADCp1vXC4k0QxaJwAP5a52tM</string>
 	<key>GCM_SENDER_ID</key>
@@ -30,5 +26,9 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:845125974911:ios:76de159134daa3760bb84a</string>
+	<key>DATABASE_URL</key>
+	<string>https://notely-ch-default-rtdb.firebaseio.com</string>
+	<key>ADMOB_APP_ID</key>
+	<string>ca-app-pub-2286905824384856~4313494618</string>
 </dict>
 </plist>

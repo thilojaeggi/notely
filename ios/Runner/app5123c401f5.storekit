@@ -1,1 +1,80 @@
-{"appPolicies":{"eula":"","policies":[{"locale":"en_US","policyText":"","policyURL":""}]},"identifier":"BE4A453D","nonRenewingSubscriptions":[],"products":[],"subscriptionGroups":[{"id":"7F5126C1","localizations":[],"name":"default iOS","subscriptions":[{"adHocOffers":[],"codeOffers":[],"displayPrice":"9.99","familyShareable":false,"groupNumber":1,"internalID":"5CA3F7B4","localizations":[{"description":"","displayName":"","locale":"en_US"}],"productID":"ch.thilojaeggi.notely.premium_monthly","recurringSubscriptionPeriod":"P1M","referenceName":"subscription_monthly","subscriptionGroupID":"7F5126C1","type":"RecurringSubscription","winbackOffers":[]}]}],"version":{"major":4,"minor":0}}
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "de",
+        "policyText" : "",
+        "policyURL" : "https://notely.ch/datenschutzerkl%C3%A4rung"
+      }
+    ]
+  },
+  "identifier" : "BE4A453D",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "de",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "CHE",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "7F5126C1",
+      "localizations" : [
+
+      ],
+      "name" : "default iOS",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "1",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "5CA3F7B4",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "ch.thilojaeggi.notely.premium_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "subscription_monthly",
+          "subscriptionGroupID" : "7F5126C1",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "subscriptionOffersKeyPair" : {
+    "id" : "6A921FDD",
+    "privateKey" : "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgruMINH/WneZco6R3UiulTBk6XwdgqHd+T08urvapMKCgCgYIKoZIzj0DAQehRANCAAQbCmmA1jiuXffdkxO1sncSe6/76CVDa4Jttfz/UmIHFAmU2o18H9OuPq2yr63SlkRlccW1Ck9FJMgGOvAQAHAm"
+  },
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
