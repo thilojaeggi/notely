@@ -1,11 +1,14 @@
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:notely/helpers/token_manager.dart';
-import 'package:notely/models/Absence.dart';
+import 'package:notely/models/absence.dart';
 import 'package:notely/models/Event.dart';
 import 'package:notely/models/exam.dart';
 import 'package:notely/models/grade.dart';
+
 import 'package:notely/models/student.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,7 +170,7 @@ class APIClient {
             startDate: DateTime(
                 targetDate.year, targetDate.month, targetDate.day, 13, 15),
             endDate: DateTime(
-                targetDate.year, targetDate.month, targetDate.day, 14, 45),
+                targetDate.year, targetDate.month, targetDate.day, 13, 35),
             text: 'Wirtschaft & Recht',
             comment: 'Fallstudie Start-up Finanzierung',
             roomToken: 'EU2',
@@ -180,6 +183,90 @@ class APIClient {
             courseName: 'Wirtschaft & Recht',
             status: 'confirmed',
             color: '#8E24AA',
+            eventType: 'lesson',
+            isExam: false,
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+        Event(
+            id: 'demo-event-6',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 13, 35),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 13, 50),
+            text: 'Innovation Lab',
+            comment: 'Projektarbeit am digitalen Prototypen',
+            roomToken: 'LAB3',
+            roomId: 'LAB3',
+            teachers: ['Laura Frei'],
+            teacherIds: ['teacher-6'],
+            teacherTokens: ['teacher-token-6'],
+            courseId: 'course-6',
+            courseToken: 'innovation-token',
+            courseName: 'Innovation Lab',
+            status: 'confirmed',
+            color: '#F4511E',
+            eventType: 'lesson',
+            isExam: false,
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+        Event(
+            id: 'demo-event-7',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 14, 45),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 14, 50),
+            text: 'Design Thinking',
+            comment: 'Rapid prototyping für Schüler*innenideen',
+            roomToken: 'C210',
+            roomId: 'C210',
+            teachers: ['Nina Kaufmann'],
+            teacherIds: ['teacher-7'],
+            teacherTokens: ['teacher-token-7'],
+            courseId: 'course-7',
+            courseToken: 'design-token',
+            courseName: 'Design Thinking',
+            status: 'confirmed',
+            color: '#FF7043',
+            eventType: 'project',
+            isExam: false,
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+        Event(
+            id: 'demo-event-8',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 14, 55),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 15, 00),
+            text: 'Projektmanagement',
+            comment: 'Agile Retrospektive & Aufgabenverteilung',
+            roomToken: 'B108',
+            roomId: 'B108',
+            teachers: ['Felix Meyer'],
+            teacherIds: ['teacher-8'],
+            teacherTokens: ['teacher-token-8'],
+            courseId: 'course-8',
+            courseToken: 'pm-token',
+            courseName: 'Projektmanagement',
+            status: 'confirmed',
+            color: '#26A69A',
             eventType: 'lesson',
             isExam: false,
             eventRoomStatus: null,
@@ -217,11 +304,12 @@ class APIClient {
           profil1: "EngW",
           entryDate: DateTime.now().subtract(const Duration(days: 530)),
           regularClasses: [
-            RegularClass(id: "3C", token: "3C-2023", semester: "3"),
-            RegularClass(id: "Chemie-Lab", token: "LAB1", semester: "3")
+            const RegularClass(id: "3C", token: "3C-2023", semester: "3"),
+            const RegularClass(id: "Chemie-Lab", token: "LAB1", semester: "3")
           ],
           additionalClasses: [
-            RegularClass(id: "English CAE", token: "ENG-CAE", semester: "3")
+            const RegularClass(
+                id: "English CAE", token: "ENG-CAE", semester: "3")
           ],
         );
       case '/rest/v1/me/exams':
@@ -290,7 +378,8 @@ class APIClient {
               endDate: DateTime(
                   examDate3.year, examDate3.month, examDate3.day, 14, 30),
               text: 'English CAE Mock Listening',
-              comment: 'Bring headphones, Prüfungssaal öffnet 15 Minuten vorher',
+              comment:
+                  'Bring headphones, Prüfungssaal öffnet 15 Minuten vorher',
               roomToken: 'Aula',
               roomId: 'Aula',
               teachers: ['Sarah Johnson'],
@@ -346,7 +435,8 @@ class APIClient {
               course: "Deutsch",
               subject: "Deutsch",
               title: "Sachtextanalyse Rhetorik",
-              date: DateTime.now().subtract(const Duration(days: 11)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 11)).toString(),
               mark: 4.7,
               weight: 1),
           Grade(
@@ -360,7 +450,8 @@ class APIClient {
               course: "English CAE",
               subject: "English",
               title: "Vocabulary Test Unit 3",
-              date: DateTime.now().subtract(const Duration(days: 13)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 13)).toString(),
               mark: 5.4,
               weight: 0.5),
           Grade(
@@ -374,28 +465,32 @@ class APIClient {
               course: "Chemie Praktikum",
               subject: "Chemie",
               title: "Säure-Base-Test",
-              date: DateTime.now().subtract(const Duration(days: 14)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 14)).toString(),
               mark: 4.9,
               weight: 1),
           Grade(
               course: "Französisch",
               subject: "Französisch",
               title: "Rédaction 'Mes vacances'",
-              date: DateTime.now().subtract(const Duration(days: 10)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 10)).toString(),
               mark: 4.4,
               weight: 1),
           Grade(
               course: "Französisch",
               subject: "Französisch",
               title: "Compréhension écrite B2",
-              date: DateTime.now().subtract(const Duration(days: 15)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 15)).toString(),
               mark: 5.1,
               weight: 1),
           Grade(
               course: "Mathematik Schwerpunkt",
               subject: "Mathematik",
               title: "Diagnose-Test Funktionen",
-              date: DateTime.now().subtract(const Duration(days: 12)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 12)).toString(),
               mark: 3.8,
               weight: 0.5),
         ];
@@ -410,14 +505,16 @@ class APIClient {
               status: "e"),
           Absence(
               id: "abs-002",
-              date: DateTime.now().subtract(const Duration(days: 13)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 13)).toString(),
               course: "Deutsch",
               hourFrom: "08:40:00",
               hourTo: "09:30:00",
               status: "o"),
           Absence(
               id: "abs-003",
-              date: DateTime.now().subtract(const Duration(days: 21)).toString(),
+              date:
+                  DateTime.now().subtract(const Duration(days: 21)).toString(),
               course: "Sport",
               hourFrom: "15:00:00",
               hourTo: "16:30:00",
@@ -434,8 +531,11 @@ class APIClient {
       return false;
     }
     try {
+      final urlString = '$_baseUrl/$targetSchool/rest/v1/me';
+      final finalUrl =
+          kIsWeb ? 'https://proxy.corsfix.com/?$urlString' : urlString;
       final response = await http.get(
-        Uri.parse('$_baseUrl/$targetSchool/rest/v1/me'),
+        Uri.parse(finalUrl),
         headers: {'Authorization': 'Bearer $token'},
       );
       return response.statusCode == 200 && !response.body.contains('<html>');
@@ -457,8 +557,7 @@ class APIClient {
     if (targetSchool.isEmpty) {
       throw Exception('Daten konnten nicht geladen werden');
     }
-    final freshToken =
-        await _tokenManager.getValidAccessToken(targetSchool);
+    final freshToken = await _tokenManager.getValidAccessToken(targetSchool);
     if (freshToken == null || freshToken.isEmpty) {
       throw Exception('Anmeldung erforderlich');
     }
@@ -504,14 +603,16 @@ class APIClient {
         return fromJson(json.decode(cachedData));
       }
     }
-    final response = await http.get(Uri.parse('$_baseUrl/$school$path'),
+    final urlString = '$_baseUrl/$school$path';
+    final finalUrl =
+        kIsWeb ? 'https://proxy.corsfix.com/?$urlString' : urlString;
+    final response = await http.get(Uri.parse(finalUrl),
         headers: {'Authorization': 'Bearer $_accessToken'});
     if (response.statusCode == 200 && !response.body.contains("<html>")) {
       // Cache data in shared preferences
       (!path.contains("events"))
           ? prefs.setString(path, response.body)
           : prefs.setString('events', response.body);
-
 
       return fromJson(json.decode(response.body));
     } else {
