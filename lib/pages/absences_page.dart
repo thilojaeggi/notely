@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/helpers/api_client.dart';
-import '../models/Absence.dart';
+import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/models/absence.dart';
 
 class AbsencesPage extends StatefulWidget {
   const AbsencesPage({Key? key}) : super(key: key);
@@ -14,59 +16,100 @@ class AbsencesPage extends StatefulWidget {
 
 class _AbsencesPageState extends State<AbsencesPage> {
   final APIClient _apiClient = APIClient();
+  late Future<List<Absence>> _absencesFuture;
 
-  final StreamController<List<Absence>> _absencesController =
-      StreamController<List<Absence>>();
+  BoxDecoration _cardDecoration(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return BoxDecoration(
+      color:
+          isDark ? Colors.white.withValues(alpha: 0.05) : theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(14.0),
+      border: Border.all(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.06),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+          blurRadius: 18,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    );
+  }
 
-  void _getAbsences() async {
-    if (!mounted) return;
-    try {
-      List<Absence> cachedAbsences = await _apiClient.getAbsences(true);
-      _absencesController.sink.add(cachedAbsences);
-
-      // Then get the latest data and update the UI again
-      List<Absence> latestAbsences = await _apiClient.getAbsences(false);
-      _absencesController.sink.add(latestAbsences);
-    } catch (e) {
-      // Handle the StateError here
-      debugPrint('Error adding event to stream controller: $e');
+  _StatusMeta _statusMeta(String status) {
+    switch (status) {
+      case "nz":
+        return const _StatusMeta("Nicht zählend", Colors.blueAccent);
+      case "e":
+        return const _StatusMeta("Entschuldigt", Colors.green);
+      case "o":
+        return const _StatusMeta("Offen", Colors.orange);
+      default:
+        return const _StatusMeta("Unbekannt", Colors.redAccent);
     }
+  }
+
+  Future<List<Absence>> _loadAbsences(bool useCache) async {
+    try {
+      return await _apiClient.getAbsences(useCache);
+    } catch (e) {
+      debugPrint('Error loading absences: $e');
+      return [];
+    }
+  }
+
+  Future<void> _refreshAbsences() async {
+    final latestAbsences = await _loadAbsences(false);
+    if (!mounted) return;
+    setState(() {
+      _absencesFuture = Future.value(latestAbsences);
+    });
   }
 
   @override
   initState() {
     super.initState();
-    _getAbsences();
-  }
-
-  @override
-  void dispose() {
-    _absencesController.close();
-
-    super.dispose();
+    _absencesFuture = _loadAbsences(true);
+    _refreshAbsences();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 8.0),
+    final titleStyle = pageTitleTextStyle(context);
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        centerTitle: false,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        title: SafeArea(
+          top: true,
           child: Text(
             "Absenzen",
-            style: TextStyle(
-              fontSize: 64,
-              fontWeight: FontWeight.w400,
-            ),
+            style: titleStyle,
             textAlign: TextAlign.start,
           ),
         ),
-        Expanded(
-          child: StreamBuilder<List<Absence>>(
-            stream: _absencesController.stream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting ||
+      ),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: FutureBuilder<List<Absence>>(
+          future: _absencesFuture,
+          builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
                   !snapshot.hasData) {
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -77,87 +120,94 @@ class _AbsencesPageState extends State<AbsencesPage> {
                 );
               }
 
-              List<Absence?>? absenceList = snapshot.data!.reversed.toList();
+              List<Absence> absenceList =
+                  (snapshot.data ?? []).reversed.toList();
               return Scrollbar(
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: absenceList.length,
                   itemBuilder: (BuildContext ctxt, int index) {
-                    return Card(
-                      elevation: 3,
-                      margin: const EdgeInsets.only(
-                          bottom: 10, left: 10.0, right: 10.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      shadowColor:
-                          (absenceList.elementAt(index)!.status == "nz" ||
-                                  absenceList.elementAt(index)!.status == "e")
-                              ? Colors.blue
-                              : Colors.red,
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                            left: 7.0, right: 7.0, top: 2.0, bottom: 2.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.topLeft,
-                                    child: Text(
-                                      absenceList[index]!.course.toString(),
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500),
-                                    ),
+                    final absence = absenceList[index];
+                    // Skip if required fields are null
+                    if (absence.date == null ||
+                        absence.course == null ||
+                        absence.hourFrom == null ||
+                        absence.hourTo == null ||
+                        absence.status == null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final statusMeta = _statusMeta(absence.status!);
+                    final theme = Theme.of(context);
+                    final subtitleColor =
+                        theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7) ??
+                            Colors.grey;
+                    final timeRange =
+                        "${absence.hourFrom!.substring(0, absence.hourFrom!.length - 3)} - ${absence.hourTo!.substring(0, absence.hourTo!.length - 3)}";
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 6.0),
+                      decoration: _cardDecoration(context),
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  absence.course ?? '',
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                DateFormat("dd.MM.yyyy")
+                                    .format(DateTime.parse(absence.date!)),
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                Text(
-                                  DateFormat("dd.MM.yyyy").format(
-                                      DateTime.parse(
-                                          absenceList[index]!.date!)),
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.schedule,
+                                size: 16,
+                                color: subtitleColor,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                timeRange,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: subtitleColor,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "${absenceList[index]!.hourFrom.toString().substring(0, absenceList[index]!.hourFrom!.toString().length - 3)} - ${absenceList[index]!.hourTo.toString().substring(0, absenceList[index]!.hourTo!.toString().length - 3)}",
-                                  style: const TextStyle(
-                                    fontSize: 16,
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: statusMeta.color.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  statusMeta.label,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: statusMeta.color,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                Text(
-                                  (absenceList.elementAt(index)!.status == "nz")
-                                      ? 'Nicht zählend'
-                                      : (absenceList.elementAt(index)!.status ==
-                                              "e")
-                                          ? 'Entschuldigt'
-                                          : (absenceList
-                                                      .elementAt(index)!
-                                                      .status ==
-                                                  "o")
-                                              ? "Offen"
-                                              : "Unbekannt",
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -166,7 +216,13 @@ class _AbsencesPageState extends State<AbsencesPage> {
             },
           ),
         ),
-      ],
+      
     );
   }
+}
+
+class _StatusMeta {
+  final String label;
+  final Color color;
+  const _StatusMeta(this.label, this.color);
 }

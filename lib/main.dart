@@ -1,30 +1,33 @@
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'dart:io';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/initialize_screen.dart';
+import 'package:notely/helpers/subscription_manager.dart';
 import 'package:notely/models/grade.dart';
 import 'package:notely/helpers/api_client.dart';
-import 'package:notely/pages/whatsnew_page.dart';
 import 'package:notely/secure_storage.dart';
+import 'package:notely/helpers/token_manager.dart';
 import 'package:notely/view_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:home_widget/home_widget.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:http/http.dart' as http;
 import 'firebase_options.dart';
-import 'config/custom_scroll_behavior.dart';
 import 'config/style.dart';
 import 'helpers/homework_database.dart';
 import 'pages/login_page.dart';
+import 'helpers/navigation_service.dart';
 
 final storage = SecureStorage();
 @pragma('vm:entry-point')
@@ -37,29 +40,45 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       message.from == "/topics/newGradeNotification") {
     final storage = SecureStorage();
     final prefs = await SharedPreferences.getInstance();
-    // Get values fromm prefs and securestorage
-    final school = prefs.getString("school") ?? "ksso";
-    final username = await storage.read(key: "username") ?? '';
-    final password = await storage.read(key: "password") ?? '';
-    // Check if values are empty and exit if so
-    if (username.isEmpty || password.isEmpty || school.isEmpty) return;
-    // Get access token first
-    final url = Globals.buildUrl("${school.toLowerCase()}/authorize.php");
-    final response = await http.post(url, body: {
-      'login': username,
-      'passwort': password,
-      'response_type': 'token',
-      'client_id': 'ppyybShnMerHdtBQ',
-      'state': 'Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi',
-    });
-    if (response.statusCode == 302) {
-      String locationHeader = response.headers['location'].toString().replaceAll(
-          "#",
-          "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
-      String accessToken =
-          Uri.parse(locationHeader).queryParameters["access_token"].toString();
-      client.accessToken = accessToken;
-      client.school = school;
+    final school = (prefs.getString("school") ?? "ksso").toLowerCase();
+    if (school.isEmpty) return;
+
+    bool hasValidToken = false;
+    final tokenManager = TokenManager();
+    final cachedToken = await tokenManager.getValidAccessToken(school);
+    if (cachedToken != null &&
+        cachedToken.isNotEmpty &&
+        await client.isAccessTokenValid(cachedToken, school)) {
+      client.accessToken = cachedToken;
+      hasValidToken = true;
+    } else {
+      final username = await storage.read(key: "username") ?? '';
+      final password = await storage.read(key: "password") ?? '';
+      if (username.isEmpty || password.isEmpty) return;
+
+      final url = Globals.buildUrl("$school/authorize.php");
+      final response = await http.post(url, body: {
+        'login': username,
+        'passwort': password,
+        'response_type': 'token',
+        'client_id': 'ppyybShnMerHdtBQ',
+        'state': 'Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi',
+      });
+      if (response.statusCode == 302) {
+        String locationHeader = response.headers['location']
+            .toString()
+            .replaceAll("#", "?");
+        String accessToken = Uri.parse(locationHeader)
+            .queryParameters["access_token"]
+            .toString();
+        await storage.saveAccessToken(accessToken);
+        client.accessToken = accessToken;
+        hasValidToken = true;
+      }
+    }
+
+    if (!hasValidToken) return;
+    client.school = school;
       try {
         List<Grade> oldGrades = await client.getGrades(true);
         List<Grade> newGrades = await client.getGrades(false);
@@ -101,7 +120,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       }
     }
   }
-}
 
 /// Create a [AndroidNotificationChannel] for heads up notifications
 late AndroidNotificationChannel channel;
@@ -138,6 +156,9 @@ Future<void> setupFlutterNotifications() async {
     badge: true,
     sound: true,
   );
+  FirebaseMessaging.instance.getToken().then((value) {
+  debugPrint(value);
+});
   isFlutterLocalNotificationsInitialized = true;
 }
 
@@ -145,12 +166,32 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isIOS) {
+    HomeWidget.setAppGroupId('group.ch.thilojaeggi.notely');
+  }
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   await HomeworkDatabase.instance.database;
   await checkNotifications(messaging);
+  await SubscriptionManager().initialize();
+  await analytics.setAnalyticsCollectionEnabled(true);
   runApp(const Notely());
+}
+
+Future<void> initializeRevenueCat() async {
+  // Platform-specific API keys
+  String apiKey;
+  if (Platform.isIOS) {
+    apiKey = 'test_hszPmfjKYpnwtuEtEsgjXPyszkv';
+  } else if (Platform.isAndroid) {
+    apiKey = 'test_hszPmfjKYpnwtuEtEsgjXPyszkv';
+  } else {
+    throw UnsupportedError('Platform not supported');
+  }
+  
+  await Purchases.configure(PurchasesConfiguration(apiKey));
 }
 
 Future<void> checkNotifications(FirebaseMessaging messaging) async {
@@ -196,31 +237,57 @@ Future<bool> login() async {
   final school = prefs.getString("school")?.toLowerCase() ?? '';
   final username = await storage.read(key: "username") ?? '';
   final password = await storage.read(key: "password") ?? '';
+  final tokenManager = TokenManager();
   if (username == "demo" && password == "demo") {
     client.fakeData = true;
     client.school = "demo";
     return true;
   }
 
-  if (username.isEmpty || password.isEmpty || school.isEmpty) {
+  if (school.isEmpty) {
+    return false;
+  }
+
+  final cachedToken = await tokenManager.getValidAccessToken(school);
+  if (cachedToken != null &&
+      cachedToken.isNotEmpty &&
+      await client.isAccessTokenValid(cachedToken, school)) {
+    client.accessToken = cachedToken;
+    client.school = school;
+    debugPrint("Using cached access token");
+    return true;
+  }
+
+  if (username.isEmpty || password.isEmpty) {
     return false;
   }
 
   debugPrint("Found login data");
   final url = Globals.buildUrl("$school/authorize.php");
-  final response = await http.post(url, body: {
-    'login': username,
-    'passwort': password,
-    'response_type': 'token',
-    'client_id': 'ppyybShnMerHdtBQ',
-    'state': 'Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi',
-  });
+  final response = await http.post(
+    url,
+    body: {
+      'login': username,
+      'passwort': password,
+
+      // Updated OAuth2 + PKCE params:
+      'response_type': 'code',
+      'client_id': 'ppyybShnMerHdtBQ',
+      'state': 'T3gwTkZUSUZ0alR3QnNhaEdjUXB6fjFmRHlZNW5iRGQxVTZna0o4NC1CeHdS',
+      'redirect_uri': '', // If blank in URL, keep blank
+      'scope': 'openid offline_access',
+      'code_challenge': 'QeHw5yEQ00XhOGuOzY-B5GeujPEt_HIsPViAB65rtpE',
+      'code_challenge_method': 'S256',
+      'nonce': 'T3gwTkZUSUZ0alR3QnNhaEdjUXB6fjFmRHlZNW5iRGQxVTZna0o4NC1CeHdS',
+    },
+  );
   if (response.statusCode == 302 && response.headers['location'] != null) {
     String locationHeader = response.headers['location'].toString().replaceAll(
         "#",
         "?"); // The URL somehow has a # instead of a ? to define get variables, just replacing it to later parse correctly.
     String accessToken =
         Uri.parse(locationHeader).queryParameters["access_token"].toString();
+    await storage.saveAccessToken(accessToken);
     client.accessToken = accessToken;
     client.school = school;
     debugPrint("Logged in");
@@ -239,7 +306,6 @@ class Notely extends StatefulWidget {
 
 class _NotelyState extends State<Notely> {
   late Future<bool> isLoggedIn;
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final InAppReview inAppReview = InAppReview.instance;
 
   Future<void> askForReview(BuildContext context) async {
@@ -263,7 +329,8 @@ class _NotelyState extends State<Notely> {
     super.initState();
     isLoggedIn = login();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.microtask(() => askForReview(navigatorKey.currentContext!));
+      Future.microtask(
+          () => askForReview(NavigationService.navigatorKey.currentContext!));
     });
   }
 
@@ -294,7 +361,7 @@ class _NotelyState extends State<Notely> {
             SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
                 .copyWith(
                     statusBarColor:
-                        Colors.white.withOpacity(0.2), // status bar color
+                        Colors.white.withValues(alpha: 0.2), // status bar color
                     statusBarIconBrightness: Brightness.dark,
                     statusBarBrightness: Brightness.light // this one for iOS
                     ));
@@ -323,7 +390,7 @@ class _NotelyState extends State<Notely> {
             supportedLocales: const [
               Locale('de'),
             ],
-            navigatorKey: navigatorKey,
+            navigatorKey: NavigationService.navigatorKey,
             debugShowCheckedModeBanner: false,
             theme: ThemeProvider.themeOf(themeContext).data,
             home: FutureBuilder<bool>(
@@ -387,10 +454,7 @@ class _NotelyState extends State<Notely> {
 
                   return loggedIn
                       ? const InitializeScreen(
-                          targetWidget: ScrollConfiguration(
-                            behavior: CustomScrollBehavior(),
-                            child: ViewContainerWidget(),
-                          ),
+                          targetWidget: ViewContainerWidget(),
                         )
                       : const LoginPage();
                 }),

@@ -2,6 +2,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorage {
   static final SecureStorage _instance = SecureStorage._internal();
+  static const String _accessTokenKey = 'access_token';
+  static const String _accessTokenExpiryKey = 'access_token_expires_at';
+  static const String _refreshTokenKey = 'refresh_token';
   final FlutterSecureStorage _storage;
 
   factory SecureStorage() => _instance;
@@ -36,5 +39,46 @@ class SecureStorage {
 
   Future<void> deleteAll() async {
     await _storage.deleteAll();
+  }
+
+  Future<void> saveAccessToken(String token,
+      {DateTime? expiresAt, String? refreshToken}) async {
+    await _storage.write(key: _accessTokenKey, value: token);
+    if (expiresAt != null) {
+      await _storage.write(
+          key: _accessTokenExpiryKey, value: expiresAt.toIso8601String());
+    } else {
+      await _storage.delete(key: _accessTokenExpiryKey);
+    }
+
+    if (refreshToken != null) {
+      if (refreshToken.isNotEmpty) {
+        await _storage.write(key: _refreshTokenKey, value: refreshToken);
+      } else {
+        await _storage.delete(key: _refreshTokenKey);
+      }
+    } else {
+      await _storage.delete(key: _refreshTokenKey);
+    }
+  }
+
+  Future<String?> readAccessToken() async {
+    return _storage.read(key: _accessTokenKey);
+  }
+
+  Future<DateTime?> readAccessTokenExpiry() async {
+    final raw = await _storage.read(key: _accessTokenExpiryKey);
+    if (raw == null) return null;
+    return DateTime.tryParse(raw);
+  }
+
+  Future<String?> readRefreshToken() async {
+    return _storage.read(key: _refreshTokenKey);
+  }
+
+  Future<void> clearAccessToken() async {
+    await _storage.delete(key: _accessTokenKey);
+    await _storage.delete(key: _accessTokenExpiryKey);
+    await _storage.delete(key: _refreshTokenKey);
   }
 }

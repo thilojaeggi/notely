@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/token_manager.dart';
 import 'package:notely/pages/timetable_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -73,11 +74,24 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
   Future<void> getAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
     final storage = SecureStorage();
-    String school = prefs.getString("school") ?? "ksso";
-    String username = await storage.read(key: "username") as String;
-    String password = await storage.read(key: "password") as String;
+    final apiClient = APIClient();
+    String school = (prefs.getString("school") ?? "ksso").toLowerCase();
+    final tokenManager = TokenManager();
+    final cachedToken =
+        await tokenManager.getValidAccessToken(school) ?? '';
+
+    if (cachedToken.isNotEmpty &&
+        await apiClient.isAccessTokenValid(cachedToken, school)) {
+      apiClient.accessToken = cachedToken;
+      apiClient.school = school;
+      return;
+    }
+
+    String username = await storage.read(key: "username") ?? '';
+    String password = await storage.read(key: "password") ?? '';
 
     if (username == "demo" && password == "demo") return;
+    if (username.isEmpty || password.isEmpty) return;
     final url = Globals.buildUrl("$school/authorize.php");
 
     debugPrint(url.toString());
@@ -87,7 +101,7 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
       'response_type': 'token',
       'client_id': 'ppyybShnMerHdtBQ',
       'state': 'Y2p5M2NJUUh1YV9-Nmh1TXc4NHZYVy1sYUdTNzB5a3pWa3cwWFVIS0UzWkNi',
-    }).then((response) {
+    }).then((response) async {
       if (response.statusCode == 302) {
         String locationHeader = response.headers['location'].toString();
         var trimmedString =
@@ -95,7 +109,9 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
         trimmedString = trimmedString
             .substring(trimmedString.indexOf("#") + 1)
             .replaceAll("access_token=", "");
-        APIClient().accessToken = trimmedString;
+        await storage.saveAccessToken(trimmedString);
+        apiClient.accessToken = trimmedString;
+        apiClient.school = school;
       }
     });
   }
@@ -172,53 +188,53 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
               },
             ),
           ),
-          bottomNavigationBar: Theme(
-            data: Theme.of(context).copyWith(
-              useMaterial3: true,
-            ),
-            child: Container(
-              clipBehavior: Clip.antiAlias,
-              decoration: const BoxDecoration(
-                color: Colors.transparent,
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                child: BottomNavigationBar(
-                  type: BottomNavigationBarType.fixed,
-                  selectedItemColor: Colors.blueAccent,
-                  backgroundColor: Colors.grey.withOpacity(0.1),
-                  elevation: 0,
-                  items: const <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                        icon: Icon(
-                          CupertinoIcons.house_fill,
-                        ),
-                        label: "Start"),
-                    BottomNavigationBarItem(
-                      icon: Icon(CupertinoIcons.calendar_today),
-                      label: "Plan",
-                    ),
-                    BottomNavigationBarItem(
-                        icon: Icon(
-                          CupertinoIcons.text_badge_checkmark,
-                        ),
-                        label: "Noten"),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.sick),
-                      label: "Absenzen",
-                    ),
-                    BottomNavigationBarItem(
-                        icon: Icon(CupertinoIcons.gear_solid),
-                        label: "Einstellungen"),
-                  ],
-                  currentIndex: _selectedIndex,
-                  onTap: bottomTapped,
-                ),
-              ),
-            ),
-          ),
+          bottomNavigationBar: newMethod(),
         );
       }
     });
   }
+
+  Container newMethod() {
+    return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: Colors.blueAccent,
+              backgroundColor: Colors.grey.withOpacity(0.1),
+              elevation: 0,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                    icon: Icon(
+                      CupertinoIcons.house_fill,
+                    ),
+                    label: "Start"),
+                BottomNavigationBarItem(
+                  icon: Icon(CupertinoIcons.calendar_today),
+                  label: "Plan",
+                ),
+                BottomNavigationBarItem(
+                    icon: Icon(
+                      CupertinoIcons.text_badge_checkmark,
+                    ),
+                    label: "Noten"),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.sick),
+                  label: "Absenzen",
+                ),
+                BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.gear_solid),
+                    label: "Einstellungen"),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: bottomTapped,
+            ),
+          ),
+        );
+  }
+  
 }

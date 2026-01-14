@@ -1,13 +1,15 @@
 import 'dart:async';
 
-import 'package:calendar_timeline/calendar_timeline.dart';
+import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:notely/models/exam.dart';
-import 'package:notely/models/homework.dart';
 import 'package:notely/helpers/homework_database.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/pages/homework_page.dart';
 import '../models/Event.dart';
 
 class TimetablePage extends StatefulWidget {
@@ -20,34 +22,42 @@ class TimetablePage extends StatefulWidget {
 class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
   DateTime today = DateTime.now();
-  final StreamController<List<Event>> _eventStreamController =
-      StreamController<List<Event>>();
+  late Future<List<Event>> _eventsFuture;
   final APIClient _apiClient = APIClient();
 
-  void _getEvents() async {
-    if (!mounted) return;
+  Future<List<Event>> _loadEvents(DateTime date) async {
     try {
-      List<Event> cachedEvents = await _apiClient.getEvents(today, true);
-      _eventStreamController.sink.add(cachedEvents);
+      final cachedEvents = await _apiClient.getEvents(date, true);
+      final cachedExams = await _apiClient.getExams(true);
+      _markExams(cachedEvents, cachedExams);
 
-      // Then get the latest data and update the UI again
-      List<Event> currentEvents = await _apiClient.getEvents(today, false);
-      List<Exam> cachedExams = await _apiClient
-          .getExams(true); // Cached exams is good enough I think
-
-      // Go through all events and exams and check if id and startDate match
-      for (int i = 0; i < currentEvents.length; i++) {
-        for (int j = 0; j < cachedExams.length; j++) {
-          if (currentEvents[i].id == cachedExams[j].id &&
-              currentEvents[i].startDate == cachedExams[j].startDate) {
-            currentEvents[i].isExam = true;
-          }
-        }
-      }
-      _eventStreamController.sink.add(currentEvents);
+      _refreshEvents(date);
+      return cachedEvents;
     } catch (e) {
-      // Handle the StateError here
-      debugPrint('Error adding event to stream controller: $e');
+      debugPrint('Error loading cached events: $e');
+      return [];
+    }
+  }
+
+  Future<void> _refreshEvents(DateTime date) async {
+    try {
+      final currentEvents = await _apiClient.getEvents(date, false);
+      final cachedExams = await _apiClient.getExams(true);
+      _markExams(currentEvents, cachedExams);
+
+      if (!mounted) return;
+      setState(() {
+        _eventsFuture = Future.value(currentEvents);
+      });
+    } catch (e) {
+      debugPrint('Error loading events: $e');
+    }
+  }
+
+  void _markExams(List<Event> events, List<Exam> cachedExams) {
+    for (final event in events) {
+      event.isExam = cachedExams.any((exam) =>
+          exam.id == event.id && exam.startDate == event.startDate);
     }
   }
 
@@ -64,150 +74,108 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   initState() {
     super.initState();
-    _getEvents();
+    _eventsFuture = _loadEvents(today);
   }
 
+  String _formatTime(DateTime dateTime) {
+    return DateFormat('HH:mm').format(dateTime);
+  }
+
+  String _humanReadableDuration(Duration duration) {
+    if (duration.inMinutes <= 0) {
+      return '';
+    }
+    if (duration.inMinutes < 60) {
+      return '${duration.inMinutes} Min.';
+    }
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    if (minutes == 0) {
+      return '$hours Std.';
+    }
+    return '$hours Std. $minutes Min.';
+  }
+
+
   Widget _eventWidget(BuildContext context, Event event) {
-    return Card(
-      elevation: 3,
+    // Return early if required fields are null
+    if (event.startDate == null || event.endDate == null) {
+      return const SizedBox.shrink();
+    }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
       margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10.0, right: 10.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.05),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
           onTap: () {
             HapticFeedback.selectionClick();
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  // Get data of TextFields
-                  TextEditingController titleController =
-                      TextEditingController();
-                  TextEditingController detailsController =
-                      TextEditingController();
-                  return AlertDialog(
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                    title: const Text("Hausaufgabe eintragen"),
-                    content: SizedBox(
-                      width: 300,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          TextField(
+            // Check if required fields are available before showing dialog
+            if (event.id == null ||
+                event.courseName == null ||
+                event.startDate == null) {
+              return;
+            }
+            showModalBottomSheet(
+              context: context,
+              barrierColor: Colors.black.withValues(alpha: 0.35),
+              isScrollControlled: true,
+              useSafeArea: true,
+              backgroundColor: Colors.transparent,
+              builder: (BuildContext context) {
+                return DisplayDialog(
+                  initialDate: event.startDate!,
+                  initialSubject: event.courseName,
+                  onHomeworkAdded: (homework) async {
+                    try {
+                      await HomeworkDatabase.instance.create(
+                        homework.copyWith(
+                          id: event.id!,
+                          lessonName: event.courseName,
+                        ),
+                      );
+                    } catch (e) {
+                      showToast(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 32.0),
+                          decoration: const BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(12.0),
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(6.0),
+                          child: const Text(
+                            "Etwas ist schiefgelaufen",
                             style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodySmall!.color,
+                              color: Colors.white,
+                              fontSize: 16.0,
                             ),
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: "Titel",
-                              labelStyle: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .color!
-                                    .withOpacity(0.4),
-                              ),
-                              contentPadding: const EdgeInsets.all(8.0),
-                              isDense: true,
-                              border: const OutlineInputBorder(),
-                            ),
-                            controller: titleController,
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          TextField(
-                            maxLines: 3,
-                            decoration: InputDecoration(
-                              labelText: "Details",
-                              labelStyle: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .color!
-                                    .withOpacity(0.4),
-                              ),
-                              contentPadding: const EdgeInsets.all(8.0),
-                              isDense: true,
-                              border: const OutlineInputBorder(),
-                            ),
-                            controller: detailsController,
-                          ),
-                        ],
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text("Abbrechen"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      ElevatedButton(
-                        child: const Text("Speichern"),
-                        onPressed: () async {
-                          // Get text of TextFields
-                          String title = titleController.text;
-                          String details = detailsController.text.trimRight();
-                          DateTime startDate = event.startDate!;
-
-                          if (title.isEmpty && details.isEmpty) {
-                            title = "Kein Titel";
-                            details = "Keine Details";
-                          }
-
-                          if (title.isEmpty) {
-                            title = "Kein Titel";
-                          }
-
-                          if (details.isEmpty) {
-                            details = "Keine Details";
-                          }
-                          try {
-                            Homework homework = Homework(
-                              id: event.id!,
-                              lessonName: event.courseName!,
-                              title: title,
-                              details: details,
-                              dueDate: startDate,
-                              isDone: false,
-                            );
-
-                            await HomeworkDatabase.instance.create(homework);
-                          } catch (e) {
-                            showToast(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 32.0),
-                                decoration: const BoxDecoration(
-                                  color: Colors.redAccent,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(12.0),
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(6.0),
-                                child: const Text(
-                                  "Etwas ist schiefgelaufen",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                              ),
-                              context: context,
-                            );
-                          }
-                          if (!mounted) return;
-
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                });
+                        ),
+                        context: context,
+                      );
+                    }
+                  },
+                );
+              },
+            );
           },
           child: Stack(
             children: [
@@ -290,20 +258,27 @@ class _TimetablePageState extends State<TimetablePage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              event.courseName.toString(),
+                              event.courseName?.toString() ?? '',
                               textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                  fontSize: 21,
-                                  height: 1.1,
-                                  fontWeight: FontWeight.w600),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(),
                             ),
                             Text(
-                              event.teachers!.first.toString(),
+                              (event.teachers != null &&
+                                      event.teachers!.isNotEmpty)
+                                  ? event.teachers!.first.toString()
+                                  : '',
                               textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                fontSize: 17,
-                                height: 1.2,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.75)
+                                        : Colors.black.withValues(alpha: 0.75),
+                                  ),
                             ),
                           ],
                         ),
@@ -312,9 +287,9 @@ class _TimetablePageState extends State<TimetablePage> {
                         width: 5,
                       ),
                       Text(
-                        event.roomToken.toString(),
+                        event.roomToken?.toString() ?? '',
                         style: const TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.w500),
+                            fontSize: 20, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -327,81 +302,143 @@ class _TimetablePageState extends State<TimetablePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Stundenplan",
-                style: TextStyle(
-                  fontSize: 52,
-                  fontWeight: FontWeight.w400,
+    final titleStyle = pageTitleTextStyle(context);
+    return SafeArea(
+      top: true, bottom: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Stundenplan",
+                  style: titleStyle,
+                  textAlign: TextAlign.start,
                 ),
-                textAlign: TextAlign.start,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        CalendarTimeline(
-          initialDate: today,
-          firstDate: DateTime.now(),
-          lastDate: DateTime(DateTime.now().year, 12, 31)
-              .add(const Duration(days: 60)),
-          onDateSelected: (date) {
-            setState(() {
-              today = date;
-            });
-            _getEvents();
-          },
-          leftMargin: 20,
-          monthColor: Colors.blueGrey,
-          dayColor: Theme.of(context).textTheme.headlineLarge!.color,
-          activeDayColor: Colors.white,
-          activeBackgroundDayColor: Colors.blueAccent,
-          dotsColor: const Color(0xFF333A47),
-          locale: 'de',
-        ),
-        StreamBuilder<List<Event>>(
-            stream: _eventStreamController.stream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return const Center(
-                  child: Text("Error"),
-                );
-              }
-              List<Event> eventList = snapshot.data!;
-              return Expanded(
-                child: (eventList.isNotEmpty)
-                    ? Scrollbar(
-                        child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: eventList.length,
-                            itemBuilder: (BuildContext ctxt, int index) {
-                              Event event = eventList[index];
-                              return LayoutBuilder(builder:
-                                  (BuildContext context,
-                                      BoxConstraints constraints) {
-                                return _eventWidget(context, event);
-                              });
-                            }),
-                      )
-                    : const Center(
-                        child: Text(
-                          "Keine Lektionen eingetragen",
-                          style: TextStyle(fontSize: 20.0),
+          EasyDateTimeLinePicker.itemBuilder(
+            firstDate: DateTime.now(),
+            lastDate: DateTime(DateTime.now().year, 12, 31)
+                .add(const Duration(days: 60)),
+            focusedDate: today,
+            locale: const Locale('de', 'CH'),
+            selectionMode: const SelectionMode.alwaysFirst(
+                // ignore: deprecated_member_use
+                duration: Duration(milliseconds: 300)),
+            headerOptions: const HeaderOptions(
+              headerType: HeaderType.none,
+            ),
+            timelineOptions: const TimelineOptions(height: 80.0),
+            onDateChange: (date) {
+              setState(() {
+                today = date;
+              });
+              _eventsFuture = _loadEvents(date);
+            },
+            itemExtent: 60.0,
+            itemBuilder: (context, date, isSelected, isDisabled, isToday, onTap) {
+              return InkWell(
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: isSelected ? Colors.blueAccent : null,
+                      borderRadius: BorderRadius.circular(8.0)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            DateFormat.MMM('de_CH').format(date),
+                            textAlign: TextAlign.center,
+                            style:
+                                Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 12.0,
+                                      height: 2,
+                                    ),
+                          ),
                         ),
                       ),
+      
+                      // Day number – stays perfectly vertically centered
+                      Center(
+                        child: Text(
+                          date.day.toString(),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontSize: 32.0,
+                                fontWeight: FontWeight.w600,
+                                height: 1,
+                              ),
+                        ),
+                      ),
+      
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            DateFormat.E('de_CH').format(date),
+                            textAlign: TextAlign.center,
+                            style:
+                                Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 18.0,
+                                      height: 1,
+                                    ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
-            }),
-      ],
+            },
+          ),
+                    const SizedBox(height: 10,),
+
+          FutureBuilder<List<Event>>(
+              future: _eventsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return const Center(
+                    child: Text("Error"),
+                  );
+                }
+                List<Event> eventList = snapshot.data ?? [];
+                return Expanded(
+                  child: (eventList.isNotEmpty)
+                      ? Scrollbar(
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: eventList.length,
+                              itemBuilder: (BuildContext ctxt, int index) {
+                                Event event = eventList[index];
+                                return LayoutBuilder(builder:
+                                    (BuildContext context,
+                                        BoxConstraints constraints) {
+                                  return _eventWidget(context, event);
+                                });
+                              }),
+                        )
+                      : const Center(
+                          child: Text(
+                            "Keine Lektionen eingetragen",
+                            style: TextStyle(fontSize: 20.0),
+                          ),
+                        ),
+                );
+              }),
+        ],
+      ),
     );
   }
 }

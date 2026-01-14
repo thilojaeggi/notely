@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/grade_color.dart';
+import 'package:notely/helpers/text_styles.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../models/grade.dart';
@@ -18,11 +20,10 @@ class GradesPage extends StatefulWidget {
 }
 
 class _GradesPageState extends State<GradesPage> {
-  Color goodEnough = Colors.orange;
-  Color good = const Color.fromARGB(255, 0, 110, 255);
-  Color bad = const Color.fromARGB(255, 255, 33, 46);
   double lowestGradePoints = 0.0;
   final ScrollController _scrollController = ScrollController();
+  final APIClient _apiClient = APIClient();
+  late Future<Map<String, dynamic>> _gradesFuture;
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
     final keyContext = expansionTileKey.currentContext;
@@ -37,17 +38,32 @@ class _GradesPageState extends State<GradesPage> {
   }
 
   Color _gradeColor(double grade) {
-    if (grade >= 4.5) {
-      return good;
-    } else if (grade >= 4) {
-      return goodEnough;
-    } else {
-      return bad;
-    }
+    return gradeColor(Grade(mark: grade));
   }
 
-  final StreamController<Map<String, dynamic>> _gradesStreamController =
-      StreamController<Map<String, dynamic>>();
+  BoxDecoration _sharedCardDecoration(BuildContext context,
+      {double radius = 12, Color? backgroundColor}) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final baseColor = backgroundColor ??
+        (isDark ? Colors.white.withOpacity(0.05) : theme.colorScheme.surface);
+    return BoxDecoration(
+      color: baseColor,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(
+        color: isDark
+            ? Colors.white.withOpacity(0.05)
+            : Colors.black.withOpacity(0.05),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
 
   Map<String, dynamic> _calculateGrades(List<Grade> gradeList) {
     var groupedCoursesMap = gradeList.groupBy((m) => m.subject);
@@ -71,317 +87,277 @@ class _GradesPageState extends State<GradesPage> {
       ..sort();
     final numLowest = min(5, averageGradeMap.length);
     final lowestValues = lowestAverages.take(numLowest).toList();
-    lowestGradePoints = 0;
+    double computedLowestGradePoints = 0;
     for (var i = 0; i < lowestValues.length; i++) {
       // Round lowestValues to 0.5
-      lowestGradePoints += (lowestValues[i] * 2).round() / 2;
+      computedLowestGradePoints += (lowestValues[i] * 2).round() / 2;
     }
-    setState(() {
-      lowestGradePoints = double.parse(lowestGradePoints.toStringAsFixed(1));
-    });
+    final roundedLowestPoints =
+        double.parse(computedLowestGradePoints.toStringAsFixed(1));
     return {
       'groupedCoursesMap': groupedCoursesMap,
       'averageGradeMap': averageGradeMap,
-      'lowestGradePoints': lowestGradePoints,
+      'lowestGradePoints': roundedLowestPoints,
     };
   }
-
-  void _getGrades() async {
+  
+  void _updateLowestGradePoints(double points) {
     if (!mounted) return;
+    if (lowestGradePoints == points) return;
+    setState(() {
+      lowestGradePoints = points;
+    });
+  }
+
+  Future<Map<String, dynamic>> _loadGrades(bool useCache) async {
     try {
-      final cachedGrades = await APIClient().getGrades(true);
-      _gradesStreamController.add(_calculateGrades(cachedGrades));
-      final newGrades = await APIClient().getGrades(false);
-      _gradesStreamController.add(_calculateGrades(newGrades));
+      final grades = await _apiClient.getGrades(useCache);
+      final data = _calculateGrades(grades);
+      _updateLowestGradePoints(data['lowestGradePoints'] as double? ?? 0.0);
+      return data;
     } catch (e) {
-      // Handle the StateError here
-      debugPrint('Error adding event to stream controller: $e');
+      debugPrint('Error loading grades: $e');
+      return {};
     }
   }
 
-  @override
-  void dispose() {
-    _gradesStreamController.close();
-    super.dispose();
+  Future<void> _refreshGrades() async {
+    final latestData = await _loadGrades(false);
+    if (!mounted) return;
+    setState(() {
+      _gradesFuture = Future.value(latestData);
+    });
   }
 
   @override
   initState() {
     super.initState();
-    _getGrades();
+    _gradesFuture = _loadGrades(true);
+    _refreshGrades();
   }
 
   Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,
       Map averageGradeMap) {
     final GlobalKey expansionTileKey = GlobalKey();
-    return Card(
-      elevation: 3,
+    const double cardRadius = 12.0;
+    final borderRadius = BorderRadius.circular(cardRadius);
+    return Container(
       margin: const EdgeInsets.only(bottom: 10, left: 10.0, right: 10.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-      ),
-      clipBehavior: Clip.antiAlias,
-      shadowColor: Colors.transparent.withOpacity(0.5),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          key: expansionTileKey,
-          onExpansionChanged: (isExpanded) {
-            if (isExpanded) {
-              _scrollToSelectedContent(expansionTileKey: expansionTileKey);
-            }
-          },
-          title: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Text(
-              groupedCoursesMap.keys.elementAt(index),
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
+      decoration: _sharedCardDecoration(context, radius: cardRadius),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: borderRadius,
+        clipBehavior: Clip.antiAlias,
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            shape: RoundedRectangleBorder(borderRadius: borderRadius),
+            collapsedShape: RoundedRectangleBorder(borderRadius: borderRadius),
+            clipBehavior: Clip.antiAlias,
+            key: expansionTileKey,
+            onExpansionChanged: (isExpanded) {
+              if (isExpanded) {
+                _scrollToSelectedContent(expansionTileKey: expansionTileKey);
+              }
+            },
+            title: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Text(
+                groupedCoursesMap.keys.elementAt(index),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          trailing: Text(
-            "Ø ${averageGradeMap.values.elementAt(index)}",
-            style: const TextStyle(fontSize: 22),
-          ),
-          children: [
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var i = 0;
-                          i < groupedCoursesMap.values.elementAt(index).length;
-                          i++)
-                        Card(
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          shadowColor: _gradeColor(groupedCoursesMap.values
-                              .elementAt(index)[i]
-                              .mark
-                              .toDouble()),
-                          clipBehavior: Clip.antiAlias,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          groupedCoursesMap.values
-                                              .elementAt(index)[i]
-                                              .title,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600,
+            trailing: Text(
+              "Ø ${averageGradeMap.values.elementAt(index)}",
+              style: const TextStyle(fontSize: 22),
+            ),
+            children: [
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var i = 0;
+                            i <
+                                groupedCoursesMap.values
+                                    .elementAt(index)
+                                    .length;
+                            i++)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: _sharedCardDecoration(
+                              context,
+                              radius: 10,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.topLeft,
+                                          child: Text(
+                                            groupedCoursesMap.values
+                                                .elementAt(index)[i]
+                                                .title,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Text(
-                                      groupedCoursesMap.values
-                                          .elementAt(index)[i]
-                                          .mark
-                                          .toString(),
-                                      style: TextStyle(
-                                          color: _gradeColor(groupedCoursesMap
-                                              .values
-                                              .elementAt(index)[i]
-                                              .mark
-                                              .toDouble()),
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Gewichtung: ${groupedCoursesMap.values.elementAt(index)[i].weight}",
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
+                                      const SizedBox(
+                                        width: 10,
                                       ),
-                                    ),
-                                    Text(
-                                      DateFormat("dd.MM.yyyy").format(
-                                          DateTime.parse(groupedCoursesMap
-                                              .values
-                                              .elementAt(index)[i]
-                                              .date)),
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
+                                      Text(
+                                        groupedCoursesMap.values
+                                            .elementAt(index)[i]
+                                            .mark
+                                            .toString(),
+                                        style: TextStyle(
+                                            color: _gradeColor(groupedCoursesMap
+                                                .values
+                                                .elementAt(index)[i]
+                                                .mark
+                                                .toDouble()),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Gewichtung: ${groupedCoursesMap.values.elementAt(index)[i].weight}",
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        DateFormat("dd.MM.yyyy").format(
+                                            DateTime.parse(groupedCoursesMap
+                                                .values
+                                                .elementAt(index)[i]
+                                                .date)),
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.only(
-                            right: 16, top: 16, bottom: 16),
-                        width: double.infinity,
-                        height: 200,
-                        // make corners of container rounded
-                        decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.grey.shade900
-                                    : Colors.transparent,
-                            borderRadius: BorderRadius.circular(6)),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.only(
+                              right: 16, top: 16, bottom: 16),
+                          width: double.infinity,
+                          height: 200,
+                          // make corners of container rounded
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.grey.shade900
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(6)),
 
-                        child: LineChart(
-                          LineChartData(
-                              minY: 1.0,
-                              maxY: 6.0,
-                              titlesData: FlTitlesData(
-                                rightTitles: AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false)),
-                                topTitles: AxisTitles(
-                                    sideTitles: SideTitles(showTitles: false)),
-                                leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                        interval: 1, showTitles: true)),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
+                          child: LineChart(
+                            LineChartData(
+                                minY: 1.0,
+                                maxY: 6.0,
+                                titlesData: const FlTitlesData(
+                                  rightTitles: AxisTitles(
+                                      sideTitles:
+                                          SideTitles(showTitles: false)),
+                                  topTitles: AxisTitles(
+                                      sideTitles:
+                                          SideTitles(showTitles: false)),
+                                  leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                          interval: 1, showTitles: true)),
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
                                 ),
-                              ),
-                              borderData: FlBorderData(
-                                show: false,
-                              ),
-                              gridData: FlGridData(
-                                  horizontalInterval: 1, verticalInterval: 0.5),
-                              lineTouchData: LineTouchData(
-                                getTouchedSpotIndicator:
-                                    (barData, spotIndexes) {
-                                  return spotIndexes.map((index) {
-                                    return TouchedSpotIndicatorData(
-                                      FlLine(
-                                        color: _gradeColor(
-                                            barData.spots.elementAt(index).y),
-                                        strokeWidth: 4.0,
-                                      ),
-                                      FlDotData(
-                                        show: true,
-                                      ),
-                                    );
-                                  }).toList();
-                                },
-                                touchTooltipData: LineTouchTooltipData(
-                                  tooltipRoundedRadius: 4,
-                                  tooltipBgColor:
-                                      Theme.of(context).brightness ==
-                                              Brightness.light
-                                          ? Colors.grey.shade200
-                                          : Colors.grey.shade900,
-                                  fitInsideHorizontally: true,
-                                  tooltipPadding: const EdgeInsets.all(8.0),
-                                  getTooltipItems:
-                                      (List<LineBarSpot> lineBarsSpot) {
-                                    return lineBarsSpot.map((lineBarSpot) {
-                                      return LineTooltipItem(
-                                        lineBarSpot.y.toString(),
-                                        TextStyle(
-                                            color: _gradeColor(lineBarSpot.y),
-                                            fontWeight: FontWeight.bold),
+                                borderData: FlBorderData(
+                                  show: false,
+                                ),
+                                gridData: const FlGridData(
+                                    horizontalInterval: 1,
+                                    verticalInterval: 0.5),
+                                lineTouchData: LineTouchData(
+                                  getTouchedSpotIndicator:
+                                      (barData, spotIndexes) {
+                                    return spotIndexes.map((index) {
+                                      return TouchedSpotIndicatorData(
+                                        FlLine(
+                                          color: _gradeColor(
+                                              barData.spots.elementAt(index).y),
+                                          strokeWidth: 4.0,
+                                        ),
+                                        const FlDotData(
+                                          show: true,
+                                        ),
                                       );
                                     }).toList();
                                   },
+                                  touchTooltipData: LineTouchTooltipData(
+                                    tooltipBorderRadius:
+                                        BorderRadius.circular(4),
+                                    getTooltipColor: (lineBarSpot) =>
+                                        Theme.of(context).brightness ==
+                                                Brightness.light
+                                            ? Colors.grey.shade200
+                                            : Colors.grey.shade900,
+                                    fitInsideHorizontally: true,
+                                    tooltipPadding: const EdgeInsets.all(8.0),
+                                    getTooltipItems:
+                                        (List<LineBarSpot> lineBarsSpot) {
+                                      return lineBarsSpot.map((lineBarSpot) {
+                                        return LineTooltipItem(
+                                          lineBarSpot.y.toString(),
+                                          TextStyle(
+                                              color: _gradeColor(lineBarSpot.y),
+                                              fontWeight: FontWeight.bold),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
                                 ),
-                              ),
-                              lineBarsData: [
-                                LineChartBarData(
-                                    barWidth: 5,
-                                    dotData: FlDotData(
-                                      show: true,
-                                      getDotPainter:
-                                          (spot, percent, barData, index) =>
-                                              FlDotCirclePainter(
-                                        radius: 6,
-                                        color: _gradeColor(spot.y),
-                                        strokeColor: Colors.transparent,
-                                      ),
-                                    ),
-                                    gradient: LinearGradient(
-                                        colors: (groupedCoursesMap.values
-                                                    .elementAt(index)
-                                                    .toList()
-                                                    .length >
-                                                1)
-                                            ? [
-                                                for (var i = 0;
-                                                    i <
-                                                        groupedCoursesMap.values
-                                                            .elementAt(index)
-                                                            .length;
-                                                    i++)
-                                                  _gradeColor(List.from(
-                                                          groupedCoursesMap
-                                                              .values
-                                                              .elementAt(index))
-                                                      .reversed
-                                                      .toList()[i]
-                                                      .mark!
-                                                      .toDouble())
-                                              ]
-                                            : [
-                                                _gradeColor(List.from(
-                                                        groupedCoursesMap.values
-                                                            .elementAt(index))
-                                                    .reversed
-                                                    .toList()[0]
-                                                    .mark!
-                                                    .toDouble()),
-                                                _gradeColor(List.from(
-                                                        groupedCoursesMap.values
-                                                            .elementAt(index))
-                                                    .reversed
-                                                    .toList()[0]
-                                                    .mark!
-                                                    .toDouble())
-                                              ]),
-                                    spots: [
-                                      for (var i = 0;
-                                          i <
-                                              groupedCoursesMap.values
-                                                  .elementAt(index)
-                                                  .length;
-                                          i++)
-                                        FlSpot(
-                                          i.toDouble(),
-                                          List.from(groupedCoursesMap.values
-                                                  .elementAt(index))
-                                              .reversed
-                                              .toList()[i]
-                                              .mark!
-                                              .toDouble(),
+                                lineBarsData: [
+                                  LineChartBarData(
+                                      barWidth: 5,
+                                      dotData: FlDotData(
+                                        show: true,
+                                        getDotPainter:
+                                            (spot, percent, barData, index) =>
+                                                FlDotCirclePainter(
+                                          radius: 6,
+                                          color: _gradeColor(spot.y),
+                                          strokeColor: Colors.transparent,
                                         ),
-                                    ],
-                                    belowBarData: BarAreaData(
-                                      show: true,
+                                      ),
                                       gradient: LinearGradient(
                                           colors: (groupedCoursesMap.values
                                                       .elementAt(index)
@@ -397,46 +373,109 @@ class _GradesPageState extends State<GradesPage> {
                                                               .length;
                                                       i++)
                                                     _gradeColor(List.from(
+                                                            groupedCoursesMap
+                                                                .values
+                                                                .elementAt(
+                                                                    index))
+                                                        .reversed
+                                                        .toList()[i]
+                                                        .mark!
+                                                        .toDouble())
+                                                ]
+                                              : [
+                                                  _gradeColor(List.from(
+                                                          groupedCoursesMap
+                                                              .values
+                                                              .elementAt(index))
+                                                      .reversed
+                                                      .toList()[0]
+                                                      .mark!
+                                                      .toDouble()),
+                                                  _gradeColor(List.from(
+                                                          groupedCoursesMap
+                                                              .values
+                                                              .elementAt(index))
+                                                      .reversed
+                                                      .toList()[0]
+                                                      .mark!
+                                                      .toDouble())
+                                                ]),
+                                      spots: [
+                                        for (var i = 0;
+                                            i <
+                                                groupedCoursesMap.values
+                                                    .elementAt(index)
+                                                    .length;
+                                            i++)
+                                          FlSpot(
+                                            i.toDouble(),
+                                            List.from(groupedCoursesMap.values
+                                                    .elementAt(index))
+                                                .reversed
+                                                .toList()[i]
+                                                .mark!
+                                                .toDouble(),
+                                          ),
+                                      ],
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        gradient: LinearGradient(
+                                            colors: (groupedCoursesMap.values
+                                                        .elementAt(index)
+                                                        .toList()
+                                                        .length >
+                                                    1)
+                                                ? [
+                                                    for (var i = 0;
+                                                        i <
+                                                            groupedCoursesMap
+                                                                .values
+                                                                .elementAt(
+                                                                    index)
+                                                                .length;
+                                                        i++)
+                                                      _gradeColor(List.from(
+                                                                  groupedCoursesMap
+                                                                      .values
+                                                                      .elementAt(
+                                                                          index))
+                                                              .reversed
+                                                              .toList()[i]
+                                                              .mark!
+                                                              .toDouble())
+                                                          .withOpacity(0.3)
+                                                  ]
+                                                : [
+                                                    _gradeColor(List.from(
                                                                 groupedCoursesMap
                                                                     .values
                                                                     .elementAt(
                                                                         index))
                                                             .reversed
-                                                            .toList()[i]
+                                                            .toList()[0]
+                                                            .mark!
+                                                            .toDouble())
+                                                        .withOpacity(0.3),
+                                                    _gradeColor(List.from(
+                                                                groupedCoursesMap
+                                                                    .values
+                                                                    .elementAt(
+                                                                        index))
+                                                            .reversed
+                                                            .toList()[0]
                                                             .mark!
                                                             .toDouble())
                                                         .withOpacity(0.3)
-                                                ]
-                                              : [
-                                                  _gradeColor(List.from(
-                                                              groupedCoursesMap
-                                                                  .values
-                                                                  .elementAt(
-                                                                      index))
-                                                          .reversed
-                                                          .toList()[0]
-                                                          .mark!
-                                                          .toDouble())
-                                                      .withOpacity(0.3),
-                                                  _gradeColor(List.from(
-                                                              groupedCoursesMap
-                                                                  .values
-                                                                  .elementAt(
-                                                                      index))
-                                                          .reversed
-                                                          .toList()[0]
-                                                          .mark!
-                                                          .toDouble())
-                                                      .withOpacity(0.3)
-                                                ]),
-                                    ))
-                              ]),
+                                                  ]),
+                                      ))
+                                ]),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
+                      ],
+                    ),
+                  )),
+            ],
+          ),
         ),
       ),
     );
@@ -444,6 +483,7 @@ class _GradesPageState extends State<GradesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final titleStyle = pageTitleTextStyle(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -453,12 +493,9 @@ class _GradesPageState extends State<GradesPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
+              Text(
                 "Noten",
-                style: TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: titleStyle,
                 textAlign: TextAlign.start,
               ),
               const SizedBox(
@@ -517,10 +554,11 @@ class _GradesPageState extends State<GradesPage> {
           ),
         ),
         Expanded(
-          child: StreamBuilder<Map<String, dynamic>>(
-              stream: _gradesStreamController.stream,
+          child: FutureBuilder<Map<String, dynamic>>(
+              future: _gradesFuture,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );

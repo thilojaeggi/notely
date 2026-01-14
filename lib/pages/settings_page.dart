@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:day_night_switcher/day_night_switcher.dart';
@@ -9,15 +8,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 import 'package:notely/Globals.dart';
 import 'package:notely/helpers/api_client.dart';
+import 'package:notely/helpers/auth_manager.dart';
 import 'package:notely/helpers/initialization_helper.dart';
-import 'package:notely/secure_storage.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'login_page.dart';
 import 'package:app_settings/app_settings.dart';
+import 'package:cupertino_native/cupertino_native.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -116,28 +114,18 @@ class _SettingsPageState extends State<SettingsPage> {
     debugPrint("Done toggling notifications");
   }
 
-  void logout() async {
-    SecureStorage().deleteAll();
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove("school");
-    if (!mounted) return;
-
-    Navigator.pushReplacement(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          alignment: Alignment.bottomCenter,
-          child: const LoginPage(),
-        ));
+  Future<void> logout() async {
+    await AuthManager().logout();
   }
 
   void changeAppIcon() {
     if (Platform.isIOS) {
-      showDialog(
+      showModalBottomSheet(
         context: context,
-        builder: (context) {
-          return const ChangeAppIconDialog();
-        },
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => const ChangeAppIconSheet(),
       );
     } else {
       showDialog(
@@ -204,243 +192,359 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final headlineStyle = theme.textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: theme.textTheme.bodyMedium?.color
+        ) ??
+        const TextStyle(
+          fontSize: 42,
+          fontWeight: FontWeight.w600,
+        );
+
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 10.0),
-              child: Text(
-                "Einstellungen",
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.w400,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
+        children: [
+          Text(
+            "Einstellungen",
+            style: headlineStyle,
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            title: "Darstellung",
+            children: [
+              _SettingsTile(
+                icon: ThemeProvider.themeOf(context).id == "dark_theme"
+                    ? CupertinoIcons.moon_stars_fill
+                    : CupertinoIcons.sun_max_fill,
+                accentColor: ThemeProvider.themeOf(context).id == "dark_theme"
+                    ? Colors.blueAccent
+                    : Colors.amberAccent,
+                title: "Light/Dark-Mode",
+                trailing: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 350),
+                  switchOutCurve: Curves.easeInCubic,
+                  switchInCurve: Curves.easeOutCubic,
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    key: ValueKey(
+                      ThemeProvider.themeOf(context).id == "dark_theme",
+                    ),
+                    padding: const EdgeInsets.only(right: 4),
+                    
+                  ),
                 ),
-                textAlign: TextAlign.start,
+                onTap: () {
+                  enableDarkMode(
+                    !(ThemeProvider.themeOf(context).id == "dark_theme"),
+                  );
+                },
+              ),
+              if (Platform.isIOS)
+                _SettingsTile(
+                  icon: CupertinoIcons.app_fill,
+                  accentColor: Colors.indigoAccent,
+                  title: "App Icon",
+                  trailing: const Icon(
+                    CupertinoIcons.chevron_right,
+                    size: 20,
+                  ),
+                  onTap: changeAppIcon,
+                ),
+            ],
+          ),
+          _buildSection(
+            title: "Mitteilungen",
+            children: [
+              _SettingsTile(
+                icon: CupertinoIcons.bell_fill,
+                accentColor: Colors.pinkAccent,
+                title: "Benachrichtigungen",
+                subtitle: "Bei neuen Noten und Updates",
+                onTap: () {
+                  toggleNotifications(!notificationsEnabled);
+                },
+                trailing: Platform.isIOS
+                    ? CNSwitch(
+                        value: notificationsEnabled,
+                        onChanged: (value) {
+                          toggleNotifications(value);
+                        },
+                      )
+                    : Switch(
+                        value: notificationsEnabled,
+                        onChanged: (value) {
+                          toggleNotifications(value);
+                        },
+                      ),
+              ),
+            ],
+          ),
+          FutureBuilder<bool>(
+            future: _future,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data == true) {
+                return _buildSection(
+                  title: "Privatsphäre",
+                  children: [
+                    _SettingsTile(
+                      icon: CupertinoIcons.lock_shield_fill,
+                      accentColor: Colors.tealAccent[700] ?? Colors.teal,
+                      title: "Datenschutzeinstellungen",
+                      subtitle: "Werbung und Tracking",
+                      trailing: const Icon(
+                        CupertinoIcons.chevron_right,
+                        size: 20,
+                      ),
+                      onTap: () async {
+                        final scaffoldMessenger =
+                            ScaffoldMessenger.of(context);
+                        final didChangePreferences =
+                            await _initializationHelper
+                                .changePrivacyPreferences();
+                        scaffoldMessenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              didChangePreferences
+                                  ? 'Einstellungen aktualisiert'
+                                  : 'Ein Fehler ist aufgetreten',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          _buildSection(
+            title: "Support",
+            children: [
+              _SettingsTile(
+                icon: CupertinoIcons.envelope_fill,
+                accentColor: Colors.lightBlueAccent,
+                title: "Support",
+                subtitle: "thilo@notely.ch",
+                trailing: const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 20,
+                ),
+                onTap: () {
+                  final Uri emailLaunchUri = Uri(
+                      scheme: 'mailto',
+                      path: 'thilo@notely.ch',
+                      query:
+                          'subject=Notely Problem ${APIClient().school}&body=Dein Problem: ');
+                  launchUrl(emailLaunchUri);
+                },
+              ),
+              _SettingsTile(
+                icon: CupertinoIcons.square_arrow_right_fill,
+                accentColor: Colors.redAccent,
+                title: "Abmelden",
+                trailing: const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 20,
+                ),
+                onTap: logout,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildVersionFooter(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final backgroundColor =
+        isDark ? Colors.white.withOpacity(0.03) : theme.colorScheme.surface;
+    final borderColor = isDark
+        ? Colors.white.withOpacity(0.08)
+        : Colors.black.withOpacity(0.05);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ) ??
+                const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: borderColor),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.45 : 0.08),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                for (int i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: isDark
+                          ? Colors.white.withOpacity(0.08)
+                          : Colors.black.withOpacity(0.05),
+                    ),
+                  children[i],
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVersionFooter() {
+    final mutedColor = Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.color
+            ?.withOpacity(0.7) ??
+        const Color.fromRGBO(158, 158, 158, 1);
+
+    return Center(
+      child: Column(
+        children: [
+          FutureBuilder<PackageInfo>(
+              future: _getPackageInfo(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Text(
+                    "${snapshot.data!.version} (${snapshot.data!.buildNumber})",
+                    style: TextStyle(color: mutedColor),
+                  );
+                }
+                return Text(
+                  "0.0.0 (0)",
+                  style: TextStyle(color: mutedColor),
+                );
+              }),
+          const SizedBox(height: 4),
+          Text(
+            "${DateTime.now().year.toString()} © Thilo Jaeggi",
+            style: TextStyle(color: mutedColor),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final Color accentColor;
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.accentColor,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyMedium?.color;
+    final backgroundColor = accentColor
+        .withOpacity(theme.brightness == Brightness.dark ? 0.25 : 0.15);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: accentColor,
+                size: 22,
               ),
             ),
+            const SizedBox(width: 14),
             Expanded(
-              child: ListView(
-                shrinkWrap: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: ListTile(
-                      onTap: () {
-                        enableDarkMode(!(ThemeProvider.themeOf(context).id ==
-                            "dark_theme"));
-                      },
-                      visualDensity: const VisualDensity(vertical: 2),
-                      title: const Text(
-                        "Light/Dark-Mode",
-                        style: TextStyle(
-                          fontSize: 23,
+                  Text(
+                    title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ) ??
+                        const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      trailing: Padding(
-                        padding: const EdgeInsets.only(right: 3),
-                        child: DayNightSwitcherIcon(
-                          cloudsColor: Colors.transparent,
-                          isDarkModeEnabled:
-                              (ThemeProvider.themeOf(context).id ==
-                                  "dark_theme"),
-                          onStateChanged: (isDarkModeEnabled) {
-                            enableDarkMode(isDarkModeEnabled);
-                          },
-                        ),
-                      ),
-                    ),
                   ),
-                  Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: ListTile(
-                      onTap: () {
-                        toggleNotifications(!notificationsEnabled);
-                      },
-                      visualDensity: const VisualDensity(vertical: 2),
-                      title: const Text(
-                        "Benachrichtigungen",
-                        style: TextStyle(
-                          fontSize: 23,
-                        ),
-                      ),
-                      subtitle: const Text("Bei neuen Noten und Updates"),
-                      trailing: (!Platform.isIOS)
-                          ? Switch(
-                              value: notificationsEnabled,
-                              onChanged: (value) {
-                                toggleNotifications(value);
-                              },
-                            )
-                          : CupertinoSwitch(
-                              value: notificationsEnabled,
-                              onChanged: (value) {
-                                toggleNotifications(value);
-                              }),
-                    ),
-                  ),
-                  if (Platform.isIOS)
-                    Card(
-                        elevation: 3,
-                        margin: const EdgeInsets.only(bottom: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: ListTile(
-                          onTap: changeAppIcon,
-                          visualDensity: const VisualDensity(vertical: 2),
-                          title: const Text(
-                            "App Icon ändern",
-                            style: TextStyle(
-                              fontSize: 23,
-                            ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                            color: textColor?.withOpacity(0.7),
+                          ) ??
+                          TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
                           ),
-                          trailing: const Icon(
-                            Icons.image,
-                            size: 32,
-                          ),
-                        )),
-                  Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: ListTile(
-                      onTap: () {
-                        final Uri emailLaunchUri = Uri(
-                            scheme: 'mailto',
-                            path: 'thilo.jaeggi@ksso.ch',
-                            query:
-                                'subject=Notely Problem ${APIClient().school}&body=Dein Problem: ');
-                        launchUrl(emailLaunchUri);
-                      },
-                      visualDensity: const VisualDensity(vertical: 2),
-                      title: const Text(
-                        "Support",
-                        style: TextStyle(
-                          fontSize: 23,
-                        ),
-                      ),
-                      trailing: const Icon(
-                        Icons.mail,
-                        size: 32,
-                      ),
-                    ),
-                  ),
-                  FutureBuilder<bool>(
-                      future: _future,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data == true) {
-                          return Card(
-                            elevation: 3,
-                            margin: const EdgeInsets.only(bottom: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child:
-                                // Show it only if the user is under the GDPR
-
-                                ListTile(
-                              visualDensity: const VisualDensity(vertical: 2),
-                              title: const Text(
-                                  'Datenschutzeinstellungen anpassen',
-                                  style: TextStyle(fontSize: 20)),
-                              onTap: () async {
-                                final scaffoldMessenger =
-                                    ScaffoldMessenger.of(context);
-
-                                // Show the consent message again
-                                final didChangePreferences =
-                                    await _initializationHelper
-                                        .changePrivacyPreferences();
-
-                                // Give feedback to the user that their
-                                // preferences have been correctly modified
-                                scaffoldMessenger.showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      didChangePreferences
-                                          ? 'Einstellungen aktualisiert'
-                                          : 'Ein Fehler ist aufgetreten',
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      }),
-                  Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: ListTile(
-                      onTap: logout,
-                      visualDensity: const VisualDensity(vertical: 2),
-                      title: const Text(
-                        "Abmelden",
-                        style: TextStyle(
-                          fontSize: 23,
-                        ),
-                      ),
-                      trailing: const Icon(
-                        Icons.logout,
-                        size: 32,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
-            Center(
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 5),
-                    child: FutureBuilder<PackageInfo>(
-                        future: _getPackageInfo(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Text(
-                              "${snapshot.data!.version} (${snapshot.data!.buildNumber})",
-                              style: const TextStyle(
-                                  color: Color.fromRGBO(158, 158, 158, 1)),
-                            );
-                          }
-                          return const Text("0.0.0 (0)");
-                        }),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 5),
-                    child: Text(
-                      "${DateTime.now().year.toString()} © Thilo Jaeggi",
-                      style: const TextStyle(
-                          color: Color.fromRGBO(158, 158, 158, 1)),
-                    ),
-                  ),
-                ],
-              ),
-            )
+            if (trailing != null) ...[
+              const SizedBox(width: 12),
+              trailing!,
+            ]
           ],
         ),
       ),
@@ -448,85 +552,326 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-class ChangeAppIconDialog extends StatefulWidget {
-  const ChangeAppIconDialog({super.key});
+class ChangeAppIconSheet extends StatefulWidget {
+  const ChangeAppIconSheet({super.key});
 
   @override
-  State<ChangeAppIconDialog> createState() => _ChangeAppIconDialogState();
+  State<ChangeAppIconSheet> createState() => _ChangeAppIconSheetState();
 }
 
-class _ChangeAppIconDialogState extends State<ChangeAppIconDialog> {
-  List iconName = <String>['Classic', 'Aktuell'];
+class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
+  static const List<_IconOption> _iconOptions = [
+    _IconOption(
+      iconName: 'Classic',
+      title: "Klassisch",
+      description: "Das ursprüngliche Notely Symbol",
+      assetPath: "assets/icons/icon-classic.png",
+    ),
+    _IconOption(
+      iconName: 'Aktuell',
+      title: "Modern",
+      description: "Die moderne Variante",
+      assetPath: "assets/icons/notely.png",
+      isDefault: true,
+    ),
+  ];
 
-  void changeAppIconCallback(int index) async {
-    try {
-      if (await FlutterDynamicIcon.supportsAlternateIcons) {
-        await FlutterDynamicIcon.setAlternateIconName(iconName[index]);
-        debugPrint("App icon change successful");
-        if (!mounted) return;
+  String? _currentIconName;
+  String? _changingIcon;
+  bool _loadingSelection = true;
 
-        Navigator.pop(context);
-        return;
-      }
-    } catch (e) {
-      debugPrint("Exception: ${e.toString()}");
-    }
-    debugPrint("Failed to change app icon ");
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentIcon();
   }
 
-  Widget buildIconTile(int index, String themeTxt, String imageName) {
-    return Card(
-      elevation: 3,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: ListTile(
-        onTap: () {
-          changeAppIconCallback(index);
-        },
-        contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
-        leading: SizedBox(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(11),
-            child: Image.asset(
-              imageName,
-            ),
+  Future<void> _loadCurrentIcon() async {
+    try {
+      final current = await FlutterDynamicIcon.getAlternateIconName();
+      if (!mounted) return;
+      setState(() {
+        _currentIconName = current;
+        _loadingSelection = false;
+      });
+    } catch (e) {
+      debugPrint("Failed to load current icon: $e");
+      if (!mounted) return;
+      setState(() {
+        _loadingSelection = false;
+      });
+    }
+  }
+
+  Future<void> _handleSelection(_IconOption option) async {
+    if (_changingIcon != null) return;
+    setState(() {
+      _changingIcon = option.iconName;
+    });
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    bool changed = false;
+    try {
+      final supports = await FlutterDynamicIcon.supportsAlternateIcons;
+      if (!supports) {
+        messenger?.showSnackBar(
+          const SnackBar(
+            content: Text("Das Gerät unterstützt keine alternativen App-Icons."),
           ),
+        );
+        return;
+      }
+
+      await FlutterDynamicIcon.setAlternateIconName(option.iconName);
+      changed = true;
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (e) {
+      debugPrint("Exception while changing icon: $e");
+      messenger?.showSnackBar(
+        const SnackBar(
+          content: Text("Icon konnte nicht geändert werden."),
         ),
-        title: Text(themeTxt, style: const TextStyle(fontSize: 25)),
-      ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _changingIcon = null;
+          if (changed) {
+            _currentIconName = option.iconName;
+          }
+        });
+      }
+    }
+  }
+
+  String _resolvedSelection() {
+    final fallback = _iconOptions.firstWhere(
+      (element) => element.isDefault,
+      orElse: () => _iconOptions.first,
     );
+    return _currentIconName ?? fallback.iconName;
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      contentPadding: const EdgeInsets.only(left: 4.0, right: 4.0),
-      buttonPadding: EdgeInsets.zero,
-      actionsPadding: EdgeInsets.zero,
-      titlePadding: const EdgeInsets.only(left: 8.0, top: 8.0),
-      insetPadding: EdgeInsets.zero,
-      title: const Text("App Icon ändern"),
-      content: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    final backgroundColor = CupertinoTheme.of(context).scaffoldBackgroundColor;
+    final fieldBackground =
+        CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
+    final helperStyle = CupertinoTheme.of(context)
+        .textTheme
+        .textStyle
+        .copyWith(
+          fontSize: 14,
+          color: CupertinoColors.systemGrey.resolveFrom(context),
+        );
+
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(28),
+            topRight: Radius.circular(28),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 30,
+              offset: const Offset(0, -12),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          bottom: true,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 48,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.systemGrey4.resolveFrom(context),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "App Icon ändern",
+                        style: CupertinoTheme.of(context)
+                            .textTheme
+                            .navTitleTextStyle
+                            .copyWith(fontSize: 22),
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: const EdgeInsets.all(8),
+                      minSize: 32,
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Icon(
+                        CupertinoIcons.xmark_circle_fill,
+                        size: 24,
+                        color:
+                            CupertinoColors.systemGrey.resolveFrom(context),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "Wähle dein bevorzugtes App-Icon",
+                  style: helperStyle,
+                ),
+                const SizedBox(height: 18),
+                if (_loadingSelection)
+                  const Center(child: CupertinoActivityIndicator())
+                else
+                  ..._iconOptions.map(
+                    (option) => _IconOptionTile(
+                      option: option,
+                      isSelected: _resolvedSelection() == option.iconName,
+                      isLoading: _changingIcon == option.iconName,
+                      backgroundColor: fieldBackground,
+                      helperStyle: helperStyle,
+                      onTap: () => _handleSelection(option),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IconOption {
+  final String iconName;
+  final String title;
+  final String description;
+  final String assetPath;
+  final bool isDefault;
+
+  const _IconOption({
+    required this.iconName,
+    required this.title,
+    required this.description,
+    required this.assetPath,
+    this.isDefault = false,
+  });
+}
+
+class _IconOptionTile extends StatelessWidget {
+  final _IconOption option;
+  final bool isSelected;
+  final bool isLoading;
+  final Color backgroundColor;
+  final TextStyle helperStyle;
+  final VoidCallback onTap;
+
+  const _IconOptionTile({
+    required this.option,
+    required this.isSelected,
+    required this.isLoading,
+    required this.backgroundColor,
+    required this.helperStyle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final borderColor = isSelected
+        ? Theme.of(context).primaryColor
+        : isDark
+            ? Colors.white.withOpacity(0.08)
+            : Colors.black.withOpacity(0.08);
+
+    return GestureDetector(
+      onTap: isLoading ? null : onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
           children: [
-            buildIconTile(0, "Klassisch", "assets/icons/icon-classic.png"),
-            buildIconTile(1, "Aktuell", "assets/icons/notely.png"),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                option.assetPath,
+                width: 64,
+                height: 64,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    option.title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ) ??
+                        const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    option.description,
+                    style: helperStyle,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            if (isLoading)
+              const CupertinoActivityIndicator()
+            else if (isSelected)
+              Icon(
+                CupertinoIcons.check_mark_circled_solid,
+                color: Theme.of(context).primaryColor,
+              )
+            else
+              Icon(
+                CupertinoIcons.circle,
+                color: CupertinoColors.systemGrey3.resolveFrom(context),
+              ),
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text("Schliessen"),
-        ),
-      ],
     );
   }
 }

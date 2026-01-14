@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:notely/helpers/token_manager.dart';
 import 'package:notely/models/Absence.dart';
 import 'package:notely/models/Event.dart';
 import 'package:notely/models/exam.dart';
@@ -14,6 +15,7 @@ class APIClient {
   late String _accessToken;
   late String school;
   bool _fakeData = false;
+  final TokenManager _tokenManager = TokenManager();
 
   factory APIClient() {
     return _singleton;
@@ -31,24 +33,43 @@ class APIClient {
 
   dynamic getDemoData(String path) {
     if (path.contains("events")) {
+      // Parse date from path if available, otherwise use today
+      DateTime targetDate = DateTime.now();
+      try {
+        final dateMatch =
+            RegExp(r'min_date=(\d{4}-\d{2}-\d{2})').firstMatch(path);
+        if (dateMatch != null) {
+          final dateStr = dateMatch.group(1)!;
+          final parts = dateStr.split('-');
+          targetDate = DateTime(
+              int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+        }
+      } catch (e) {
+        // If parsing fails, use today
+        targetDate = DateTime.now();
+      }
+
       return [
         Event(
-            id: 'eeafsdg',
-            startDate: DateTime.now().add(const Duration(days: 7)),
-            endDate: DateTime.now().add(const Duration(days: 7)),
-            text: 'Math',
-            comment: 'Test',
-            roomToken: 'A02',
-            roomId: 'A02',
-            teachers: ['Hans Müller'],
-            teacherIds: ['1'],
-            teacherTokens: ['1'],
-            courseId: '1',
-            courseToken: '1',
-            courseName: 'Mathematik',
-            status: '1',
-            color: '1',
-            eventType: '1',
+            id: 'demo-event-1',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 7, 45),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 8, 35),
+            text: 'Mathematik',
+            comment: 'Analytische Geometrie - Aufgabenblock C',
+            roomToken: 'B215',
+            roomId: 'B215',
+            teachers: ['Patrick Keller'],
+            teacherIds: ['teacher-1'],
+            teacherTokens: ['teacher-token-1'],
+            courseId: 'course-1',
+            courseToken: 'math-token',
+            courseName: 'Mathematik Schwerpunkt',
+            status: 'confirmed',
+            color: '#3366CC',
+            eventType: 'lesson',
+            isExam: false,
             eventRoomStatus: null,
             timetableText: null,
             infoFacilityManagement: null,
@@ -58,22 +79,25 @@ class APIClient {
             studentNames: null,
             studentIds: null),
         Event(
-            id: 'sdfsfef',
-            startDate: DateTime.now().add(const Duration(days: 1)),
-            endDate: DateTime.now().add(const Duration(days: 1)),
-            text: 'Math',
-            comment: 'Test',
-            roomToken: 'A02',
-            roomId: 'A02',
-            teachers: ['Hans Müller'],
-            teacherIds: ['1'],
-            teacherTokens: ['1'],
-            courseId: '1',
-            courseToken: '1',
-            courseName: 'Mathematik',
-            status: '1',
-            color: '1',
-            eventType: '1',
+            id: 'demo-event-2',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 8, 40),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 9, 30),
+            text: 'Deutsch',
+            comment: 'Textanalyse zu Dürrenmatt, bring Heft mit',
+            roomToken: 'A112',
+            roomId: 'A112',
+            teachers: ['Claudia Messerli'],
+            teacherIds: ['teacher-2'],
+            teacherTokens: ['teacher-token-2'],
+            courseId: 'course-2',
+            courseToken: 'deutsch-token',
+            courseName: 'Deutsch LZ 3',
+            status: 'confirmed',
+            color: '#2E8B57',
+            eventType: 'lesson',
+            isExam: false,
             eventRoomStatus: null,
             timetableText: null,
             infoFacilityManagement: null,
@@ -83,22 +107,25 @@ class APIClient {
             studentNames: null,
             studentIds: null),
         Event(
-            id: 'fhgfh',
-            startDate: DateTime.now().add(const Duration(days: 3)),
-            endDate: DateTime.now().add(const Duration(days: 3)),
+            id: 'demo-event-3',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 9, 45),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 10, 35),
             text: 'English',
-            comment: 'Test',
-            roomToken: 'B13',
-            roomId: 'B13',
-            teachers: ['Adriana Albrecht'],
-            teacherIds: ['1'],
-            teacherTokens: ['1'],
-            courseId: '1',
-            courseToken: '1',
-            courseName: 'English',
-            status: '1',
-            color: '1',
-            eventType: '1',
+            comment: 'Debate preparation - sustainability topic',
+            roomToken: 'C05',
+            roomId: 'C05',
+            teachers: ['Sarah Johnson'],
+            teacherIds: ['teacher-3'],
+            teacherTokens: ['teacher-token-3'],
+            courseId: 'course-3',
+            courseToken: 'english-token',
+            courseName: 'English CAE',
+            status: 'confirmed',
+            color: '#CC3333',
+            eventType: 'lesson',
+            isExam: false,
             eventRoomStatus: null,
             timetableText: null,
             infoFacilityManagement: null,
@@ -108,22 +135,53 @@ class APIClient {
             studentNames: null,
             studentIds: null),
         Event(
-            id: '1',
-            startDate: DateTime.now().add(const Duration(days: 2)),
-            endDate: DateTime.now().add(const Duration(days: 2)),
-            text: 'Math',
-            comment: 'Test',
+            id: 'demo-event-4',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 10, 50),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 11, 40),
+            text: 'Chemie Labor',
+            comment: 'Titration von Essigsäure, Schutzbrille obligatorisch',
+            roomToken: 'LAB1',
+            roomId: 'LAB1',
+            teachers: ['Tobias Graf'],
+            teacherIds: ['teacher-4'],
+            teacherTokens: ['teacher-token-4'],
+            courseId: 'course-4',
+            courseToken: 'chemie-token',
+            courseName: 'Chemie Praktikum',
+            status: 'confirmed',
+            color: '#FFB300',
+            eventType: 'lab',
+            isExam: false,
+            eventRoomStatus: null,
+            timetableText: null,
+            infoFacilityManagement: null,
+            importset: null,
+            lessons: null,
+            publishToInfoSystem: null,
+            studentNames: null,
+            studentIds: null),
+        Event(
+            id: 'demo-event-5',
+            startDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 13, 15),
+            endDate: DateTime(
+                targetDate.year, targetDate.month, targetDate.day, 14, 45),
+            text: 'Wirtschaft & Recht',
+            comment: 'Fallstudie Start-up Finanzierung',
             roomToken: 'EU2',
             roomId: 'EU2',
             teachers: ['Dieter Dürr'],
-            teacherIds: ['1'],
-            teacherTokens: ['1'],
-            courseId: '1',
-            courseToken: '1',
-            courseName: 'Wirtschaft und Recht',
-            status: '1',
-            color: '1',
-            eventType: '1',
+            teacherIds: ['teacher-5'],
+            teacherTokens: ['teacher-token-5'],
+            courseId: 'course-5',
+            courseToken: 'wir-token',
+            courseName: 'Wirtschaft & Recht',
+            status: 'confirmed',
+            color: '#8E24AA',
+            eventType: 'lesson',
+            isExam: false,
             eventRoomStatus: null,
             timetableText: null,
             infoFacilityManagement: null,
@@ -134,54 +192,62 @@ class APIClient {
             studentIds: null),
       ];
     }
-    switch (path) {
+    // Extract base path without query parameters for switch matching
+    final basePath = path.split('?').first;
+    switch (basePath) {
       case '/rest/v1/me':
         return Student(
-            id: "test",
-            idNr: "test",
-            lastName: "Mustermann",
-            firstName: "Max",
-            loginActive: true,
-            loginAd: true,
-            gender: "male",
-            birthday: DateTime.now(),
-            street: "Musterstrasse 5",
-            zip: "2545",
-            city: "Selzach",
-            nationality: "Schweiz",
-            hometown: "Solothurn",
-            phone: "0346424557565",
-            mobile: "0346424557565",
-            email: "max@mustermann.de",
-            emailPrivate: "max@mustermann.de",
-            profil1: "EngW",
-            entryDate: DateTime.now().subtract(const Duration(days: 7)),
-            regularClasses: [
-              RegularClass(id: "test", token: "test", semester: "3")
-            ],
-            additionalClasses: [
-              "Demo",
-              "Data"
-            ]);
+          id: "demo-student-1",
+          userType: "student",
+          idNr: "S123456",
+          lastName: "Baumann",
+          firstName: "Lina",
+          loginActive: true,
+          gender: "female",
+          birthday: DateTime.now().subtract(const Duration(days: 17 * 365)),
+          street: "Bielstrasse 12",
+          zip: "4500",
+          city: "Solothurn",
+          nationality: "Schweiz",
+          hometown: "Grenchen",
+          phone: "032 511 22 11",
+          mobile: "+41 79 555 44 33",
+          email: "lina.baumann@kssolothurn.ch",
+          emailPrivate: "lina.baumann@example.com",
+          profil1: "EngW",
+          entryDate: DateTime.now().subtract(const Duration(days: 530)),
+          regularClasses: [
+            RegularClass(id: "3C", token: "3C-2023", semester: "3"),
+            RegularClass(id: "Chemie-Lab", token: "LAB1", semester: "3")
+          ],
+          additionalClasses: [
+            RegularClass(id: "English CAE", token: "ENG-CAE", semester: "3")
+          ],
+        );
       case '/rest/v1/me/exams':
+        final examDate1 = DateTime.now().add(const Duration(days: 2));
+        final examDate2 = DateTime.now().add(const Duration(days: 4));
+        final examDate3 = DateTime.now().add(const Duration(days: 8));
         return [
           Exam(
-              id: '1',
-              startDate: DateTime.now().add(const Duration(days: 2)),
-              endDate: DateTime.now().add(const Duration(days: 2)),
-              text: 'Trigonometrie',
-              comment: '',
-              roomToken: '1',
-              roomId: '1',
-              teachers: ['1'],
-              teacherIds: ['1'],
-              teacherTokens: ['1'],
-              courseId: '1',
-              courseToken: '1',
-              courseName: 'Mathematik',
-              status: '1',
-              color: '1',
-              eventType: '1',
+              id: 'demo-exam-1',
+              startDate: DateTime(
+                  examDate1.year, examDate1.month, examDate1.day, 8, 0),
+              endDate: DateTime(
+                  examDate1.year, examDate1.month, examDate1.day, 9, 15),
+              text: 'Ableitungen & Kurvendiskussion',
+              comment: 'Hilfsmittel: Taschenrechner & Formular Sammlung',
+              roomToken: 'B215',
+              roomId: 'B215',
+              teachers: ['Patrick Keller'],
+              teacherIds: ['teacher-1'],
+              teacherTokens: ['teacher-token-1'],
+              courseId: 'course-1',
+              courseToken: 'math-token',
+              courseName: 'Mathematik Schwerpunkt',
+              status: 'confirmed',
+              color: '#3366CC',
+              eventType: 'exam',
               eventRoomStatus: null,
               timetableText: null,
               infoFacilityManagement: null,
@@ -191,22 +257,51 @@ class APIClient {
               studentNames: null,
               studentIds: null),
           Exam(
-              id: '1',
-              startDate: DateTime.now().add(const Duration(days: 4)),
-              endDate: DateTime.now().add(const Duration(days: 4)),
-              text: 'Pronouns and Prepositions',
-              comment: '',
-              roomToken: '1',
-              roomId: '1',
-              teachers: ['1'],
-              teacherIds: ['1'],
-              teacherTokens: ['1'],
-              courseId: '1',
-              courseToken: '1',
-              courseName: 'English',
-              status: '1',
-              color: '1',
-              eventType: '1',
+              id: 'demo-exam-2',
+              startDate: DateTime(
+                  examDate2.year, examDate2.month, examDate2.day, 10, 5),
+              endDate: DateTime(
+                  examDate2.year, examDate2.month, examDate2.day, 11, 35),
+              text: 'Geschichte - Bundesstaat Schweiz',
+              comment: 'Essay + Quellenanalyse',
+              roomToken: 'A112',
+              roomId: 'A112',
+              teachers: ['Claudia Messerli'],
+              teacherIds: ['teacher-2'],
+              teacherTokens: ['teacher-token-2'],
+              courseId: 'course-2',
+              courseToken: 'history-token',
+              courseName: 'Geschichte 3C',
+              status: 'confirmed',
+              color: '#A0522D',
+              eventType: 'exam',
+              eventRoomStatus: null,
+              timetableText: null,
+              infoFacilityManagement: null,
+              importset: null,
+              lessons: null,
+              publishToInfoSystem: null,
+              studentNames: null,
+              studentIds: null),
+          Exam(
+              id: 'demo-exam-3',
+              startDate: DateTime(
+                  examDate3.year, examDate3.month, examDate3.day, 13, 0),
+              endDate: DateTime(
+                  examDate3.year, examDate3.month, examDate3.day, 14, 30),
+              text: 'English CAE Mock Listening',
+              comment: 'Bring headphones, Prüfungssaal öffnet 15 Minuten vorher',
+              roomToken: 'Aula',
+              roomId: 'Aula',
+              teachers: ['Sarah Johnson'],
+              teacherIds: ['teacher-3'],
+              teacherTokens: ['teacher-token-3'],
+              courseId: 'course-3',
+              courseToken: 'english-token',
+              courseName: 'English CAE',
+              status: 'confirmed',
+              color: '#CC3333',
+              eventType: 'exam',
               eventRoomStatus: null,
               timetableText: null,
               infoFacilityManagement: null,
@@ -220,70 +315,180 @@ class APIClient {
       case '/rest/v1/me/grades':
         return [
           Grade(
-              course: "Wirtschaft und Recht",
-              subject: "Wirtschaft und Recht",
-              title: "Welthandel und Wirtschaftspolitik",
-              date: DateTime.now().subtract(const Duration(days: 1)).toString(),
-              mark: 6,
-              weight: 1),
-          Grade(
-              course: "Mathematik",
-              subject: "Mathematik",
-              title: "Bogenmasse und Trigonometrie",
-              date: DateTime.now().subtract(const Duration(days: 1)).toString(),
-              mark: 4.5,
-              weight: 1),
-          Grade(
-              course: "Wirtschaft und Recht",
-              subject: "Wirtschaft und Recht",
-              title: "UNO und NATO",
-              date: DateTime.now().subtract(const Duration(days: 2)).toString(),
-              mark: 6,
-              weight: 1),
-          Grade(
-              course: "Französisch",
-              subject: "Französisch",
-              title: "Tests de grammaire",
-              date: DateTime.now().subtract(const Duration(days: 2)).toString(),
+              course: "Wirtschaft & Recht",
+              subject: "Wirtschaft & Recht",
+              title: "Fallstudie Gütermarkt",
+              date: DateTime.now().subtract(const Duration(days: 3)).toString(),
               mark: 5.5,
+              weight: 1.5),
+          Grade(
+              course: "Wirtschaft & Recht",
+              subject: "Wirtschaft & Recht",
+              title: "Kennzahlen Analyse",
+              date: DateTime.now().subtract(const Duration(days: 6)).toString(),
+              mark: 5.0,
               weight: 1),
           Grade(
-              course: "Mathematik",
+              course: "Mathematik Schwerpunkt",
               subject: "Mathematik",
-              title: "Vektorrechnung",
-              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
-              mark: 3.5,
+              title: "Integralrechnung Quiz",
+              date: DateTime.now().subtract(const Duration(days: 4)).toString(),
+              mark: 4.8,
+              weight: 1),
+          Grade(
+              course: "Deutsch",
+              subject: "Deutsch",
+              title: "Interpretation 'Die Physiker'",
+              date: DateTime.now().subtract(const Duration(days: 7)).toString(),
+              mark: 5.0,
+              weight: 1),
+          Grade(
+              course: "Deutsch",
+              subject: "Deutsch",
+              title: "Sachtextanalyse Rhetorik",
+              date: DateTime.now().subtract(const Duration(days: 11)).toString(),
+              mark: 4.7,
+              weight: 1),
+          Grade(
+              course: "English CAE",
+              subject: "English",
+              title: "Essay Climate Change",
+              date: DateTime.now().subtract(const Duration(days: 8)).toString(),
+              mark: 5.8,
+              weight: 1),
+          Grade(
+              course: "English CAE",
+              subject: "English",
+              title: "Vocabulary Test Unit 3",
+              date: DateTime.now().subtract(const Duration(days: 13)).toString(),
+              mark: 5.4,
+              weight: 0.5),
+          Grade(
+              course: "Chemie Praktikum",
+              subject: "Chemie",
+              title: "Protokoll Titration",
+              date: DateTime.now().subtract(const Duration(days: 9)).toString(),
+              mark: 5.2,
+              weight: 2),
+          Grade(
+              course: "Chemie Praktikum",
+              subject: "Chemie",
+              title: "Säure-Base-Test",
+              date: DateTime.now().subtract(const Duration(days: 14)).toString(),
+              mark: 4.9,
               weight: 1),
           Grade(
               course: "Französisch",
               subject: "Französisch",
-              title: "Rédaction",
-              date: DateTime.now().subtract(const Duration(days: 5)).toString(),
-              mark: 4.9,
-              weight: 2),
+              title: "Rédaction 'Mes vacances'",
+              date: DateTime.now().subtract(const Duration(days: 10)).toString(),
+              mark: 4.4,
+              weight: 1),
+          Grade(
+              course: "Französisch",
+              subject: "Französisch",
+              title: "Compréhension écrite B2",
+              date: DateTime.now().subtract(const Duration(days: 15)).toString(),
+              mark: 5.1,
+              weight: 1),
+          Grade(
+              course: "Mathematik Schwerpunkt",
+              subject: "Mathematik",
+              title: "Diagnose-Test Funktionen",
+              date: DateTime.now().subtract(const Duration(days: 12)).toString(),
+              mark: 3.8,
+              weight: 0.5),
         ];
       case '/rest/v1/me/absencenotices':
         return [
           Absence(
-              id: "hfdg",
+              id: "abs-001",
               date: DateTime.now().subtract(const Duration(days: 5)).toString(),
-              course: "Französisch",
-              hourFrom: "11:10:00",
-              hourTo: "11:55:00",
+              course: "Chemie Praktikum",
+              hourFrom: "10:50:00",
+              hourTo: "11:40:00",
+              status: "e"),
+          Absence(
+              id: "abs-002",
+              date: DateTime.now().subtract(const Duration(days: 13)).toString(),
+              course: "Deutsch",
+              hourFrom: "08:40:00",
+              hourTo: "09:30:00",
+              status: "o"),
+          Absence(
+              id: "abs-003",
+              date: DateTime.now().subtract(const Duration(days: 21)).toString(),
+              course: "Sport",
+              hourFrom: "15:00:00",
+              hourTo: "16:30:00",
               status: "e")
         ];
+      default:
+        debugPrint('getDemoData: No demo data for path: $path');
+        return null;
     }
+  }
+
+  Future<bool> isAccessTokenValid(String token, String targetSchool) async {
+    if (token.isEmpty || targetSchool.isEmpty) {
+      return false;
+    }
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/$targetSchool/rest/v1/me'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      return response.statusCode == 200 && !response.body.contains('<html>');
+    } catch (e) {
+      debugPrint('isAccessTokenValid error: $e');
+      return false;
+    }
+  }
+
+  Future<void> _ensureValidAccessToken(SharedPreferences prefs) async {
+    if (_fakeData) {
+      return;
+    }
+    var targetSchool = school;
+    if (targetSchool.isEmpty) {
+      targetSchool = (prefs.getString("school") ?? "").toLowerCase();
+      school = targetSchool;
+    }
+    if (targetSchool.isEmpty) {
+      throw Exception('Daten konnten nicht geladen werden');
+    }
+    final freshToken =
+        await _tokenManager.getValidAccessToken(targetSchool);
+    if (freshToken == null || freshToken.isEmpty) {
+      throw Exception('Anmeldung erforderlich');
+    }
+    _accessToken = freshToken;
   }
 
   Future<T> get<T>(
       String path, T Function(dynamic) fromJson, bool cached) async {
     final prefs = await SharedPreferences.getInstance();
     if (_fakeData) {
-      return getDemoData(path);
+      debugPrint('getDemoData: _fakeData is true, path: $path');
+      final demoData = getDemoData(path);
+      debugPrint(
+          'getDemoData: returned data type: ${demoData?.runtimeType}, is null: ${demoData == null}');
+      // If demoData is null or doesn't match the expected path, return empty result
+      if (demoData == null) {
+        debugPrint('getDemoData: demoData is null for path: $path');
+        // Return appropriate empty result based on type
+        if (path.contains('events') ||
+            path.contains('exams') ||
+            path.contains('grades') ||
+            path.contains('absencenotices')) {
+          // Return empty list cast to T (T should be List<Something>)
+          return [] as T;
+        }
+        throw Exception('Demo data not available for path: $path');
+      }
+      return demoData as T;
     }
-    if (_accessToken.isEmpty || school.isEmpty) {
-      throw Exception('Daten konnten nicht geladen werden');
-    }
+    await _ensureValidAccessToken(prefs);
     if (cached) {
       // Get cached data from shared preferences
       final cachedData = (!path.contains("events"))
@@ -306,6 +511,7 @@ class APIClient {
       (!path.contains("events"))
           ? prefs.setString(path, response.body)
           : prefs.setString('events', response.body);
+
 
       return fromJson(json.decode(response.body));
     } else {
@@ -336,7 +542,6 @@ class APIClient {
   Future<List<Event>> getEvents(DateTime date, bool cached) async {
     final dateFormatted =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    debugPrint(dateFormatted);
     return get(
         '/rest/v1/me/events?min_date=$dateFormatted&max_date=$dateFormatted',
         (json) {
@@ -353,6 +558,10 @@ class APIClient {
 
       List<Grade> grades =
           (json as List<dynamic>).map((e) => Grade.fromJson(e)).toList();
+
+      grades = grades
+          .where((grade) => grade.mark != null && grade.mark != 0)
+          .toList();
 
       return grades;
     }, cached);

@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class InitializeScreen extends StatefulWidget {
   final Widget targetWidget;
 
-  const InitializeScreen({required this.targetWidget});
+  const InitializeScreen({super.key, required this.targetWidget});
 
   @override
   State<InitializeScreen> createState() => _InitializeScreenState();
@@ -62,7 +62,9 @@ class _InitializeScreenState extends State<InitializeScreen> {
     final navigator = Navigator.of(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _initializationHelper.initialize();
+      if (!kIsWeb) {
+        await _initializationHelper.initialize();
+      }
       Future.microtask(() => checkForUpdates(context));
 
       navigator.pushReplacement(

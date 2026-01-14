@@ -1,23 +1,23 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notely/helpers/api_client.dart';
-
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/material.dart';
+import 'package:notely/helpers/grade_color.dart';
 import 'package:notely/models/exam.dart';
+import 'package:notely/models/grade.dart';
 import 'package:notely/models/homework.dart';
 import 'package:notely/helpers/homework_database.dart';
+import 'package:notely/models/student.dart';
 import 'package:notely/pages/exams_page.dart';
 import 'package:notely/pages/homework_page.dart';
-import 'package:notely/pages/why_neon.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:store_redirect/store_redirect.dart';
 
-import '../models/grade.dart';
-import '../models/student.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -29,108 +29,156 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   final APIClient _apiClient = APIClient();
   List<Exam> exams = <Exam>[];
-  // Make cards half approx. height of screen
-  double get cardHeight => MediaQuery.of(context).size.height / 5;
   late Future<List<Homework>> homeworkFuture;
 
-  final StreamController<List<Grade>> _gradesStreamController =
-      StreamController<List<Grade>>();
+  List<Grade> _grades = <Grade>[];
+  bool _gradesLoading = true;
+  bool _gradesFailed = false;
 
-  final StreamController<Student> _studentStreamController =
-      StreamController<Student>();
+  Student? _student;
 
-  final StreamController<List<Exam>> _examsStreamController =
-      StreamController<List<Exam>>();
+  bool _examsLoading = true;
+  bool _examsFailed = false;
 
   void _getGrades() async {
-    if (!mounted) return;
-
     try {
-      List<Grade> cachedGrades = await _apiClient.getGrades(true);
-      _gradesStreamController.sink.add(cachedGrades);
+      final cachedGrades = await _apiClient.getGrades(true);
+      if (!mounted) return;
+      setState(() {
+        _grades = cachedGrades;
+        _gradesLoading = false;
+        _gradesFailed = false;
+      });
 
-      // Then get the latest data and update the UI again
-      List<Grade> latestGrades = await _apiClient.getGrades(false);
-      _gradesStreamController.sink.add(latestGrades);
+      final latestGrades = await _apiClient.getGrades(false);
+      if (!mounted) return;
+      setState(() {
+        _grades = latestGrades;
+      });
     } catch (e) {
-      // Handle the StateError here
-      debugPrint('Error adding event to stream controller: $e');
+      if (!mounted) return;
+      setState(() {
+        _gradesLoading = false;
+        _gradesFailed = true;
+      });
+      debugPrint('Error loading grades: $e');
     }
   }
 
   void _getStudent() async {
-    if (!mounted) return;
-
     try {
-      Student cachedStudent = await _apiClient.getStudent(true);
-      _studentStreamController.sink.add(cachedStudent);
+      final cachedStudent = await _apiClient.getStudent(true);
+      if (!mounted) return;
+      setState(() {
+        _student = cachedStudent;
+      });
 
-      // Then get the latest data and update the UI again
-      Student latestStudent = await _apiClient.getStudent(false);
-      _studentStreamController.sink.add(latestStudent);
+      final latestStudent = await _apiClient.getStudent(false);
+      if (!mounted) return;
+      setState(() {
+        _student = latestStudent;
+      });
+      await _setAnalyticsProperties(latestStudent);
     } catch (e) {
-      // Handle the StateError here
-      debugPrint('Error adding event to stream controller: $e');
+      if (!mounted) return;
+      debugPrint('Error loading student: $e');
     }
   }
 
   void _getExams() async {
-    if (!mounted) return;
     try {
       List<Exam> cachedExams = await _apiClient.getExams(true);
-      _examsStreamController.sink.add(cachedExams);
-      exams = cachedExams;
+      cachedExams.sort((a, b) => a.startDate.compareTo(b.startDate));
+      if (!mounted) return;
+      setState(() {
+        exams = cachedExams;
+        _examsLoading = false;
+        _examsFailed = false;
+      });
 
-      // Then get the latest data and update the UI again
       List<Exam> latestExams = await _apiClient.getExams(false);
-      _examsStreamController.sink.add(latestExams);
-      exams = latestExams;
-      exams.sort((a, b) => a.startDate.compareTo(b.startDate));
+      latestExams.sort((a, b) => a.startDate.compareTo(b.startDate));
+      if (!mounted) return;
+      setState(() {
+        exams = latestExams;
+      });
     } catch (e) {
-      // Handle the StateError here
-      debugPrint('Error adding event to stream controller: $e');
+      if (!mounted) return;
+      setState(() {
+        _examsLoading = false;
+        _examsFailed = true;
+      });
+      debugPrint('Error loading exams: $e');
     }
   }
 
-  BannerAd? _bannerAd;
-  bool _isLoaded = false;
+  NativeAd? _nativeAd;
+  bool _nativeAdIsLoaded = false;
 
-  // TODO: replace this test ad unit with your own ad unit.
-  final adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-2286905824384856/8408652296'
-      : 'ca-app-pub-2286905824384856/3392925495';
+  static const _iosNativeAdUnitId = 'ca-app-pub-2286905824384856/7515170733';
+  static const _androidNativeAdUnitId = 'ca-app-pub-2286905824384856/8660074907';
 
-  /// Loads a banner ad.
-  void loadAd() {
-    print("Loading ad...");
-    _bannerAd = BannerAd(
-      adUnitId: adUnitId,
-      request: const AdRequest(),
-      size: AdSize.fullBanner,
-      listener: BannerAdListener(
-        // Called when an ad is successfully received.
-        onAdLoaded: (ad) {
-          debugPrint('$ad loaded.');
-          setState(() {
-            _isLoaded = true;
-          });
-        },
-        // Called when an ad request failed.
-        onAdFailedToLoad: (ad, err) {
-          debugPrint('BannerAd failed to load: $err');
-          // Dispose the ad here to free resources.
-          ad.dispose();
-        },
-      ),
-    )..load();
+  String get _nativeAdUnitId {
+    if (kIsWeb) return _androidNativeAdUnitId;
+    if (kDebugMode) return Platform.isIOS ? 'ca-app-pub-3940256099942544/3986624511' : 'ca-app-pub-3940256099942544/2247696110';
+    return Platform.isIOS ? _iosNativeAdUnitId : _androidNativeAdUnitId;
   }
 
   @override
-  void dispose() {
-    _gradesStreamController.close();
-    _studentStreamController.close();
-    _examsStreamController.close();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final brightness = Theme.of(context).brightness;
+    if (_lastBrightness != brightness) {
+      _lastBrightness = brightness;
+      _loadNativeAdFor(brightness);
+    }
+  }
+
+  void _loadNativeAdFor(Brightness brightness) {
+    // dispose old ad if any
+    _nativeAd?.dispose();
+    _nativeAd = null;
+    _nativeAdIsLoaded = false;
+
+    final isDark = brightness == Brightness.dark;
+
+    final nativeAd = NativeAd(
+      adUnitId: _nativeAdUnitId,
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          debugPrint('NativeAd loaded.');
+          if (!mounted) return;
+          setState(() {
+            _nativeAdIsLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          debugPrint('NativeAd failed to load: $error');
+          ad.dispose();
+          if (!mounted) return;
+          setState(() {
+            _nativeAdIsLoaded = false;
+            _nativeAd = null;
+          });
+        },
+      ),
+      request: const AdRequest(),
+      nativeTemplateStyle: NativeTemplateStyle(
+        templateType: TemplateType.small,
+        mainBackgroundColor: Colors.transparent,
+        cornerRadius: 4.0,
+        primaryTextStyle: NativeTemplateTextStyle(
+          textColor: isDark ? Colors.white : Colors.black,
+          backgroundColor: Colors.transparent,
+          style: NativeTemplateFontStyle.normal,
+          size: 14.0,
+        ),
+      ),
+    );
+
+    _nativeAd = nativeAd;
+    _nativeAd!.load();
   }
 
   List<Homework> homeworkList = <Homework>[];
@@ -152,17 +200,47 @@ class _StartPageState extends State<StartPage> {
     });
   }
 
+  Future<void> _setAnalyticsProperties(Student student) async {
+    final analytics = FirebaseAnalytics.instance;
+
+    final school = await _getAnalyticsSchool();
+    if (school == null) return;
+
+    try {
+      await analytics.setUserProperty(name: 'school', value: school);
+      debugPrint("Set school property");
+      await analytics.setDefaultEventParameters({'school': school});
+    } catch (e) {
+      debugPrint('Failed to set analytics school: $e');
+    }
+  }
+
+  Future<String?> _getAnalyticsSchool() async {
+    try {
+      final school = _apiClient.school;
+      if (school.trim().isEmpty) {
+        return null;
+      }
+      debugPrint("School returned");
+
+      return school.toLowerCase();
+    } catch (e) {
+      debugPrint('Failed to load school from api client for analytics: $e');
+      return null;
+    }
+  }
+
   Future<List<Homework>> getHomework() async {
     List<Homework> homeworkList = await HomeworkDatabase.instance.readAll();
     homeworkList.sort((a, b) => a.dueDate.compareTo(b.dueDate));
     return homeworkList;
   }
 
+  Brightness? _lastBrightness;
+
   @override
   initState() {
     super.initState();
-
-    loadAd();
 
     _getGrades();
     _getStudent();
@@ -173,536 +251,434 @@ class _StartPageState extends State<StartPage> {
   }
 
   @override
+  void dispose() {
+    _nativeAd?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
-      bottom: true,
-      child: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: StreamBuilder<Student?>(
-                  stream: _studentStreamController.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                    } else if (snapshot.hasError) {
-                      return const Center(
-                        child: Text("Error"),
-                      );
-                    }
-                    Student? student = snapshot.data;
-                    String? firstName = student?.firstName?.split(' ')[0];
-                    return Text(
-                      "${hellos[randomHelloIndex]} ${firstName ?? "..."}!",
-                      style: const TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.start,
-                    );
-                  }),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+              children: [
+                _buildGreetingHeader(),
+                const SizedBox(height: 12),
+                _buildQuickActions(),
+                const SizedBox(height: 12),
+                _buildNativeAd(),
+                const SizedBox(height: 12),
+                _buildGradesSection(),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IntrinsicHeight(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 8,
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: cardHeight,
-                                  width: double.infinity,
-                                  child: Card(
-                                    elevation: 3.0,
-                                    shadowColor: Colors.grey.withOpacity(0.3),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        HapticFeedback.selectionClick();
+          ),
+        ],
+      ),
+    );
+  }
 
-                                        showModalBottomSheet(
-                                            context: context,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (context) => ExamsPage(
-                                                  examList: exams,
-                                                ));
-                                      },
-                                      customBorder: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          const FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              'Bald',
-                                              style: TextStyle(fontSize: 16),
-                                            ),
-                                          ),
-                                          StreamBuilder<List<Exam>>(
-                                              stream:
-                                                  _examsStreamController.stream,
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  );
-                                                } else if (snapshot.hasError) {
-                                                  return const Center(
-                                                    child: Text("Error"),
-                                                  );
-                                                }
-                                                List<Exam> exams =
-                                                    snapshot.data!;
+  Widget _buildGreetingHeader() {
+    final textTheme = Theme.of(context).textTheme;
+    final firstName = _student?.firstName.split(' ').first;
 
-                                                int examCount = 0;
-                                                for (var exam in exams) {
-                                                  if (exam.startDate.isBefore(
-                                                      DateTime.now().add(
-                                                          const Duration(
-                                                              days: 14)))) {
-                                                    examCount++;
-                                                  }
-                                                }
-                                                return FittedBox(
-                                                  fit: BoxFit.scaleDown,
-                                                  child: Text(
-                                                    examCount.toString(),
-                                                    style: const TextStyle(
-                                                      fontSize: 48,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                );
-                                              }),
-                                          const FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              'Tests',
-                                              style: TextStyle(fontSize: 16),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: cardHeight,
-                                  width: double.infinity,
-                                  child: Card(
-                                    elevation: 3.0,
-                                    shadowColor: Colors.grey.withOpacity(0.3),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        HapticFeedback.selectionClick();
-                                        showModalBottomSheet(
-                                            context: context,
-                                            isScrollControlled: true,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (context) => FutureBuilder<
-                                                    List<Homework>>(
-                                                future: homeworkFuture,
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    );
-                                                  } else if (snapshot
-                                                      .hasError) {
-                                                    return const Center(
-                                                      child: Text("Error"),
-                                                    );
-                                                  }
-                                                  List<Homework> homework =
-                                                      snapshot.data!;
-                                                  return HomeworkPage(
-                                                      homeworkList: homework,
-                                                      callBack:
-                                                          homeworkCallback);
-                                                }));
-                                      },
-                                      customBorder: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            FutureBuilder<List<Homework>>(
-                                                future: homeworkFuture,
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return const Center(
-                                                      child:
-                                                          CircularProgressIndicator(),
-                                                    );
-                                                  } else if (snapshot
-                                                      .hasError) {
-                                                    return const Center(
-                                                      child: Text("Error"),
-                                                    );
-                                                  }
-                                                  List<Homework> homework =
-                                                      snapshot.data!;
-                                                  int homeworkCount = 0;
-                                                  for (var homeworkItem
-                                                      in homework) {
-                                                    if (!homeworkItem.isDone) {
-                                                      homeworkCount++;
-                                                    }
-                                                  }
-                                                  return FittedBox(
-                                                    fit: BoxFit.scaleDown,
-                                                    child: Text(
-                                                      homeworkCount.toString(),
-                                                      style: const TextStyle(
-                                                        fontSize: 48,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
-                                            const FittedBox(
-                                              fit: BoxFit.scaleDown,
-                                              child: Text(
-                                                'Hausaufgaben',
-                                                style: TextStyle(fontSize: 16),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 16,
-                            child: SizedBox(
-                              height: cardHeight * 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          Colors.blue.shade800,
-                                          Colors.blue.shade500,
-                                          Colors.blue.shade300,
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Padding(
-                                            padding:
-                                                EdgeInsets.only(left: 10.0),
-                                            child: Text(
-                                              "Neueste Noten",
-                                              style: TextStyle(
-                                                fontSize: 20.0,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: StreamBuilder<List<Grade>?>(
-                                              stream: _gradesStreamController
-                                                  .stream,
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  );
-                                                } else if (snapshot.hasError) {
-                                                  return const Center(
-                                                    child: Text("Error"),
-                                                  );
-                                                }
-                                                List<Grade>? gradeList =
-                                                    snapshot.data!
-                                                        .take(7)
-                                                        .toList();
-                                                return ListView.builder(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10.0,
-                                                          right: 10.0),
-                                                  itemCount: gradeList.length,
-                                                  shrinkWrap: true,
-                                                  itemBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    return Container(
-                                                      margin: (index ==
-                                                              gradeList.length -
-                                                                  1)
-                                                          ? const EdgeInsets
-                                                              .only(
-                                                              bottom: 11.0)
-                                                          : (index == 0)
-                                                              ? const EdgeInsets
-                                                                  .only(
-                                                                  top: 8.0,
-                                                                  bottom: 3.0)
-                                                              : const EdgeInsets
-                                                                  .only(
-                                                                  bottom: 3.0),
-                                                      width: double.infinity,
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              12.0),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white
-                                                            .withOpacity(0.2),
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                          topLeft: (index == 0)
-                                                              ? const Radius
-                                                                  .circular(8.0)
-                                                              : const Radius
-                                                                  .circular(
-                                                                  4.0),
-                                                          topRight: (index == 0)
-                                                              ? const Radius
-                                                                  .circular(8.0)
-                                                              : const Radius
-                                                                  .circular(
-                                                                  4.0),
-                                                          bottomLeft: (index ==
-                                                                  gradeList
-                                                                          .length -
-                                                                      1)
-                                                              ? const Radius
-                                                                  .circular(6.0)
-                                                              : const Radius
-                                                                  .circular(
-                                                                  4.0),
-                                                          bottomRight: (index ==
-                                                                  gradeList
-                                                                          .length -
-                                                                      1)
-                                                              ? const Radius
-                                                                  .circular(6.0)
-                                                              : const Radius
-                                                                  .circular(
-                                                                  4.0),
-                                                        ),
-                                                      ),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Expanded(
-                                                              flex: 7,
-                                                              child:
-                                                                  AutoSizeText(
-                                                                gradeList[index]
-                                                                    .title
-                                                                    .toString(),
-                                                                style:
-                                                                    const TextStyle(
-                                                                  height: 1.0,
-                                                                  fontSize: 15,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              )),
-                                                          Expanded(
-                                                            flex: 4,
-                                                            child: Text(
-                                                              "Note: ${gradeList[index].mark}",
-                                                              style:
-                                                                  const TextStyle(
-                                                                height: 1.0,
-                                                                fontSize: 16,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .left,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "${hellos[randomHelloIndex]} ${firstName ?? "..."}!",
+          style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ) ??
+              const TextStyle(
+                fontSize: 34,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActions() {
+    return Row(
+      children: [
+        Expanded(child: _buildUpcomingExamsCard()),
+        const SizedBox(width: 8.0),
+        Expanded(child: _buildHomeworkCard()),
+      ],
+    );
+  }
+
+  Widget _buildUpcomingExamsCard() {
+    Widget valueChild;
+    if (_examsLoading && exams.isEmpty) {
+      valueChild = const SizedBox(
+        height: 36,
+        width: 36,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    } else if (_examsFailed) {
+      valueChild = const Text(
+        "–",
+        style: TextStyle(fontSize: 36, fontWeight: FontWeight.w600),
+      );
+    } else {
+      final upcomingCount = exams
+          .where((exam) => exam.startDate
+              .isBefore(DateTime.now().add(const Duration(days: 14))))
+          .length;
+      valueChild = Text(
+        upcomingCount.toString(),
+        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  height: 1.1,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ) ??
+            const TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.w600,
+            ),
+      );
+    }
+
+    return _StatCard(
+      icon: CupertinoIcons.calendar_today,
+      title: "Tests demnächst",
+      subtitle: "nächste 14 Tage",
+      accentColor: Colors.orangeAccent,
+      value: valueChild,
+      onTap: _openExamsSheet,
+    );
+  }
+
+  Widget _buildHomeworkCard() {
+    return _StatCard(
+      icon: CupertinoIcons.check_mark_circled,
+      title: "Hausaufgaben",
+      subtitle: "offen",
+      accentColor: Colors.greenAccent[700],
+      value: FutureBuilder<List<Homework>>(
+          future: homeworkFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
+              return const SizedBox(
+                height: 36,
+                width: 36,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              );
+            } else if (snapshot.hasError) {
+              return const Text("–",
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.w600));
+            }
+            final homework = snapshot.data ?? [];
+            final openCount = homework.where((item) => !item.isDone).length;
+            return Text(
+              openCount.toString(),
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.1,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                      ) ??
+                  const TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
+            );
+          }),
+      onTap: _openHomeworkSheet,
+    );
+  }
+
+  Widget _buildGradesSection() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final backgroundColor =
+        isDark ? Colors.white.withValues(alpha: 0.03) : theme.colorScheme.surface;
+
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.black.withValues(alpha: 0.05),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 0),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Neueste Noten",
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 14),
+          if (_gradesLoading && _grades.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            )
+          else if (_gradesFailed)
+            Text(
+              "Noten konnten nicht geladen werden",
+              style: theme.textTheme.bodyMedium,
+            )
+          else
+            _buildGradesList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGradesList() {
+    final theme = Theme.of(context);
+    final gradeList = _grades.take(7).toList(growable: false);
+    if (gradeList.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Text(
+          "Noch keine Noten vorhanden",
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+          ),
+        ),
+      );
+    }
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: gradeList.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (context, index) => _buildGradeTile(gradeList[index]),
+    );
+  }
+
+  Widget _buildGradeTile(Grade grade) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final subtitleColor =
+        theme.textTheme.bodySmall?.color?.withValues(alpha: 0.65) ?? Colors.grey;
+    final badgeColor = gradeColor(grade);
+    final markText = grade.mark?.toString() ?? "-";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.05),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AutoSizeText(
+                  grade.title ?? "Ohne Titel",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  (grade.subject?.isNotEmpty ?? false)
+                      ? grade.subject!
+                      : (grade.course ?? ""),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: subtitleColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            decoration: BoxDecoration(
+              color: badgeColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              "Note $markText",
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: badgeColor,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            const Spacer(),
-            Container(
-              child: (_bannerAd != null)
-                  ? Align(
-                      alignment: Alignment.bottomCenter,
-                      child: SafeArea(
-                        child: SizedBox(
-                          width: _bannerAd!.size.width.toDouble(),
-                          height: _bannerAd!.size.height.toDouble(),
-                          child: AdWidget(ad: _bannerAd!),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            FutureBuilder<bool>(
-                future: SharedPreferences.getInstance().then((prefs) {
-                  return prefs.getBool("neon_banner") ?? false;
-                }),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox();
-                  } else if (snapshot.hasError) {
-                    return const SizedBox();
-                  }
-                  bool neonBanner = snapshot.data!;
+          ),
+        ],
+      ),
+    );
+  }
 
-                  return (neonBanner)
-                      ? Column(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.asset(
-                                'assets/images/notely_neon.png',
-                                isAntiAlias: true,
-                                fit: BoxFit.fitWidth,
-                                filterQuality: FilterQuality.medium,
-                              ),
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                  style: IconButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.grey.shade900,
-                                  ),
-                                  onPressed: () async {
-                                    // Set Prefs to false
-                                    await SharedPreferences.getInstance()
-                                        .then((prefs) {
-                                      prefs.setBool("neon_banner", false);
-                                    });
-                                    setState(() {});
-                                  },
-                                  icon: const Icon(Icons.close),
-                                ),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.white,
-                                      backgroundColor: Colors.grey.shade900,
-                                    ),
-                                    onPressed: () {
-                                      showBottomSheet(
-                                          context: context,
-                                          enableDrag: true,
-                                          builder: (BuildContext context) {
-                                            return const WhyNeon();
-                                          });
-                                    },
-                                    child: const Text('Warum Werbung?'),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: Colors.black,
-                                    ),
-                                    onPressed: () {
-                                      StoreRedirect.redirect(
-                                          androidAppId: "com.neonbanking.app",
-                                          iOSAppId: "1387883068");
-                                    },
-                                    child: const Text('Konto eröffnen'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                      : const SizedBox.shrink();
-                }),
-            const SizedBox(
-              height: 5,
+  Widget _buildNativeAd() {
+    if (_nativeAd == null || !_nativeAdIsLoaded) {
+      return const SizedBox.shrink();
+    }
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 110,
+        ),
+        child: Container(
+            padding: const EdgeInsets.all(4.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(12.0),
+              border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.05)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 0),
+                ),
+              ],
             ),
-          ],
+            child: AdWidget(ad: _nativeAd!)),
+      ),
+    );
+  }
+
+  void _openExamsSheet() {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => ExamsPage(
+              examList: exams,
+            ));
+  }
+
+  void _openHomeworkSheet() {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => FutureBuilder<List<Homework>>(
+            future: homeworkFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text("Error"),
+                );
+              }
+              List<Homework> homework = snapshot.data!;
+              return HomeworkPage(
+                  homeworkList: homework, callBack: homeworkCallback);
+            }));
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    Key? key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    this.onTap,
+    this.accentColor,
+  }) : super(key: key);
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget value;
+  final VoidCallback? onTap;
+  final Color? accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.05);
+    final baseColor =
+        isDark ? Colors.white.withValues(alpha: 0.05) : theme.colorScheme.surface;
+    final titleStyle = theme.textTheme.titleSmall?.copyWith(
+      letterSpacing: 0.2,
+    );
+    final subtitleStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.textTheme.bodySmall?.color,
+    );
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12.0),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14.0),
+          decoration: BoxDecoration(
+            color: baseColor,
+            borderRadius: BorderRadius.circular(12.0),
+            border: Border.all(color: borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 18),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (accentColor ?? theme.colorScheme.primary)
+                      .withValues(alpha: isDark ? 0.25 : 0.15),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                child: Icon(
+                  icon,
+                  color: accentColor ?? theme.colorScheme.primary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(height: 8.0),
+              Text(title, style: titleStyle),
+              const SizedBox(height: 8),
+              value,
+              Text(subtitle, style: subtitleStyle),
+            ],
+          ),
         ),
       ),
     );
