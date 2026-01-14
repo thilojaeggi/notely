@@ -129,3 +129,7 @@ app.*.symbols
 node_modules/
 package.json
 package-lock.json
+
+# Firebase related
+.firebase/
+.firebaserc
