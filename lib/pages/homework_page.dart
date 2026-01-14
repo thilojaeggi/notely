@@ -1,12 +1,10 @@
-import 'dart:io';
-
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/models/homework.dart';
-import 'package:notely/config/custom_scroll_behavior.dart';
 import 'package:notely/helpers/homework_database.dart';
+import 'package:notely/helpers/text_styles.dart';
 
 class HomeworkPage extends StatefulWidget {
   const HomeworkPage(
@@ -31,11 +29,12 @@ class _HomeworkPageState extends State<HomeworkPage> {
   @override
   Widget build(BuildContext context) {
     List<Homework> homeworkList = widget.homeworkList;
+    final titleStyle = pageTitleTextStyle(context);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor.withOpacity(0.96),
+        color: Theme.of(context).canvasColor.withValues(alpha: 0.96),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16.0),
           topRight: Radius.circular(16.0),
@@ -45,28 +44,33 @@ class _HomeworkPageState extends State<HomeworkPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+            padding: const EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 0.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Expanded(
-                  child: FittedBox(
-                    // Make text full width
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Hausaufgaben",
-                      style: TextStyle(
-                        fontSize: 46,
-                        fontWeight: FontWeight.w400,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Hausaufgaben",
+                        style: titleStyle,
                       ),
-                      textAlign: TextAlign.start,
-                    ),
+                    ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.close_rounded),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => Navigator.pop(context),
+                  child: SizedBox(
+                    height: 44,
+                    width: 44,
+                    child: Icon(
+                      CupertinoIcons.xmark,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                      size: 20,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -75,152 +79,19 @@ class _HomeworkPageState extends State<HomeworkPage> {
               child: Stack(
             children: [
               (homeworkList.isNotEmpty)
-                  ? ScrollConfiguration(
-                      behavior: const CustomScrollBehavior(),
-                      child: Scrollbar(
-                        thumbVisibility: true,
-                        child: ListView.builder(
-                          shrinkWrap: false,
-                          itemCount: homeworkList.length,
-                          itemBuilder: (BuildContext ctxt, int index) {
-                            Homework homework = homeworkList[index];
-                            return Card(
-                              elevation: 3,
-                              margin: const EdgeInsets.only(
-                                  bottom: 10, left: 10.0, right: 10.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: Container(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            alignment: Alignment.topLeft,
-                                            child: Text(
-                                              homeworkList[index]
-                                                  .lessonName
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                fontSize: 26,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text(
-                                          DateFormat("dd.MM.yyyy HH:mm").format(
-                                              DateTime.parse(homeworkList[index]
-                                                  .dueDate
-                                                  .toLocal()
-                                                  .toString())),
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(context)
-                                                        .brightness ==
-                                                    Brightness.dark
-                                                ? Colors.white.withOpacity(0.5)
-                                                : Colors.black.withOpacity(0.5),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 15.0),
-                                        height: 2.0,
-                                        width: 100.0,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Colors.white
-                                              : Colors.black,
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        )),
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.topLeft,
-                                      child: Text(
-                                        homeworkList[index].title.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w600,
-                                          height: 1.0,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      homeworkList[index].details.toString(),
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        TextButton(
-                                            onPressed: () async {
-                                              await HomeworkDatabase.instance
-                                                  .delete(homework.id);
-                                              setState(() {
-                                                homeworkList.removeAt(index);
-                                              });
-                                              widget.callBack(homeworkList);
-                                            },
-                                            child: const Text(
-                                              "Löschen",
-                                              style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 16),
-                                            )),
-                                        Transform.scale(
-                                          scale: 1.7,
-                                          child: Checkbox(
-                                              value: homework.isDone,
-                                              fillColor:
-                                                  MaterialStateProperty.all(
-                                                      Theme.of(context)
-                                                          .primaryColor),
-                                              // Rounded checkbox
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              onChanged: (newVal) async {
-                                                Homework updatedHomework =
-                                                    homework.copyWith(
-                                                        isDone: newVal!);
-                                                await HomeworkDatabase.instance
-                                                    .update(updatedHomework);
-
-                                                setState(() {
-                                                  homeworkList[index] =
-                                                      updatedHomework;
-                                                });
-                                                widget.callBack(homeworkList);
-                                              }),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                  ? Scrollbar(
+                      thumbVisibility: true,
+                      child: ListView.builder(
+                        shrinkWrap: false,
+                        itemCount: homeworkList.length,
+                        itemBuilder: (BuildContext ctxt, int index) {
+                          Homework homework = homeworkList[index];
+                          return _buildHomeworkCard(
+                            homework: homework,
+                            index: index,
+                            homeworkList: homeworkList,
+                          );
+                        },
                       ),
                     )
                   : const Padding(
@@ -257,37 +128,48 @@ class _HomeworkPageState extends State<HomeworkPage> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: SizedBox(
-                    height: 64,
-                    width: 64,
-                    child: FloatingActionButton(
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16))),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return DisplayDialog(
-                                initialDate: selectedDate!,
-                                onHomeworkAdded: (homework) async {
-                                  await HomeworkDatabase.instance
-                                      .create(homework);
-                                  setState(() {
-                                    homeworkList.add(homework);
-                                  });
-                                  widget.callBack(homeworkList);
+                  padding: const EdgeInsets.all(8.0),
+                  child: CupertinoButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        barrierColor: Colors.black.withValues(alpha: 0.35),
+                        isScrollControlled: true,
+                        useSafeArea: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (BuildContext context) {
+                          return DisplayDialog(
+                              initialDate: selectedDate!,
+                              onHomeworkAdded: (homework) async {
+                                await HomeworkDatabase.instance
+                                    .create(homework);
+                                setState(() {
+                                  homeworkList.add(homework);
                                 });
-                          },
-                        );
-                      },
-                      backgroundColor:
-                          Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.black,
+                                widget.callBack(homeworkList);
+                              });
+                        },
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(32),
+                        color: Theme.of(context).primaryColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 16,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
                       child: const Icon(
-                        Icons.add,
-                        size: 46,
+                        CupertinoIcons.add,
+                        color: Colors.white,
+                        size: 32,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ),
@@ -299,298 +181,577 @@ class _HomeworkPageState extends State<HomeworkPage> {
       ),
     );
   }
+
+  Widget _buildHomeworkCard({
+    required Homework homework,
+    required int index,
+    required List<Homework> homeworkList,
+  }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color accentColor = homework.isDone
+        ? const Color(0xFF34C759)
+        : Theme.of(context).primaryColor;
+    final Color cardColor = homework.isDone
+        ? (isDark
+            ? const Color(0xFF1F1F1F)
+            : Colors.white.withValues(alpha: 0.05))
+        : (isDark
+            ? const Color(0xFF1C1C1E)
+            : Colors.white.withValues(alpha: 0.05));
+    final Color dividerColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.06);
+    final TextStyle subtitleStyle = TextStyle(
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.6)
+          : Colors.black.withValues(alpha: 0.6),
+      fontSize: 14,
+    );
+    final String formattedDate =
+        DateFormat("dd.MM.yyyy · HH:mm").format(homework.dueDate.toLocal());
+
+    Future<void> handleDelete() async {
+      await HomeworkDatabase.instance.delete(homework.id);
+      setState(() {
+        homeworkList.removeAt(index);
+      });
+      widget.callBack(homeworkList);
+    }
+
+    Future<void> handleToggle(bool value) async {
+      Homework updatedHomework = homework.copyWith(isDone: value);
+      await HomeworkDatabase.instance.update(updatedHomework);
+
+      setState(() {
+        homeworkList[index] = updatedHomework;
+      });
+      widget.callBack(homeworkList);
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(
+          color: homework.isDone
+              ? accentColor.withValues(alpha: 0.35)
+              : Colors.transparent,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.5)
+                : Colors.black.withValues(alpha: 0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 18),
+            spreadRadius: isDark ? 0 : -8,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  homework.lessonName,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.time,
+                      size: 16,
+                      color: accentColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      formattedDate,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: accentColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            homework.title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            homework.details,
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.4,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.75)
+                  : Colors.black.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Divider(color: dividerColor, height: 1),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: handleDelete,
+                color: Colors.redAccent.withValues(alpha: 0.1),
+                sizeStyle: CupertinoButtonSize.medium,
+                borderRadius: BorderRadius.circular(8.0),
+                child: const Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.trash,
+                      size: 24,
+                      color: Colors.redAccent,
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Text(
+                "Erledigt",
+                style: subtitleStyle.copyWith(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(width: 2),
+              Transform.scale(
+                scale: 1.5,
+                child: Checkbox(
+                  value: homework.isDone,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  checkColor: Colors.white,
+                  activeColor: accentColor,
+                  side: BorderSide(
+                    color: accentColor.withValues(alpha: 0.6),
+                    width: 1.5,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  onChanged: (bool? value) {
+                    if (value == null) return;
+                    handleToggle(value);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class DisplayDialog extends StatefulWidget {
   final DateTime initialDate;
+  final String? initialSubject;
   final Function(Homework) onHomeworkAdded;
 
   const DisplayDialog(
-      {super.key, required this.initialDate, required this.onHomeworkAdded});
+      {super.key,
+      required this.initialDate,
+      required this.onHomeworkAdded,
+      this.initialSubject});
 
   @override
-  _DisplayDialogState createState() => _DisplayDialogState();
+  State<DisplayDialog> createState() => _DisplayDialogState();
 }
 
 class _DisplayDialogState extends State<DisplayDialog> {
   late DateTime _date;
-  TextEditingController subjectController = TextEditingController();
-  TextEditingController titleController = TextEditingController();
-  TextEditingController detailsController = TextEditingController();
-
-  iosDatePicker(BuildContext context) {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (BuildContext builder) {
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.25,
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.black
-                  : Colors.white,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16.0),
-                topRight: Radius.circular(16.0),
-              ),
-            ),
-            child: Stack(
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.dateAndTime,
-                    use24hFormat: true,
-                    onDateTimeChanged: (value) {
-                      setState(() {
-                        _date = value;
-                      });
-                    },
-                    initialDateTime: DateTime.now(),
-                    minimumYear: 2000,
-                    maximumYear: 3000,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: CupertinoButton(
-                    child: const Text(
-                      'Fertig',
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                )
-              ],
-            ),
-          );
-        });
-  }
-
-  androidDatePicker(BuildContext context) {
-    return showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2022),
-      lastDate: DateTime(3000),
-      locale: const Locale('de'),
-    );
-  }
-
-  Future<void> _showDateTimePicker(BuildContext context) async {
-    DateTime selectedDate = DateTime.now();
-    TimeOfDay selectedTime = TimeOfDay.now();
-
-    // Show date picker
-    final pickedDate = (Platform.isIOS || Platform.isMacOS)
-        ? await iosDatePicker(context)
-        : await androidDatePicker(context);
-    debugPrint("Getting selected date");
-    if (pickedDate != null) {
-      selectedDate = pickedDate;
-
-      if (!mounted) return;
-
-      // Show time picker
-      final pickedTime = await showTimePicker(
-        context: context,
-        initialTime: selectedTime,
-        // 24 hour time
-      );
-
-      if (pickedTime != null) {
-        selectedTime = pickedTime;
-        final DateTime combinedDateTime = DateTime(
-            selectedDate.year,
-            selectedDate.month,
-            selectedDate.day,
-            selectedTime.hour,
-            selectedTime.minute);
-        debugPrint(combinedDateTime.toString());
-        setState(() {
-          _date = combinedDateTime;
-        });
-      }
-    }
-  }
+  final TextEditingController subjectController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController detailsController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _date = widget.initialDate;
+    if (widget.initialSubject != null) {
+      subjectController.text = widget.initialSubject!;
+    }
+  }
+
+  @override
+  void dispose() {
+    subjectController.dispose();
+    titleController.dispose();
+    detailsController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _presentDatePicker() async {
+    DateTime tempDate = _date;
+    final selectedDate = await showCupertinoModalPopup<DateTime>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        final Color backgroundColor =
+            CupertinoTheme.of(context).scaffoldBackgroundColor;
+        return SafeArea(
+          top: false,
+          bottom: false,
+          child: Container(
+            height: 320,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.05)),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 24,
+                  offset: const Offset(0, -8),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: Row(
+                    children: [
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Abbrechen'),
+                      ),
+                      const Spacer(),
+                      CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        onPressed: () => Navigator.of(context).pop(tempDate),
+                        child: const Text(
+                          'Fertig',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.dateAndTime,
+                    use24hFormat: true,
+                    initialDateTime: _date,
+                    minimumYear: 2000,
+                    maximumYear: 3000,
+                    onDateTimeChanged: (DateTime value) {
+                      tempDate = value;
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedDate != null && mounted) {
+      setState(() {
+        _date = selectedDate;
+      });
+    }
+  }
+
+  Widget _buildTextField({
+    required String placeholder,
+    required TextEditingController controller,
+    int maxLines = 1,
+  }) {
+    final Color fieldBackground =
+        CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
+    return CupertinoTextField(
+      controller: controller,
+      placeholder: placeholder,
+      maxLines: maxLines,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: fieldBackground,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.05)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      textInputAction:
+          maxLines == 1 ? TextInputAction.next : TextInputAction.newline,
+    );
+  }
+
+  void _saveHomework() {
+    FocusScope.of(context).unfocus();
+    String subject = subjectController.text.trim();
+    String title = titleController.text.trim();
+    String details = detailsController.text.trimRight();
+
+    if (title.isEmpty && details.isEmpty) {
+      title = "Kein Titel";
+      details = "Keine Details";
+    }
+
+    if (subject.isEmpty) {
+      subject = "Kein Fach";
+    }
+
+    if (title.isEmpty) {
+      title = "Kein Titel";
+    }
+
+    if (details.isEmpty) {
+      details = "Keine Details";
+    }
+
+    try {
+      Homework homework = Homework(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        lessonName: subject,
+        title: title,
+        details: details,
+        dueDate: _date,
+        isDone: false,
+      );
+      widget.onHomeworkAdded(homework);
+      Navigator.of(context).pop();
+    } catch (e) {
+      showToast(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 32.0),
+          decoration: const BoxDecoration(
+            color: Colors.redAccent,
+            borderRadius: BorderRadius.all(
+              Radius.circular(12.0),
+            ),
+          ),
+          padding: const EdgeInsets.all(6.0),
+          child: const Text(
+            "Etwas ist schiefgelaufen",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.0,
+            ),
+          ),
+        ),
+        context: context,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12.0))),
-      title: const Text("Hausaufgabe eintragen"),
-      content: SizedBox(
-        width: 300,
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            GestureDetector(
-              onTap: () {
-                _showDateTimePicker(context);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(7.0),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .color!
-                        .withOpacity(0.4),
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                // String as date in format dd.MM.yyyy HH:mm
-                child: Text(
-                  DateFormat("dd.MM.yyyy HH:mm").format(_date),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall!.color,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextField(
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall!.color,
-              ),
-              textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                labelText: "Fach",
-                labelStyle: TextStyle(
-                  color: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .color!
-                      .withOpacity(0.4),
-                ),
-                contentPadding: const EdgeInsets.all(8.0),
-                isDense: true,
-                border: const OutlineInputBorder(),
-              ),
-              controller: subjectController,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextField(
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodySmall!.color,
-              ),
-              textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                labelText: "Titel",
-                labelStyle: TextStyle(
-                  color: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .color!
-                      .withOpacity(0.4),
-                ),
-                contentPadding: const EdgeInsets.all(8.0),
-                isDense: true,
-                border: const OutlineInputBorder(),
-              ),
-              controller: titleController,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextField(
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: "Details",
-                labelStyle: TextStyle(
-                  color: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .color!
-                      .withOpacity(0.4),
-                ),
-                contentPadding: const EdgeInsets.all(8.0),
-                isDense: true,
-                border: const OutlineInputBorder(),
-              ),
-              controller: detailsController,
+    final Color backgroundColor =
+        CupertinoTheme.of(context).scaffoldBackgroundColor;
+    final Color fieldBackground =
+        CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
+    final TextStyle helperStyle =
+        CupertinoTheme.of(context).textTheme.textStyle.copyWith(
+              fontSize: 13,
+              color: CupertinoColors.systemGrey.resolveFrom(context),
+            );
+
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(28),
+            topRight: Radius.circular(28),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 30,
+              offset: const Offset(0, -12),
             ),
           ],
         ),
-      ),
-      actions: [
-        TextButton(
-          child: const Text("Abbrechen"),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        ElevatedButton(
-          child: const Text("Speichern"),
-          onPressed: () async {
-            // Get text of TextFields
-            String subject = subjectController.text;
-            String title = titleController.text;
-            String details = detailsController.text.trimRight();
-
-            if (title.isEmpty && details.isEmpty) {
-              title = "Kein Titel";
-              details = "Keine Details";
-            }
-
-            if (subject.isEmpty) {
-              subject = "Kein Fach";
-            }
-
-            if (title.isEmpty) {
-              title = "Kein Titel";
-            }
-
-            if (details.isEmpty) {
-              details = "Keine Details";
-            }
-            try {
-              Homework homework = Homework(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                lessonName: subject,
-                title: title,
-                details: details,
-                dueDate: _date,
-                isDone: false,
-              );
-              widget.onHomeworkAdded(homework);
-            } catch (e) {
-              showToast(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 32.0),
-                  decoration: const BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(12.0),
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(6.0),
-                  child: const Text(
-                    "Etwas ist schiefgelaufen",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.0,
+        child: SafeArea(
+          top: false,
+          bottom: true,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 48,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.systemGrey4.resolveFrom(context),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                 ),
-                context: context,
-              );
-            }
-            Navigator.of(context).pop();
-          },
+                const SizedBox(height: 16),
+                Text(
+                  "Hausaufgabe eintragen",
+                  style: CupertinoTheme.of(context)
+                      .textTheme
+                      .navTitleTextStyle
+                      .copyWith(fontSize: 22),
+                ),
+                const SizedBox(height: 20),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: _presentDatePicker,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: fieldBackground,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.05)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.calendar,
+                          color: CupertinoTheme.of(context).primaryColor,
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Fällig am",
+                              style: helperStyle,
+                            ),
+                            Text(
+                              DateFormat("dd.MM.yyyy · HH:mm").format(_date),
+                              style: CupertinoTheme.of(context)
+                                  .textTheme
+                                  .textStyle
+                                  .copyWith(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Icon(
+                          CupertinoIcons.chevron_down,
+                          size: 18,
+                          color:
+                              CupertinoColors.systemGrey2.resolveFrom(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildTextField(
+                  placeholder: "Fach",
+                  controller: subjectController,
+                ),
+                const SizedBox(height: 12),
+                _buildTextField(
+                  placeholder: "Titel",
+                  controller: titleController,
+                ),
+                const SizedBox(height: 12),
+                _buildTextField(
+                  placeholder: "Details",
+                  controller: detailsController,
+                  maxLines: 4,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        borderRadius: BorderRadius.circular(14),
+                        color: fieldBackground,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          "Abbrechen",
+                          style: TextStyle(
+                            color: CupertinoColors.label.resolveFrom(context),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: CupertinoButton.filled(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        borderRadius: BorderRadius.circular(14),
+                        onPressed: _saveHomework,
+                        child: const Text(
+                          "Hinzufügen",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
-      ],
+      ),
     );
   }
 }
