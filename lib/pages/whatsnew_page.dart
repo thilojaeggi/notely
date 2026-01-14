@@ -14,39 +14,14 @@ class WhatsNew extends StatefulWidget {
 
 class _WhatsNewState extends State<WhatsNew> {
   static final List<_WhatsNewEntry> _updates = [
-    const _WhatsNewEntry(
-      title: 'Login ohne 2FA-Code!',
-      description:
-          'In den Einstellungen kannst du nun deinen Zwei-Faktor-Schlüssel sicher auf deinem Gerät hinterlegen.\nNach dem einrichten musst du keinen 2FA-Code mehr abtippen, bleibst aber geschützt.\nSo wirst du automatisch angemeldet wie früher.',
-      icon: CupertinoIcons.lock_fill,
-      accent: Colors.orangeAccent,
-            highlighted: true,
-
-    ),
-    const _WhatsNewEntry(
-      title: 'Frischer Look nun auch für Noten & Absenzen',
-      description:
-          'Noten und Absenzen erscheinen nun auch in einem überarbeiteten, klarer strukturierten Design.',
-      icon: CupertinoIcons.square_stack_3d_up_fill,
-      accent: Colors.pinkAccent,
-
-    ),
-
-    const _WhatsNewEntry(
-      title: 'Ladegeschwindigkeit verbessert',
-      description:
-          'Die App reagiert jetzt noch schneller, sodass Inhalte und Seiten flüssiger geladen werden.',
-      icon: CupertinoIcons.speedometer,
-      accent: Colors.tealAccent,
-    ),
-    if (Platform.isIOS)
-    const _WhatsNewEntry(
-      title: 'Modernisiertes App-Icon',
-      description:
-          'Das App-Icon folgt jetzt den iOS-26-Designstandards und nutzt den neuen Liquid-Glass-Effekt.',
-      icon: CupertinoIcons.app_fill,
-      accent: Colors.blueAccent,
-    ),
+const _WhatsNewEntry(
+  title: 'Login-Probleme behoben',
+  description:
+      'Die Anmeldung funktioniert ab sofort wieder einwandfrei.',
+  icon: CupertinoIcons.lock_shield_fill, 
+  accent: Colors.greenAccent, 
+  highlighted: true,
+),
 
   ];
 
