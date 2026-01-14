@@ -32,7 +32,7 @@ class AuthTextField extends StatelessWidget {
         autocorrect: false,
         maxLines: 1,
         decoration: InputDecoration(
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
           hintText: hintText,
           prefixIcon: Icon(
             icon,
