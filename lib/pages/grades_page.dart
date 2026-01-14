@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/helpers/api_client.dart';
@@ -29,12 +31,30 @@ class _GradesPageState extends State<GradesPage> {
     final keyContext = expansionTileKey.currentContext;
     HapticFeedback.selectionClick();
 
-    if (keyContext != null) {
-      Future.delayed(const Duration(milliseconds: 250)).then((value) async {
-        await Scrollable.ensureVisible(keyContext,
-            duration: const Duration(milliseconds: 1000));
-      });
-    }
+    if (keyContext == null) return;
+
+    final renderBox = keyContext.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final viewport = RenderAbstractViewport.of(renderBox);
+
+    final revealOffset = viewport.getOffsetToReveal(renderBox, 0.0).offset;
+    final topInset = MediaQuery.of(context).padding.top + kToolbarHeight + 12.0;
+    final targetOffset = (revealOffset - topInset).clamp(
+      _scrollController.position.minScrollExtent,
+      _scrollController.position.maxScrollExtent,
+    );
+
+    Future.delayed(const Duration(milliseconds: 250)).then((_) async {
+      if (!mounted) return;
+      if (!_scrollController.hasClients) return;
+
+      await _scrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 1000),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   Color _gradeColor(double grade) {
@@ -46,18 +66,20 @@ class _GradesPageState extends State<GradesPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final baseColor = backgroundColor ??
-        (isDark ? Colors.white.withOpacity(0.05) : theme.colorScheme.surface);
+        (isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : theme.colorScheme.surface);
     return BoxDecoration(
       color: baseColor,
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(
         color: isDark
-            ? Colors.white.withOpacity(0.05)
-            : Colors.black.withOpacity(0.05),
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.05),
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),
@@ -100,7 +122,7 @@ class _GradesPageState extends State<GradesPage> {
       'lowestGradePoints': roundedLowestPoints,
     };
   }
-  
+
   void _updateLowestGradePoints(double points) {
     if (!mounted) return;
     if (lowestGradePoints == points) return;
@@ -443,7 +465,8 @@ class _GradesPageState extends State<GradesPage> {
                                                               .toList()[i]
                                                               .mark!
                                                               .toDouble())
-                                                          .withOpacity(0.3)
+                                                          .withValues(
+                                                              alpha: 0.3)
                                                   ]
                                                 : [
                                                     _gradeColor(List.from(
@@ -455,7 +478,7 @@ class _GradesPageState extends State<GradesPage> {
                                                             .toList()[0]
                                                             .mark!
                                                             .toDouble())
-                                                        .withOpacity(0.3),
+                                                        .withValues(alpha: 0.3),
                                                     _gradeColor(List.from(
                                                                 groupedCoursesMap
                                                                     .values
@@ -465,7 +488,7 @@ class _GradesPageState extends State<GradesPage> {
                                                             .toList()[0]
                                                             .mark!
                                                             .toDouble())
-                                                        .withOpacity(0.3)
+                                                        .withValues(alpha: 0.3)
                                                   ]),
                                       ))
                                 ]),
@@ -484,13 +507,23 @@ class _GradesPageState extends State<GradesPage> {
   @override
   Widget build(BuildContext context) {
     final titleStyle = pageTitleTextStyle(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
+        title: SafeArea(
+          top: true,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
@@ -498,99 +531,82 @@ class _GradesPageState extends State<GradesPage> {
                 style: titleStyle,
                 textAlign: TextAlign.start,
               ),
-              const SizedBox(
-                width: 10,
-              ),
-              (APIClient().school == "ksso")
-                  ? (lowestGradePoints == 0.0)
-                      ? Padding(
-                          padding:
-                              const EdgeInsets.only(right: 10.0, bottom: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Text("Promotionspunkte"),
-                              Shimmer.fromColors(
-                                baseColor: Theme.of(context).canvasColor,
-                                highlightColor: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color!,
-                                child: const Text(
-                                  "..........",
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  textAlign: TextAlign.end,
-                                ),
-                              ),
-                            ],
+              const Spacer(),
+              // Promotionspunkte moved into the AppBar
+              if (_apiClient.school == "ksso")
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      "Promotionspunkte",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    const SizedBox(height: 2),
+                    if (lowestGradePoints == 0.0)
+                      Shimmer.fromColors(
+                        baseColor: Theme.of(context).canvasColor,
+                        highlightColor:
+                            Theme.of(context).textTheme.bodyMedium!.color!,
+                        child: const Text(
+                          "..........",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
                           ),
-                        )
-                      : Padding(
-                          padding:
-                              const EdgeInsets.only(right: 10.0, bottom: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Text("Promotionspunkte"),
-                              Text(
-                                lowestGradePoints.toString(),
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w400,
-                                  color: lowestGradePoints >= 19
-                                      ? Colors.green
-                                      : Colors.red,
-                                ),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                        )
-                  : const SizedBox.shrink(),
+                          textAlign: TextAlign.end,
+                        ),
+                      )
+                    else
+                      Text(
+                        lowestGradePoints.toString(),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: lowestGradePoints >= 19
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                        textAlign: TextAlign.end,
+                      ),
+                  ],
+                ),
             ],
           ),
         ),
-        Expanded(
-          child: FutureBuilder<Map<String, dynamic>>(
-              future: _gradesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting &&
-                    !snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                } else {
-                  final groupedCoursesMap =
-                      snapshot.data?['groupedCoursesMap'] ?? {};
-                  final averageGradeMap =
-                      snapshot.data?['averageGradeMap'] ?? {};
+      ),
 
-                  return Scrollbar(
-                    controller: _scrollController,
-                    child: ListView.builder(
-                        controller: _scrollController,
-                        shrinkWrap: true,
-                        itemCount: groupedCoursesMap.length,
-                        itemBuilder: (BuildContext ctxt, int index) {
-                          return _buildGradeCard(
-                            ctxt,
-                            index,
-                            groupedCoursesMap,
-                            averageGradeMap,
-                          );
-                        }),
+      // Body is now only the scroll area
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _gradesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final groupedCoursesMap = snapshot.data?['groupedCoursesMap'] ?? {};
+            final averageGradeMap = snapshot.data?['averageGradeMap'] ?? {};
+
+            return Scrollbar(
+              controller: _scrollController,
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: groupedCoursesMap.length,
+                itemBuilder: (ctxt, index) {
+                  return _buildGradeCard(
+                    ctxt,
+                    index,
+                    groupedCoursesMap,
+                    averageGradeMap,
                   );
-                }
-              }),
-        ),
-      ],
+                },
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }
