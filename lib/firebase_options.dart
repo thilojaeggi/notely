@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -51,9 +48,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDG3g7zTHMtOuXu8qMhlaKTA53A0uExbQw',
-    appId: '1:845125974911:android:f8ffd09a0ee6aa680bb84a',
+    appId: '1:845125974911:android:a95995adb91b1a720bb84a',
     messagingSenderId: '845125974911',
     projectId: 'notely-ch',
+    databaseURL: 'https://notely-ch-default-rtdb.firebaseio.com',
     storageBucket: 'notely-ch.appspot.com',
   );
 
@@ -62,8 +60,20 @@ class DefaultFirebaseOptions {
     appId: '1:845125974911:ios:76de159134daa3760bb84a',
     messagingSenderId: '845125974911',
     projectId: 'notely-ch',
+    databaseURL: 'https://notely-ch-default-rtdb.firebaseio.com',
     storageBucket: 'notely-ch.appspot.com',
-    iosClientId: '845125974911-bhdp6nejefpjbvui5lc9va64m4nmaph2.apps.googleusercontent.com',
     iosBundleId: 'ch.thilojaeggi.notely',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDHApPswAq058Jys9tR5uyd6uGbLi7rXcQ',
+    appId: '1:845125974911:web:0299315e8748643a0bb84a',
+    messagingSenderId: '845125974911',
+    projectId: 'notely-ch',
+    authDomain: 'notely-ch.firebaseapp.com',
+    databaseURL: 'https://notely-ch-default-rtdb.firebaseio.com',
+    storageBucket: 'notely-ch.appspot.com',
+    measurementId: 'G-840SVX1MSY',
+  );
+
 }
