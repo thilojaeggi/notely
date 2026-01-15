@@ -95,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
   void _createHeadlessWebView() {
     const initialUrl = "https://schulnetz.web.app/";
     final initialUri = Uri.parse(
-        kIsWeb ? 'https://proxy.corsfix.com/?$initialUrl' : initialUrl);
+        kIsWeb ? 'https://lite.corsfix.com/?$initialUrl' : initialUrl);
     headlessWebView = HeadlessInAppWebView(
       initialUrlRequest: URLRequest(url: WebUri.uri(initialUri)),
       onWebViewCreated: (controller) {
@@ -448,7 +448,7 @@ class _LoginPageState extends State<LoginPage> {
     // 1. Use the correct URL including /public/ as seen in the working logs
     final tokenUrlString = "https://kaschuso.so.ch/public/$school/token.php";
     final tokenUrl = Uri.parse(
-        kIsWeb ? 'https://proxy.corsfix.com/?$tokenUrlString' : tokenUrlString);
+        kIsWeb ? 'https://lite.corsfix.com/?$tokenUrlString' : tokenUrlString);
 
     // 2. Extract cookies from the Headless WebView session to maintain context
     final cookieManager = CookieManager.instance();
@@ -814,7 +814,7 @@ class _LoginPageState extends State<LoginPage> {
         "&nonce=${_oauthState!}"
         "&id=";
     final authUrl =
-        kIsWeb ? 'https://proxy.corsfix.com/?$authUrlString' : authUrlString;
+        kIsWeb ? 'https://lite.corsfix.com/?$authUrlString' : authUrlString;
     debugPrint("Launching Auth Flow: $authUrl");
 
     // Load the URL. The WebView's onLoadStop will automatically

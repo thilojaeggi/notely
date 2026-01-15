@@ -527,7 +527,7 @@ class APIClient {
     try {
       final urlString = '$_baseUrl/$targetSchool/rest/v1/me';
       final finalUrl =
-          kIsWeb ? 'https://proxy.corsfix.com/?$urlString' : urlString;
+          kIsWeb ? 'https://lite.corsfix.com/?$urlString' : urlString;
       final response = await http.get(
         Uri.parse(finalUrl),
         headers: {'Authorization': 'Bearer $token'},
@@ -599,7 +599,7 @@ class APIClient {
     }
     final urlString = '$_baseUrl/$school$path';
     final finalUrl =
-        kIsWeb ? 'https://proxy.corsfix.com/?$urlString' : urlString;
+        kIsWeb ? 'https://lite.corsfix.com/?$urlString' : urlString;
     final response = await http.get(Uri.parse(finalUrl),
         headers: {'Authorization': 'Bearer $_accessToken'});
     if (response.statusCode == 200 && !response.body.contains("<html>")) {

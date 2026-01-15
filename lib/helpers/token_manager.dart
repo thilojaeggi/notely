@@ -102,7 +102,7 @@ class TokenManager {
 
     final tokenUrlString = 'https://kaschuso.so.ch/public/$school/token.php';
     final tokenUrl = Uri.parse(
-        kIsWeb ? 'https://proxy.corsfix.com/?$tokenUrlString' : tokenUrlString);
+        kIsWeb ? 'https://lite.corsfix.com/?$tokenUrlString' : tokenUrlString);
 
     // NEW: Get cookies (PHPSESSID) to send with refresh request
     final cookieManager = CookieManager.instance();
@@ -214,7 +214,7 @@ class TokenManager {
         '&code_challenge_method=S256'
         '&nonce=${pkce.state}';
     final authorizeUrl = Uri.parse(
-        kIsWeb ? 'https://proxy.corsfix.com/?$authUrlString' : authUrlString);
+        kIsWeb ? 'https://lite.corsfix.com/?$authUrlString' : authUrlString);
 
     final completer = Completer<String?>();
     HeadlessInAppWebView? headless;
@@ -380,7 +380,7 @@ class TokenManager {
   ) async {
     final tokenUrlString = "https://kaschuso.so.ch/public/$school/token.php";
     final tokenUrl = Uri.parse(
-        kIsWeb ? 'https://proxy.corsfix.com/?$tokenUrlString' : tokenUrlString);
+        kIsWeb ? 'https://lite.corsfix.com/?$tokenUrlString' : tokenUrlString);
 
     final resp = await http.post(
       tokenUrl,
