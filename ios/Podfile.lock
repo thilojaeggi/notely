@@ -3,54 +3,70 @@ PODS:
     - Flutter
   - cupertino_native (0.0.1):
     - Flutter
-  - Firebase/CoreOnly (12.4.0):
-    - FirebaseCore (~> 12.4.0)
-  - Firebase/Messaging (12.4.0):
+  - Firebase/CoreOnly (12.6.0):
+    - FirebaseCore (~> 12.6.0)
+  - Firebase/InAppMessaging (12.6.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 12.4.0)
-  - firebase_analytics (12.0.4):
+    - FirebaseInAppMessaging (~> 12.6.0-beta)
+  - Firebase/Messaging (12.6.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 12.6.0)
+  - firebase_analytics (12.1.0):
     - firebase_core
-    - FirebaseAnalytics (= 12.4.0)
+    - FirebaseAnalytics (= 12.6.0)
     - Flutter
-  - firebase_core (4.2.1):
-    - Firebase/CoreOnly (= 12.4.0)
+  - firebase_core (4.3.0):
+    - Firebase/CoreOnly (= 12.6.0)
     - Flutter
-  - firebase_messaging (16.0.4):
-    - Firebase/Messaging (= 12.4.0)
+  - firebase_in_app_messaging (0.9.0-5):
+    - Firebase/InAppMessaging (= 12.6.0)
     - firebase_core
     - Flutter
-  - FirebaseAnalytics (12.4.0):
-    - FirebaseAnalytics/Default (= 12.4.0)
-    - FirebaseCore (~> 12.4.0)
-    - FirebaseInstallations (~> 12.4.0)
+  - firebase_messaging (16.1.0):
+    - Firebase/Messaging (= 12.6.0)
+    - firebase_core
+    - Flutter
+  - FirebaseABTesting (12.6.0):
+    - FirebaseCore (~> 12.6.0)
+  - FirebaseAnalytics (12.6.0):
+    - FirebaseAnalytics/Default (= 12.6.0)
+    - FirebaseCore (~> 12.6.0)
+    - FirebaseInstallations (~> 12.6.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - FirebaseAnalytics/Default (12.4.0):
-    - FirebaseCore (~> 12.4.0)
-    - FirebaseInstallations (~> 12.4.0)
-    - GoogleAppMeasurement/Default (= 12.4.0)
+  - FirebaseAnalytics/Default (12.6.0):
+    - FirebaseCore (~> 12.6.0)
+    - FirebaseInstallations (~> 12.6.0)
+    - GoogleAppMeasurement/Default (= 12.6.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - FirebaseCore (12.4.0):
-    - FirebaseCoreInternal (~> 12.4.0)
+  - FirebaseCore (12.6.0):
+    - FirebaseCoreInternal (~> 12.6.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
-  - FirebaseCoreInternal (12.4.0):
+  - FirebaseCoreInternal (12.6.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseInstallations (12.4.0):
-    - FirebaseCore (~> 12.4.0)
+  - FirebaseInAppMessaging (12.6.0-beta):
+    - FirebaseABTesting (~> 12.6.0)
+    - FirebaseCore (~> 12.6.0)
+    - FirebaseInstallations (~> 12.6.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
+    - nanopb (~> 3.30910.0)
+  - FirebaseInstallations (12.6.0):
+    - FirebaseCore (~> 12.6.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
     - PromisesObjC (~> 2.4)
-  - FirebaseMessaging (12.4.0):
-    - FirebaseCore (~> 12.4.0)
-    - FirebaseInstallations (~> 12.4.0)
+  - FirebaseMessaging (12.6.0):
+    - FirebaseCore (~> 12.6.0)
+    - FirebaseInstallations (~> 12.6.0)
     - GoogleDataTransport (~> 10.1)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/Environment (~> 8.1)
@@ -79,28 +95,28 @@ PODS:
     - Flutter
     - Google-Mobile-Ads-SDK (~> 12.2.0)
     - webview_flutter_wkwebview
-  - GoogleAdsOnDeviceConversion (3.1.0):
+  - GoogleAdsOnDeviceConversion (3.2.0):
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - nanopb (~> 3.30910.0)
-  - GoogleAppMeasurement/Core (12.4.0):
+  - GoogleAppMeasurement/Core (12.6.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - GoogleAppMeasurement/Default (12.4.0):
-    - GoogleAdsOnDeviceConversion (~> 3.1.0)
-    - GoogleAppMeasurement/Core (= 12.4.0)
-    - GoogleAppMeasurement/IdentitySupport (= 12.4.0)
+  - GoogleAppMeasurement/Default (12.6.0):
+    - GoogleAdsOnDeviceConversion (~> 3.2.0)
+    - GoogleAppMeasurement/Core (= 12.6.0)
+    - GoogleAppMeasurement/IdentitySupport (= 12.6.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - GoogleAppMeasurement/IdentitySupport (12.4.0):
-    - GoogleAppMeasurement/Core (= 12.4.0)
+  - GoogleAppMeasurement/IdentitySupport (12.6.0):
+    - GoogleAppMeasurement/Core (= 12.6.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
@@ -156,20 +172,20 @@ PODS:
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.4.0)
-  - purchases_flutter (9.10.5):
+  - purchases_flutter (9.10.6):
     - Flutter
-    - PurchasesHybridCommon (= 17.27.0)
-  - purchases_ui_flutter (9.10.5):
+    - PurchasesHybridCommon (= 17.27.1)
+  - purchases_ui_flutter (9.10.6):
     - Flutter
-    - PurchasesHybridCommonUI (= 17.27.0)
-  - PurchasesHybridCommon (17.27.0):
-    - RevenueCat (= 5.54.0)
-  - PurchasesHybridCommonUI (17.27.0):
-    - PurchasesHybridCommon (= 17.27.0)
-    - RevenueCatUI (= 5.54.0)
-  - RevenueCat (5.54.0)
-  - RevenueCatUI (5.54.0):
-    - RevenueCat (= 5.54.0)
+    - PurchasesHybridCommonUI (= 17.27.1)
+  - PurchasesHybridCommon (17.27.1):
+    - RevenueCat (= 5.54.1)
+  - PurchasesHybridCommonUI (17.27.1):
+    - PurchasesHybridCommon (= 17.27.1)
+    - RevenueCatUI (= 5.54.1)
+  - RevenueCat (5.54.1)
+  - RevenueCatUI (5.54.1):
+    - RevenueCat (= 5.54.1)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -190,6 +206,7 @@ DEPENDENCIES:
   - cupertino_native (from `.symlinks/plugins/cupertino_native/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_in_app_messaging (from `.symlinks/plugins/firebase_in_app_messaging/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - flutter_dynamic_icon_plus (from `.symlinks/plugins/flutter_dynamic_icon_plus/ios`)
@@ -213,9 +230,11 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Firebase
+    - FirebaseABTesting
     - FirebaseAnalytics
     - FirebaseCore
     - FirebaseCoreInternal
+    - FirebaseInAppMessaging
     - FirebaseInstallations
     - FirebaseMessaging
     - Google-Mobile-Ads-SDK
@@ -242,6 +261,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_analytics/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_in_app_messaging:
+    :path: ".symlinks/plugins/firebase_in_app_messaging/ios"
   firebase_messaging:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
@@ -284,15 +305,18 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   app_settings: 5127ae0678de1dcc19f2293271c51d37c89428b2
   cupertino_native: 1db0611c94f9a9ea28433ed16a344dcb996370b5
-  Firebase: f07b15ae5a6ec0f93713e30b923d9970d144af3e
-  firebase_analytics: 67fbdd9f3c04e55048024f3da21cfc36f05e56cf
-  firebase_core: f1aafb21c14f497e5498f7ffc4dc63cbb52b2594
-  firebase_messaging: c17a29984eafce4b2997fe078bb0a9e0b06f5dde
-  FirebaseAnalytics: 0fc2b20091f0ddd21bf73397cf8f0eb5346dc24f
-  FirebaseCore: bb595f3114953664e3c1dc032f008a244147cfd3
-  FirebaseCoreInternal: d7f5a043c2cd01a08103ab586587c1468047bca6
-  FirebaseInstallations: ae9f4902cb5bf1d0c5eaa31ec1f4e5495a0714e2
-  FirebaseMessaging: d33971b7bb252745ea6cd31ab190d1a1df4b8ed5
+  Firebase: a451a7b61536298fd5cbfe3a746fd40443a50679
+  firebase_analytics: 4f9cca09e65f6c2944a862c6dc86f6bed9fb769c
+  firebase_core: ba00a168e719694f38960502ceb560285603d073
+  firebase_in_app_messaging: fbdbcc3699f5cd4833dba42f21e94763c3d3b88b
+  firebase_messaging: bf0e29321927edc02a563c984dbfa5b063864b15
+  FirebaseABTesting: 119f0a2b2e68b1ae05d248c5adb2455f148f20c1
+  FirebaseAnalytics: d0a97a0db6425e5a5d966340b87f92ca7b13a557
+  FirebaseCore: 0e38ad5d62d980a47a64b8e9301ffa311457be04
+  FirebaseCoreInternal: 69bf1306a05b8ac43004f6cc1f804bb7b05b229e
+  FirebaseInAppMessaging: f0b968a0bc2d2e6208205865ea973ddc858cb6c9
+  FirebaseInstallations: 631b38da2e11a83daa4bfb482f79d286a5dfa7ad
+  FirebaseMessaging: a61bc42dcab3f7a346d94bbb54dab2c9435b18b2
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_dynamic_icon_plus: 3ddd12bc2316b98ffdd4048e9cdd3cf51e02095d
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
@@ -300,8 +324,8 @@ SPEC CHECKSUMS:
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
   Google-Mobile-Ads-SDK: 1dfb0c3cb46c7e2b00b0f4de74a1e06d9ea25d67
   google_mobile_ads: 535223588a6791b7a3cc3513a1bc7b89d12f3e62
-  GoogleAdsOnDeviceConversion: e03a386840803ea7eef3fd22a061930142c039c1
-  GoogleAppMeasurement: 1e718274b7e015cefd846ac1fcf7820c70dc017d
+  GoogleAdsOnDeviceConversion: d68c69dd9581a0f5da02617b6f377e5be483970f
+  GoogleAppMeasurement: 3bf40aff49a601af5da1c3345702fcb4991d35ee
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
@@ -313,12 +337,12 @@ SPEC CHECKSUMS:
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: d290b98f9984969e98553411077115de875579f3
-  purchases_ui_flutter: 25291920925fde25198229bfdcab24fe13bfae8c
-  PurchasesHybridCommon: 6969808772a0c2ac7df66abe59e0a88a9e42820b
-  PurchasesHybridCommonUI: 629df05debae47e6adb4f437304ba0d375e3faa9
-  RevenueCat: c692534cd6f0d0593f1bbe69b32b09a274422419
-  RevenueCatUI: c497f83d36815f6c394e3aea8aef049789d34d85
+  purchases_flutter: 4ae3d41c7a6d14c80fdb26b8a9526091532cd59a
+  purchases_ui_flutter: 3051276ba2d682eea4182ad831c592c7ec168d0c
+  PurchasesHybridCommon: 027f03312519c51056457eb2e4f7ee1c91b61b8f
+  PurchasesHybridCommonUI: 48afb5e29204958bff1276b0f7acb8e4b59fe99a
+  RevenueCat: ecbba580fa453b0d4a0475449b904196d74ef678
+  RevenueCatUI: ac7492873928e9e7f297e5e27a7c4f23f9008326
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   store_redirect: 55fd455802ceab09803b2df6e68f19a58815266a
