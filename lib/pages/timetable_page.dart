@@ -61,6 +61,47 @@ class _TimetablePageState extends State<TimetablePage> {
     }
   }
 
+  /// Generates the list of items to display (Events + Breaks + Indicator)
+  List<TimetableItem> _buildTimetableItems(List<Event> events) {
+    if (events.isEmpty) return [];
+
+    // 1. Sort events
+    final sorted = List<Event>.from(events)
+      ..sort((a, b) => a.startDate!.compareTo(b.startDate!));
+
+    final items = <TimetableItem>[];
+
+    for (int i = 0; i < sorted.length; i++) {
+      final event = sorted[i];
+
+      // Add the event itself
+      items.add(EventItem(event));
+
+      // Check for gap to next event
+      if (i < sorted.length - 1) {
+        final nextEvent = sorted[i + 1];
+        final end = event.endDate!;
+        final startNext = nextEvent.startDate!;
+
+        final diff = startNext.difference(end);
+
+        // If gap > 10 mins -> Break
+        if (diff.inMinutes > 10) {
+          final breakItem = BreakItem(end, startNext);
+          items.add(breakItem);
+        } else {
+          // Short gap. No action needed for now as indicator is removed.
+        }
+      }
+    }
+
+    // Check if "now" is before the first event (maybe show indicator?)
+    // Or after last?
+    // For now, focusing on "between" and "inside".
+
+    return items;
+  }
+
   void _markExams(List<Event> events, List<Exam> cachedExams) {
     for (final event in events) {
       event.isExam = cachedExams.any(
@@ -190,11 +231,48 @@ class _TimetablePageState extends State<TimetablePage> {
     return '$hours Std. $minutes Min.';
   }
 
-  Widget _eventWidget(BuildContext context, Event event) {
+  Widget _breakWidget(BuildContext context, BreakItem item) {
+    final duration = item.end.difference(item.start);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Check if strictly inside this break
+
+    return Container(
+      height: 40, // Fixed height for breaks? Or dynamic?
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      child: Row(
+        children: [
+          const SizedBox(width: 65), // Spacing for time column
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withOpacity(0.05)
+                    : Colors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                "Pause (${_humanReadableDuration(duration)})",
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.black54,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _eventWidget(BuildContext context, EventItem item) {
+    final event = item.event;
     // Return early if required fields are null
     if (event.startDate == null || event.endDate == null) {
       return const SizedBox.shrink();
     }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10.0, right: 10.0),
@@ -275,122 +353,132 @@ class _TimetablePageState extends State<TimetablePage> {
           },
           child: Stack(
             children: [
-              event.isExam ?? false
-                  ? Align(
-                      alignment: Alignment.topRight,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 1),
-                        decoration: const BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(10.0),
-                            topRight: Radius.circular(10.0),
-                          ),
-                        ),
-                        child: const Text("Test"),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-              Container(
-                padding: const EdgeInsets.all(12),
-                child: IntrinsicHeight(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              // Format startdate as HH:MM without using substring
-                              event.startDate!.toString().substring(11, 16),
-
-                              style: const TextStyle(
-                                  fontSize: 18.0, fontWeight: FontWeight.w600),
-                              textAlign: TextAlign.center,
-                            ),
-                            Opacity(
-                              opacity: 0.75,
-                              child: Text(
-                                event.endDate!.toString().substring(11, 16),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: 55,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                // Format startdate as HH:MM without using substring
+                                event.startDate!.toString().substring(11, 16),
                                 style: const TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w600),
                                 textAlign: TextAlign.center,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 9.0,
-                      ),
-                      Container(
-                        width: 3,
-                        height: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3),
-                          color: (DateTime.now().isAfter(event.startDate!) &&
-                                  DateTime.now().isBefore(event.endDate!))
-                              ? Colors.blue
-                              : Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .color,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 9.0,
-                      ),
-                      Expanded(
-                        flex: 12,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              event.courseName?.toString() ?? '',
-                              textAlign: TextAlign.start,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(),
-                            ),
-                            Text(
-                              (event.teachers != null &&
-                                      event.teachers!.isNotEmpty)
-                                  ? event.teachers!.first.toString()
-                                  : '',
-                              textAlign: TextAlign.start,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: isDark
-                                        ? Colors.white.withValues(alpha: 0.75)
-                                        : Colors.black.withValues(alpha: 0.75),
+                              Opacity(
+                                opacity: 0.75,
+                                child: Text(
+                                  event.endDate!.toString().substring(11, 16),
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                            ),
-                          ],
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        event.roomToken?.toString() ?? '',
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
-                      ),
-                    ],
+                        const SizedBox(
+                          width: 12.0,
+                        ),
+                        Container(
+                          width: 4,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: (DateTime.now().isAfter(event.startDate!) &&
+                                    DateTime.now().isBefore(event.endDate!))
+                                ? Colors.blue
+                                : Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .color!
+                                    .withValues(alpha: 0.25),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 12,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      event.courseName?.toString() ?? '',
+                                      textAlign: TextAlign.start,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    event.roomToken?.toString() ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                (event.teachers != null &&
+                                        event.teachers!.isNotEmpty)
+                                    ? event.teachers!.first.toString()
+                                    : '',
+                                textAlign: TextAlign.start,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.75)
+                                          : Colors.black
+                                              .withValues(alpha: 0.75),
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
+              if (event.isExam ?? false)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 1),
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(10.0),
+                        topRight: Radius.circular(10.0),
+                      ),
+                    ),
+                    child: const Text("Test"),
+                  ),
+                ),
             ],
           )),
     );
@@ -518,19 +606,25 @@ class _TimetablePageState extends State<TimetablePage> {
                   );
                 }
                 List<Event> eventList = snapshot.data ?? [];
+                // Build mixed list
+                final items = _buildTimetableItems(eventList);
+
                 return Expanded(
-                  child: (eventList.isNotEmpty)
+                  child: (items.isNotEmpty)
                       ? Scrollbar(
                           child: ListView.builder(
                               shrinkWrap: true,
-                              itemCount: eventList.length,
+                              itemCount: items.length,
                               itemBuilder: (BuildContext ctxt, int index) {
-                                Event event = eventList[index];
-                                return LayoutBuilder(builder:
-                                    (BuildContext context,
-                                        BoxConstraints constraints) {
-                                  return _eventWidget(context, event);
-                                });
+                                final item = items[index];
+                                if (item is EventItem) {
+                                  return LayoutBuilder(
+                                      builder: (c, box) =>
+                                          _eventWidget(c, item));
+                                } else if (item is BreakItem) {
+                                  return _breakWidget(ctxt, item);
+                                }
+                                return const SizedBox.shrink();
                               }),
                         )
                       : const Center(
@@ -545,4 +639,19 @@ class _TimetablePageState extends State<TimetablePage> {
       ),
     );
   }
+}
+
+// --- Data Classes ---
+
+abstract class TimetableItem {}
+
+class EventItem extends TimetableItem {
+  final Event event;
+  EventItem(this.event);
+}
+
+class BreakItem extends TimetableItem {
+  final DateTime start;
+  final DateTime end;
+  BreakItem(this.start, this.end);
 }
