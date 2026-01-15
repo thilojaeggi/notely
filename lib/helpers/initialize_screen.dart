@@ -44,7 +44,7 @@ class _InitializeScreenState extends State<InitializeScreen> {
 
     if (lastVersionCode == null ||
         lastVersionCode < currentVersionCode ||
-        kDebugMode) {
+        kDebugMode && WhatsNew.updates.isNotEmpty) {
       if (!mounted) return;
 
       // The app was updated, show a modal popup

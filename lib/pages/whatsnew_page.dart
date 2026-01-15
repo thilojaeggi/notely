@@ -7,29 +7,19 @@ import 'package:flutter/material.dart';
 class WhatsNew extends StatefulWidget {
   const WhatsNew({super.key, required this.school});
   final String school;
+  static final List<WhatsNewEntry> updates = [];
 
   @override
   State<WhatsNew> createState() => _WhatsNewState();
 }
 
 class _WhatsNewState extends State<WhatsNew> {
-  static final List<_WhatsNewEntry> _updates = [
-const _WhatsNewEntry(
-  title: 'Login-Probleme behoben',
-  description:
-      'Die Anmeldung funktioniert ab sofort wieder einwandfrei.',
-  icon: CupertinoIcons.lock_shield_fill, 
-  accent: Colors.greenAccent, 
-  highlighted: true,
-),
-
-  ];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final backgroundColor = theme.colorScheme.surface;
+    final updates = WhatsNew.updates;
 
     return SafeArea(
       bottom: false,
@@ -72,10 +62,10 @@ const _WhatsNewEntry(
                   physics: const BouncingScrollPhysics(),
                   children: [
                     _buildHeader(context),
-                    for (int i = 0; i < _updates.length; i++)
+                    for (int i = 0; i < updates.length; i++)
                       _WhatsNewTile(
-                        entry: _updates[i],
-                        isLast: i == _updates.length - 1,
+                        entry: updates[i],
+                        isLast: i == updates.length - 1,
                       ),
                   ],
                 ),
@@ -131,14 +121,14 @@ const _WhatsNewEntry(
   }
 }
 
-class _WhatsNewEntry {
+class WhatsNewEntry {
   final String title;
   final String description;
   final IconData icon;
   final Color accent;
   final bool highlighted;
 
-  const _WhatsNewEntry({
+  const WhatsNewEntry({
     required this.title,
     required this.description,
     required this.icon,
@@ -186,7 +176,8 @@ class _WhatsNewTile extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: entry.accent.withValues(alpha: isDark ? 0.18 : 0.18),
+                      color:
+                          entry.accent.withValues(alpha: isDark ? 0.18 : 0.18),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
@@ -203,7 +194,7 @@ class _WhatsNewTile extends StatelessWidget {
                         Text(
                           entry.title,
                           style: theme.textTheme.titleLarge?.copyWith(
-                            fontSize: 18.0,
+                                fontSize: 18.0,
                                 fontWeight: FontWeight.w600,
                               ) ??
                               const TextStyle(
@@ -215,8 +206,9 @@ class _WhatsNewTile extends StatelessWidget {
                         Text(
                           entry.description,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
-                                fontWeight: FontWeight.w500,
+                            color: theme.textTheme.bodyMedium?.color
+                                ?.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.w500,
                             height: 1.35,
                           ),
                         ),
