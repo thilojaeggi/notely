@@ -353,113 +353,109 @@ class _TimetablePageState extends State<TimetablePage> {
           },
           child: Stack(
             children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(
-                          width: 55,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                // Format startdate as HH:MM without using substring
-                                event.startDate!.toString().substring(11, 16),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: IntrinsicHeight(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        width: 55,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              // Format startdate as HH:MM without using substring
+                              event.startDate!.toString().substring(11, 16),
+                              style: const TextStyle(
+                                  fontSize: 18.0, fontWeight: FontWeight.w600),
+                              textAlign: TextAlign.center,
+                            ),
+                            Opacity(
+                              opacity: 0.75,
+                              child: Text(
+                                event.endDate!.toString().substring(11, 16),
                                 style: const TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w600),
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
-                              Opacity(
-                                opacity: 0.75,
-                                child: Text(
-                                  event.endDate!.toString().substring(11, 16),
-                                  style: const TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w500,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 12.0,
+                      ),
+                      Container(
+                        width: 4,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: (DateTime.now().isAfter(event.startDate!) &&
+                                  DateTime.now().isBefore(event.endDate!))
+                              ? Colors.blue
+                              : Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .color!
+                                  .withValues(alpha: 0.25),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    event.courseName?.toString() ?? '',
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 12.0,
-                        ),
-                        Container(
-                          width: 4,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            color: (DateTime.now().isAfter(event.startDate!) &&
-                                    DateTime.now().isBefore(event.endDate!))
-                                ? Colors.blue
-                                : Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall!
-                                    .color!
-                                    .withValues(alpha: 0.25),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      event.courseName?.toString() ?? '',
-                                      textAlign: TextAlign.start,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  event.roomToken?.toString() ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              (event.teachers != null &&
+                                      event.teachers!.isNotEmpty)
+                                  ? event.teachers!.first.toString()
+                                  : '',
+                              textAlign: TextAlign.start,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.75)
+                                        : Colors.black.withValues(alpha: 0.75),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    event.roomToken?.toString() ?? '',
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                (event.teachers != null &&
-                                        event.teachers!.isNotEmpty)
-                                    ? event.teachers!.first.toString()
-                                    : '',
-                                textAlign: TextAlign.start,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      color: isDark
-                                          ? Colors.white.withValues(alpha: 0.75)
-                                          : Colors.black
-                                              .withValues(alpha: 0.75),
-                                    ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
