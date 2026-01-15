@@ -138,7 +138,7 @@ class WhatsNewEntry {
 }
 
 class _WhatsNewTile extends StatelessWidget {
-  final _WhatsNewEntry entry;
+  final WhatsNewEntry entry;
   final bool isLast;
 
   const _WhatsNewTile({required this.entry, required this.isLast});
