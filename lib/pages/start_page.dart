@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -268,7 +269,7 @@ class _StartPageState extends State<StartPage> {
           Expanded(
             child: ListView(
               shrinkWrap: true,
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+              padding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
               children: [
                 _buildGreetingHeader(),
                 const SizedBox(height: 12),
@@ -453,7 +454,17 @@ class _StartPageState extends State<StartPage> {
 
   Widget _buildGradesList() {
     final theme = Theme.of(context);
-    final gradeList = _grades.take(7).toList(growable: false);
+    final gradeList = (List<Grade>.from(_grades)
+          ..sort((a, b) {
+            final dateA = a.date;
+            final dateB = b.date;
+            if (dateA == null && dateB == null) return 0;
+            if (dateA == null) return 1;
+            if (dateB == null) return -1;
+            return dateB.compareTo(dateA);
+          }))
+        .take(7)
+        .toList(growable: false);
     if (gradeList.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -515,7 +526,7 @@ class _StartPageState extends State<StartPage> {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: subtitleColor,
                   ),
-                )
+                ),
               ],
             ),
           ),

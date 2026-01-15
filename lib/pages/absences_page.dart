@@ -22,8 +22,9 @@ class _AbsencesPageState extends State<AbsencesPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return BoxDecoration(
-      color:
-          isDark ? Colors.white.withValues(alpha: 0.05) : theme.colorScheme.surface,
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.05)
+          : theme.colorScheme.surface,
       borderRadius: BorderRadius.circular(14.0),
       border: Border.all(
         color: isDark
@@ -109,114 +110,112 @@ class _AbsencesPageState extends State<AbsencesPage> {
         child: FutureBuilder<List<Absence>>(
           future: _absencesFuture,
           builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting &&
-                  !snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return const Center(
-                  child: Text("Error"),
-                );
-              }
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return const Center(
+                child: Text("Error"),
+              );
+            }
 
-              List<Absence> absenceList =
-                  (snapshot.data ?? []).reversed.toList();
-              return Scrollbar(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: absenceList.length,
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    final absence = absenceList[index];
-                    // Skip if required fields are null
-                    if (absence.date == null ||
-                        absence.course == null ||
-                        absence.hourFrom == null ||
-                        absence.hourTo == null ||
-                        absence.status == null) {
-                      return const SizedBox.shrink();
-                    }
+            List<Absence> absenceList = (snapshot.data ?? []).reversed.toList();
+            return Scrollbar(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: absenceList.length,
+                itemBuilder: (BuildContext ctxt, int index) {
+                  final absence = absenceList[index];
+                  // Skip if required fields are null
+                  if (absence.date == null ||
+                      absence.course == null ||
+                      absence.hourFrom == null ||
+                      absence.hourTo == null ||
+                      absence.status == null) {
+                    return const SizedBox.shrink();
+                  }
 
-                    final statusMeta = _statusMeta(absence.status!);
-                    final theme = Theme.of(context);
-                    final subtitleColor =
-                        theme.textTheme.bodySmall?.color?.withValues(alpha: 0.7) ??
-                            Colors.grey;
-                    final timeRange =
-                        "${absence.hourFrom!.substring(0, absence.hourFrom!.length - 3)} - ${absence.hourTo!.substring(0, absence.hourTo!.length - 3)}";
+                  final statusMeta = _statusMeta(absence.status!);
+                  final theme = Theme.of(context);
+                  final subtitleColor = theme.textTheme.bodySmall?.color
+                          ?.withValues(alpha: 0.7) ??
+                      Colors.grey;
+                  final timeRange =
+                      "${absence.hourFrom!.substring(0, absence.hourFrom!.length - 3)} - ${absence.hourTo!.substring(0, absence.hourTo!.length - 3)}";
 
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 6.0),
-                      decoration: _cardDecoration(context),
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  absence.course ?? '',
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                DateFormat("dd.MM.yyyy")
-                                    .format(DateTime.parse(absence.date!)),
-                                style: theme.textTheme.titleSmall?.copyWith(
+                  return Container(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 6.0),
+                    decoration: _cardDecoration(context),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                absence.course ?? '',
+                                style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.schedule,
-                                size: 16,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              DateFormat("dd.MM.yyyy")
+                                  .format(DateTime.parse(absence.date!)),
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.schedule,
+                              size: 16,
+                              color: subtitleColor,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              timeRange,
+                              style: theme.textTheme.bodyMedium?.copyWith(
                                 color: subtitleColor,
+                                fontWeight: FontWeight.w500,
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                timeRange,
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: statusMeta.color.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                statusMeta.label,
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: subtitleColor,
-                                  fontWeight: FontWeight.w500,
+                                  color: statusMeta.color,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: statusMeta.color.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  statusMeta.label,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: statusMeta.color,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          },
         ),
-      
+      ),
     );
   }
 }

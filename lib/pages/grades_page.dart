@@ -274,11 +274,15 @@ class _GradesPageState extends State<GradesPage> {
                                         ),
                                       ),
                                       Text(
-                                        DateFormat("dd.MM.yyyy").format(
-                                            DateTime.parse(groupedCoursesMap
-                                                .values
-                                                .elementAt(index)[i]
-                                                .date)),
+                                        groupedCoursesMap.values
+                                                    .elementAt(index)[i]
+                                                    .date !=
+                                                null
+                                            ? DateFormat("dd.MM.yyyy").format(
+                                                groupedCoursesMap.values
+                                                    .elementAt(index)[i]
+                                                    .date!)
+                                            : "-",
                                         style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w500,
