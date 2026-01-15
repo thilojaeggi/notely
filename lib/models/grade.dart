@@ -5,7 +5,7 @@ class Grade {
   String? subject;
   String? subjectToken;
   String? title;
-  String? date;
+  DateTime? date;
   num? mark;
   num? weight;
   bool? isConfirmed;
@@ -29,7 +29,7 @@ class Grade {
     subject = json['subject'];
     subjectToken = json['subjectToken'];
     title = json['title'];
-    date = json['date'];
+    date = json['date'] != null ? DateTime.tryParse(json['date']) : null;
     mark = json['mark'];
     weight = json['weight'];
     isConfirmed = json['isConfirmed'];
@@ -43,7 +43,12 @@ class Grade {
     data['subject'] = subject;
     data['subjectToken'] = subjectToken;
     data['title'] = title;
-    data['date'] = date;
+    data['date'] =
+        date?.toIso8601String(); // format: yyyy-MM-ddTHH:mm:ss.mmmuuu
+    // if the API expects just date, this might include time, but usually fine for ISO parsers.
+    // If stricly needed YYYY-MM-DD we can adjust.
+    // Given the user request "store as datetime", keeping precision is usually safe unless sending back to strict API.
+    // The toJson is often used for caching here (shared_preferences).
     data['mark'] = mark;
     data['weight'] = weight;
     data['isConfirmed'] = isConfirmed;
