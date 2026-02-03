@@ -25,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -76,4 +73,13 @@ class DefaultFirebaseOptions {
     measurementId: 'G-840SVX1MSY',
   );
 
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCJ-iUd3WEADCp1vXC4k0QxaJwAP5a52tM',
+    appId: '1:845125974911:ios:4d53a3297c2caeae0bb84a',
+    messagingSenderId: '845125974911',
+    projectId: 'notely-ch',
+    databaseURL: 'https://notely-ch-default-rtdb.firebaseio.com',
+    storageBucket: 'notely-ch.appspot.com',
+    iosBundleId: 'ch.thilojaeggi.notelymac',
+  );
 }
