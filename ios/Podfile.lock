@@ -5,9 +5,6 @@ PODS:
     - Flutter
   - Firebase/CoreOnly (12.6.0):
     - FirebaseCore (~> 12.6.0)
-  - Firebase/InAppMessaging (12.6.0):
-    - Firebase/CoreOnly
-    - FirebaseInAppMessaging (~> 12.6.0-beta)
   - Firebase/Messaging (12.6.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 12.6.0)
@@ -18,16 +15,10 @@ PODS:
   - firebase_core (4.3.0):
     - Firebase/CoreOnly (= 12.6.0)
     - Flutter
-  - firebase_in_app_messaging (0.9.0-5):
-    - Firebase/InAppMessaging (= 12.6.0)
-    - firebase_core
-    - Flutter
   - firebase_messaging (16.1.0):
     - Firebase/Messaging (= 12.6.0)
     - firebase_core
     - Flutter
-  - FirebaseABTesting (12.6.0):
-    - FirebaseCore (~> 12.6.0)
   - FirebaseAnalytics (12.6.0):
     - FirebaseAnalytics/Default (= 12.6.0)
     - FirebaseCore (~> 12.6.0)
@@ -52,13 +43,6 @@ PODS:
     - GoogleUtilities/Logger (~> 8.1)
   - FirebaseCoreInternal (12.6.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseInAppMessaging (12.6.0-beta):
-    - FirebaseABTesting (~> 12.6.0)
-    - FirebaseCore (~> 12.6.0)
-    - FirebaseInstallations (~> 12.6.0)
-    - GoogleUtilities/Environment (~> 8.1)
-    - GoogleUtilities/UserDefaults (~> 8.1)
-    - nanopb (~> 3.30910.0)
   - FirebaseInstallations (12.6.0):
     - FirebaseCore (~> 12.6.0)
     - GoogleUtilities/Environment (~> 8.1)
@@ -206,7 +190,6 @@ DEPENDENCIES:
   - cupertino_native (from `.symlinks/plugins/cupertino_native/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
-  - firebase_in_app_messaging (from `.symlinks/plugins/firebase_in_app_messaging/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - flutter_dynamic_icon_plus (from `.symlinks/plugins/flutter_dynamic_icon_plus/ios`)
@@ -230,11 +213,9 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Firebase
-    - FirebaseABTesting
     - FirebaseAnalytics
     - FirebaseCore
     - FirebaseCoreInternal
-    - FirebaseInAppMessaging
     - FirebaseInstallations
     - FirebaseMessaging
     - Google-Mobile-Ads-SDK
@@ -261,8 +242,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_analytics/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
-  firebase_in_app_messaging:
-    :path: ".symlinks/plugins/firebase_in_app_messaging/ios"
   firebase_messaging:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
@@ -308,13 +287,10 @@ SPEC CHECKSUMS:
   Firebase: a451a7b61536298fd5cbfe3a746fd40443a50679
   firebase_analytics: 4f9cca09e65f6c2944a862c6dc86f6bed9fb769c
   firebase_core: ba00a168e719694f38960502ceb560285603d073
-  firebase_in_app_messaging: fbdbcc3699f5cd4833dba42f21e94763c3d3b88b
   firebase_messaging: bf0e29321927edc02a563c984dbfa5b063864b15
-  FirebaseABTesting: 119f0a2b2e68b1ae05d248c5adb2455f148f20c1
   FirebaseAnalytics: d0a97a0db6425e5a5d966340b87f92ca7b13a557
   FirebaseCore: 0e38ad5d62d980a47a64b8e9301ffa311457be04
   FirebaseCoreInternal: 69bf1306a05b8ac43004f6cc1f804bb7b05b229e
-  FirebaseInAppMessaging: f0b968a0bc2d2e6208205865ea973ddc858cb6c9
   FirebaseInstallations: 631b38da2e11a83daa4bfb482f79d286a5dfa7ad
   FirebaseMessaging: a61bc42dcab3f7a346d94bbb54dab2c9435b18b2
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
