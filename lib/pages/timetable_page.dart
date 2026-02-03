@@ -416,7 +416,9 @@ class _TimetablePageState extends State<TimetablePage> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    event.courseName?.toString() ?? '',
+                                    event.courseName?.toString() ??
+                                        event.text?.toString() ??
+                                        '',
                                     textAlign: TextAlign.start,
                                     style: Theme.of(context)
                                         .textTheme
