@@ -4,6 +4,7 @@ import 'package:notely/helpers/initialization_helper.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_io/io.dart';
 
 class InitializeScreen extends StatefulWidget {
   final Widget targetWidget;
@@ -65,7 +66,7 @@ class _InitializeScreenState extends State<InitializeScreen> {
     final navigator = Navigator.of(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!kIsWeb) {
+      if (!kIsWeb && !Platform.isMacOS) {
         await _initializationHelper.initialize();
       }
       Future.microtask(() => checkForUpdates(context));
