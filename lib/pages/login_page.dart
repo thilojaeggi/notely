@@ -6,27 +6,27 @@ import 'package:crypto/crypto.dart' as crypto; // NEW
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:notely/Globals.dart';
-import 'package:notely/config/app_config.dart';
-import 'package:notely/helpers/api_client.dart';
-import 'package:notely/helpers/initialize_screen.dart';
-import 'package:notely/outlined_box_shadow.dart';
+
+import 'package:notely/core/config/app_config.dart';
+import 'package:notely/data/api_client.dart';
+import 'package:notely/shell/initialize_screen.dart';
+import 'package:notely/core/widgets/outlined_box_shadow.dart';
 import 'package:notely/pages/help_page.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:notely/secure_storage.dart';
-import 'package:notely/widgets/auth_text_field.dart';
-import 'package:notely/widgets/two_factor_sheet.dart';
+import 'package:notely/core/storage/secure_storage.dart';
+import 'package:notely/features/auth/widgets/auth_text_field.dart';
+import 'package:notely/features/auth/widgets/two_factor_sheet.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
-import 'package:notely/helpers/otp_helper.dart';
-import 'package:notely/helpers/token_manager.dart';
-import '../config/style.dart';
-import '../view_container.dart';
+import 'package:notely/features/auth/otp_helper.dart';
+import 'package:notely/features/auth/token_manager.dart';
+import 'package:notely/core/config/style.dart';
+import 'package:notely/shell/view_container.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -860,9 +860,9 @@ class _LoginPageState extends State<LoginPage> {
     // Generate new PKCE + state (NEW)
     _generatePkceAndState();
 
-final redirectUri = "https://schulnetz.web.app/callback"; // Must match the HAR
-final url = Globals.buildUrl(
-    "$school/authorize.php?response_type=code"
+    final redirectUri = "https://schulnetz.web.app/callback";    // 1. Build auth URL
+    final url = Uri.parse("https://kaschuso.so.ch/public/$school/authorize.php"
+    "?response_type=code"
     "&client_id=ppyybShnMerHdtBQ"
     "&state=${_oauthState!}"
     "&redirect_uri=${Uri.encodeComponent(redirectUri)}" // Added this
