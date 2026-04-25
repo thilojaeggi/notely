@@ -8,13 +8,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
-import 'package:notely/Globals.dart';
-import 'package:notely/helpers/api_client.dart';
-import 'package:notely/helpers/initialization_helper.dart';
-import 'package:notely/helpers/otp_helper.dart';
-import 'package:notely/helpers/subscription_manager.dart';
-import 'package:notely/helpers/token_manager.dart';
-import 'package:notely/secure_storage.dart';
+
+import 'package:notely/data/api_client.dart';
+import 'package:notely/features/ads/initialization_helper.dart';
+import 'package:notely/features/auth/otp_helper.dart';
+import 'package:notely/features/subscription/subscription_manager.dart';
+import 'package:notely/features/auth/token_manager.dart';
+import 'package:notely/core/storage/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -316,7 +316,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> enableDarkMode(bool dark) async {
-    Globals().isDark = dark;
     if (dark) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
           statusBarColor: const Color(0xFF0d0d0d), // status bar color
