@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:notely/helpers/initialization_helper.dart';
+import 'package:notely/features/ads/initialization_helper.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';

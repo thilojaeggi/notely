@@ -13,7 +13,7 @@ class InitializationHelper {
       ),
     );
     ConsentInformation.instance
-        .requestConsentInfoUpdate(ConsentRequestParameters(), () async {
+        .requestConsentInfoUpdate(params, () async {
       if (await ConsentInformation.instance.isConsentFormAvailable()) {
         await _loadConsentForm();
       } else {
