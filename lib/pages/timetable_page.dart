@@ -9,9 +9,9 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:notely/models/exam.dart';
-import 'package:notely/helpers/homework_database.dart';
-import 'package:notely/helpers/api_client.dart';
-import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/data/database/homework_database.dart';
+import 'package:notely/data/api_client.dart';
+import 'package:notely/features/home/helpers/text_styles.dart';
 import 'package:notely/pages/homework_page.dart';
 import '../models/Event.dart';
 
