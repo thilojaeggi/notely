@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/features/home/helpers/text_styles.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({Key? key}) : super(key: key);
