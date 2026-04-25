@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/features/home/helpers/text_styles.dart';
 import '../models/exam.dart';
 
 class ExamsPage extends StatefulWidget {

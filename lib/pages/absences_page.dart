@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/helpers/api_client.dart';
-import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/data/api_client.dart';
+import 'package:notely/features/home/helpers/text_styles.dart';
 import 'package:notely/models/absence.dart';
 
 class AbsencesPage extends StatefulWidget {
