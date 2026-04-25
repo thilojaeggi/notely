@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:notely/features/auth/token_manager.dart';
 import 'package:notely/models/absence.dart';
-import 'package:notely/models/Event.dart';
+import 'package:notely/models/event.dart';
 import 'package:notely/models/exam.dart';
 import 'package:notely/models/grade.dart';
 

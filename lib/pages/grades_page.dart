@@ -8,6 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/data/api_client.dart';
+import 'package:notely/data/repositories/grade_repository.dart';
 import 'package:notely/features/home/helpers/grade_color.dart';
 import 'package:notely/features/home/helpers/text_styles.dart';
 import 'package:shimmer/shimmer.dart';
@@ -24,7 +25,8 @@ class GradesPage extends StatefulWidget {
 class _GradesPageState extends State<GradesPage> {
   double lowestGradePoints = 0.0;
   final ScrollController _scrollController = ScrollController();
-  final APIClient _apiClient = APIClient();
+  final GradeRepository _repository = GradeRepository();
+  final APIClient _apiClient = APIClient(); // Needed for .school property
   late Future<Map<String, dynamic>> _gradesFuture;
 
   void _scrollToSelectedContent({required GlobalKey expansionTileKey}) {
@@ -111,10 +113,11 @@ class _GradesPageState extends State<GradesPage> {
       });
     }
     final lowestAverages = averageGradeMap.values
+        .where((value) => value != "-")
         .map((value) => double.parse(value))
         .toList()
       ..sort();
-    final numLowest = min(5, averageGradeMap.length);
+    final numLowest = min(5, lowestAverages.length);
     final lowestValues = lowestAverages.take(numLowest).toList();
     double computedLowestGradePoints = 0;
     for (var i = 0; i < lowestValues.length; i++) {
@@ -138,31 +141,24 @@ class _GradesPageState extends State<GradesPage> {
     });
   }
 
-  Future<Map<String, dynamic>> _loadGrades(bool useCache) async {
-    try {
-      final grades = await _apiClient.getGrades(useCache);
-      final data = _calculateGrades(grades);
-      _updateLowestGradePoints(data['lowestGradePoints'] as double? ?? 0.0);
-      return data;
-    } catch (e) {
-      debugPrint('Error loading grades: $e');
-      return {};
-    }
-  }
-
-  Future<void> _refreshGrades() async {
-    final latestData = await _loadGrades(false);
-    if (!mounted) return;
-    setState(() {
-      _gradesFuture = Future.value(latestData);
-    });
-  }
-
   @override
   initState() {
     super.initState();
-    _gradesFuture = _loadGrades(true);
-    _refreshGrades();
+    _gradesFuture = _repository.getGrades(onUpdate: (latestData) {
+      if (!mounted) return;
+      final data = _calculateGrades(latestData);
+      _updateLowestGradePoints(data['lowestGradePoints'] as double? ?? 0.0);
+      setState(() {
+        _gradesFuture = Future.value(data);
+      });
+    }).then((cachedData) {
+      final data = _calculateGrades(cachedData);
+      _updateLowestGradePoints(data['lowestGradePoints'] as double? ?? 0.0);
+      return data;
+    }).catchError((e) {
+      debugPrint('Error loading grades: $e');
+      return <String, dynamic>{};
+    });
   }
 
   Widget _buildGradeCard(BuildContext context, int index, Map groupedCoursesMap,

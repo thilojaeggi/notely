@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/data/api_client.dart';
+import 'package:notely/data/repositories/absence_repository.dart';
 import 'package:notely/features/home/helpers/text_styles.dart';
 import 'package:notely/models/absence.dart';
 
@@ -15,7 +15,7 @@ class AbsencesPage extends StatefulWidget {
 }
 
 class _AbsencesPageState extends State<AbsencesPage> {
-  final APIClient _apiClient = APIClient();
+  final AbsenceRepository _repository = AbsenceRepository();
   late Future<List<Absence>> _absencesFuture;
 
   BoxDecoration _cardDecoration(BuildContext context) {
@@ -54,28 +54,15 @@ class _AbsencesPageState extends State<AbsencesPage> {
     }
   }
 
-  Future<List<Absence>> _loadAbsences(bool useCache) async {
-    try {
-      return await _apiClient.getAbsences(useCache);
-    } catch (e) {
-      debugPrint('Error loading absences: $e');
-      return [];
-    }
-  }
-
-  Future<void> _refreshAbsences() async {
-    final latestAbsences = await _loadAbsences(false);
-    if (!mounted) return;
-    setState(() {
-      _absencesFuture = Future.value(latestAbsences);
-    });
-  }
-
   @override
   initState() {
     super.initState();
-    _absencesFuture = _loadAbsences(true);
-    _refreshAbsences();
+    _absencesFuture = _repository.getAbsences(onUpdate: (freshList) {
+      if (!mounted) return;
+      setState(() {
+        _absencesFuture = Future.value(freshList);
+      });
+    });
   }
 
   @override

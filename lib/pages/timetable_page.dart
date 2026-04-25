@@ -10,10 +10,11 @@ import 'package:intl/intl.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:notely/models/exam.dart';
 import 'package:notely/data/database/homework_database.dart';
-import 'package:notely/data/api_client.dart';
+import 'package:notely/data/repositories/event_repository.dart';
+import 'package:notely/data/repositories/exam_repository.dart';
 import 'package:notely/features/home/helpers/text_styles.dart';
 import 'package:notely/pages/homework_page.dart';
-import '../models/Event.dart';
+import 'package:notely/models/event.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({Key? key}) : super(key: key);
@@ -26,39 +27,28 @@ class _TimetablePageState extends State<TimetablePage> {
   int timeShift = 0;
   DateTime today = DateTime.now();
   late Future<List<Event>> _eventsFuture;
-  final APIClient _apiClient = APIClient();
+  final EventRepository _eventRepository = EventRepository();
+  final ExamRepository _examRepository = ExamRepository();
 
-  Future<List<Event>> _loadEvents(DateTime date) async {
-    try {
-      final cachedEvents = await _apiClient.getEvents(date, true);
-      final cachedExams = await _apiClient.getExams(true);
-      _markExams(cachedEvents, cachedExams);
-
-      await _syncWidgetWithEvents(cachedEvents);
-
-      _refreshEvents(date);
-      return cachedEvents;
-    } catch (e) {
-      debugPrint('Error loading cached events: $e');
-      return [];
-    }
-  }
-
-  Future<void> _refreshEvents(DateTime date) async {
-    try {
-      final currentEvents = await _apiClient.getEvents(date, false);
-      final cachedExams = await _apiClient.getExams(true);
-      _markExams(currentEvents, cachedExams);
-
-      await _syncWidgetWithEvents(currentEvents);
-
+  void _loadEvents(DateTime date) {
+    _eventsFuture =
+        _eventRepository.getEvents(date, onUpdate: (freshEvents) async {
+      final exams = await _examRepository.getExams();
+      _markExams(freshEvents, exams);
+      await _syncWidgetWithEvents(freshEvents);
       if (!mounted) return;
       setState(() {
-        _eventsFuture = Future.value(currentEvents);
+        _eventsFuture = Future.value(freshEvents);
       });
-    } catch (e) {
+    }).then((cachedEvents) async {
+      final exams = await _examRepository.getExams();
+      _markExams(cachedEvents, exams);
+      await _syncWidgetWithEvents(cachedEvents);
+      return cachedEvents;
+    }).catchError((e) {
       debugPrint('Error loading events: $e');
-    }
+      return <Event>[];
+    });
   }
 
   /// Generates the list of items to display (Events + Breaks + Indicator)
@@ -209,7 +199,7 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   initState() {
     super.initState();
-    _eventsFuture = _loadEvents(today);
+    _loadEvents(today);
   }
 
   String _formatTime(DateTime dateTime) {
@@ -520,8 +510,8 @@ class _TimetablePageState extends State<TimetablePage> {
             onDateChange: (date) {
               setState(() {
                 today = date;
+                _loadEvents(today);
               });
-              _eventsFuture = _loadEvents(date);
             },
             itemExtent: 60.0,
             itemBuilder:

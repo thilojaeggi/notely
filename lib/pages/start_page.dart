@@ -10,6 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notely/data/api_client.dart';
+import 'package:notely/data/repositories/exam_repository.dart';
+import 'package:notely/data/repositories/grade_repository.dart';
+import 'package:notely/data/repositories/student_repository.dart';
 import 'package:notely/features/home/helpers/grade_color.dart';
 import 'package:notely/features/subscription/subscription_manager.dart';
 import 'package:notely/models/exam.dart';
@@ -28,7 +31,9 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
-  final APIClient _apiClient = APIClient();
+  final GradeRepository _gradeRepository = GradeRepository();
+  final ExamRepository _examRepository = ExamRepository();
+  final StudentRepository _studentRepository = StudentRepository();
   List<Exam> exams = <Exam>[];
   late Future<List<Homework>> homeworkFuture;
 
@@ -41,76 +46,63 @@ class _StartPageState extends State<StartPage> {
   bool _examsLoading = true;
   bool _examsFailed = false;
 
-  void _getGrades() async {
-    try {
-      final cachedGrades = await _apiClient.getGrades(true);
+  void _getGrades() {
+    _gradeRepository.getGrades(onUpdate: (fresh) {
       if (!mounted) return;
       setState(() {
-        _grades = cachedGrades;
+        _grades = fresh;
+      });
+    }).then((cached) {
+      if (!mounted) return;
+      setState(() {
+        _grades = cached;
         _gradesLoading = false;
         _gradesFailed = false;
       });
-
-      final latestGrades = await _apiClient.getGrades(false);
-      if (!mounted) return;
-      setState(() {
-        _grades = latestGrades;
-      });
-    } catch (e) {
+    }).catchError((e) {
       if (!mounted) return;
       setState(() {
         _gradesLoading = false;
         _gradesFailed = true;
       });
       debugPrint('Error loading grades: $e');
-    }
+    });
   }
 
-  void _getStudent() async {
-    try {
-      final cachedStudent = await _apiClient.getStudent(true);
+  void _getStudent() {
+    _studentRepository.getStudent(onUpdate: (latest) async {
       if (!mounted) return;
-      setState(() {
-        _student = cachedStudent;
-      });
-
-      final latestStudent = await _apiClient.getStudent(false);
+      setState(() => _student = latest);
+      if (latest != null) await _setAnalyticsProperties(latest);
+    }).then((cached) {
       if (!mounted) return;
-      setState(() {
-        _student = latestStudent;
-      });
-      await _setAnalyticsProperties(latestStudent);
-    } catch (e) {
-      if (!mounted) return;
+      setState(() => _student = cached);
+    }).catchError((e) {
       debugPrint('Error loading student: $e');
-    }
+    });
   }
 
-  void _getExams() async {
-    try {
-      List<Exam> cachedExams = await _apiClient.getExams(true);
-      cachedExams.sort((a, b) => a.startDate.compareTo(b.startDate));
+  void _getExams() {
+    _examRepository.getExams(onUpdate: (fresh) {
+      fresh.sort((a,b) => a.startDate.compareTo(b.startDate));
+      if (!mounted) return;
+      setState(() => exams = fresh);
+    }).then((cached) {
+      cached.sort((a,b) => a.startDate.compareTo(b.startDate));
       if (!mounted) return;
       setState(() {
-        exams = cachedExams;
+        exams = cached;
         _examsLoading = false;
         _examsFailed = false;
       });
-
-      List<Exam> latestExams = await _apiClient.getExams(false);
-      latestExams.sort((a, b) => a.startDate.compareTo(b.startDate));
-      if (!mounted) return;
-      setState(() {
-        exams = latestExams;
-      });
-    } catch (e) {
+    }).catchError((e) {
       if (!mounted) return;
       setState(() {
         _examsLoading = false;
         _examsFailed = true;
       });
       debugPrint('Error loading exams: $e');
-    }
+    });
   }
 
   NativeAd? _nativeAd;
@@ -222,7 +214,7 @@ class _StartPageState extends State<StartPage> {
 
   Future<String?> _getAnalyticsSchool() async {
     try {
-      final school = _apiClient.school;
+      final school = APIClient().school;
       if (school.trim().isEmpty) {
         return null;
       }
