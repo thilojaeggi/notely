@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/models/homework.dart';
-import 'package:notely/helpers/homework_database.dart';
-import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/data/database/homework_database.dart';
+import 'package:notely/features/home/helpers/text_styles.dart';
 
 class HomeworkPage extends StatefulWidget {
   const HomeworkPage(
