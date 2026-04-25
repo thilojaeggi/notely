@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:notely/helpers/api_client.dart';
-import 'package:notely/helpers/grade_color.dart';
-import 'package:notely/helpers/text_styles.dart';
+import 'package:notely/data/api_client.dart';
+import 'package:notely/features/home/helpers/grade_color.dart';
+import 'package:notely/features/home/helpers/text_styles.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../models/grade.dart';
@@ -88,19 +88,26 @@ class _GradesPageState extends State<GradesPage> {
   }
 
   Map<String, dynamic> _calculateGrades(List<Grade> gradeList) {
+    gradeList.sort((a, b) {
+      final dateA = a.date ?? DateTime(0);
+      final dateB = b.date ?? DateTime(0);
+      return dateB.compareTo(dateA); // Newest first
+    });
     var groupedCoursesMap = gradeList.groupBy((m) => m.subject);
     final averageGradeMap = {};
     for (var i = 0; i < groupedCoursesMap.length; i++) {
       double combinedGrade = 0;
       double combinedWeight = 0;
       for (var grade in groupedCoursesMap.values.elementAt(i)) {
-        combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
-        combinedWeight += grade.weight!;
+        if (grade.mark != null && grade.weight != null) {
+          combinedGrade = combinedGrade + (grade.mark! * grade.weight!);
+          combinedWeight += grade.weight!;
+        }
       }
 
       averageGradeMap.addAll({
         groupedCoursesMap.keys.elementAt(i):
-            (combinedGrade / combinedWeight).toStringAsFixed(3)
+            combinedWeight > 0 ? (combinedGrade / combinedWeight).toStringAsFixed(3) : "-"
       });
     }
     final lowestAverages = averageGradeMap.values
@@ -248,15 +255,15 @@ class _GradesPageState extends State<GradesPage> {
                                       ),
                                       Text(
                                         groupedCoursesMap.values
-                                            .elementAt(index)[i]
-                                            .mark
-                                            .toString(),
+                                                .elementAt(index)[i]
+                                                .mark
+                                                ?.toString() ?? "-",
                                         style: TextStyle(
                                             color: _gradeColor(groupedCoursesMap
                                                 .values
                                                 .elementAt(index)[i]
                                                 .mark
-                                                .toDouble()),
+                                                ?.toDouble() ?? 0.0),
                                             fontSize: 18,
                                             fontWeight: FontWeight.w500),
                                       ),
@@ -405,8 +412,8 @@ class _GradesPageState extends State<GradesPage> {
                                                                     index))
                                                         .reversed
                                                         .toList()[i]
-                                                        .mark!
-                                                        .toDouble())
+                                                        .mark
+                                                        ?.toDouble() ?? 0.0)
                                                 ]
                                               : [
                                                   _gradeColor(List.from(
@@ -415,16 +422,16 @@ class _GradesPageState extends State<GradesPage> {
                                                               .elementAt(index))
                                                       .reversed
                                                       .toList()[0]
-                                                      .mark!
-                                                      .toDouble()),
+                                                      .mark
+                                                      ?.toDouble() ?? 0.0),
                                                   _gradeColor(List.from(
                                                           groupedCoursesMap
                                                               .values
                                                               .elementAt(index))
                                                       .reversed
                                                       .toList()[0]
-                                                      .mark!
-                                                      .toDouble())
+                                                      .mark
+                                                      ?.toDouble() ?? 0.0)
                                                 ]),
                                       spots: [
                                         for (var i = 0;
@@ -434,13 +441,13 @@ class _GradesPageState extends State<GradesPage> {
                                                     .length;
                                             i++)
                                           FlSpot(
-                                            i.toDouble(),
-                                            List.from(groupedCoursesMap.values
-                                                    .elementAt(index))
-                                                .reversed
-                                                .toList()[i]
-                                                .mark!
-                                                .toDouble(),
+                                              i.toDouble(),
+                                              List.from(groupedCoursesMap.values
+                                                      .elementAt(index))
+                                                  .reversed
+                                                  .toList()[i]
+                                                  .mark
+                                                  ?.toDouble() ?? 0.0,
                                           ),
                                       ],
                                       belowBarData: BarAreaData(
@@ -467,8 +474,8 @@ class _GradesPageState extends State<GradesPage> {
                                                                           index))
                                                               .reversed
                                                               .toList()[i]
-                                                              .mark!
-                                                              .toDouble())
+                                                              .mark
+                                                              ?.toDouble() ?? 0.0)
                                                           .withValues(
                                                               alpha: 0.3)
                                                   ]
@@ -480,8 +487,8 @@ class _GradesPageState extends State<GradesPage> {
                                                                         index))
                                                             .reversed
                                                             .toList()[0]
-                                                            .mark!
-                                                            .toDouble())
+                                                            .mark
+                                                            ?.toDouble() ?? 0.0)
                                                         .withValues(alpha: 0.3),
                                                     _gradeColor(List.from(
                                                                 groupedCoursesMap
@@ -490,8 +497,8 @@ class _GradesPageState extends State<GradesPage> {
                                                                         index))
                                                             .reversed
                                                             .toList()[0]
-                                                            .mark!
-                                                            .toDouble())
+                                                            .mark
+                                                            ?.toDouble() ?? 0.0)
                                                         .withValues(alpha: 0.3)
                                                   ]),
                                       ))
