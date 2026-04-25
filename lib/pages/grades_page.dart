@@ -108,8 +108,9 @@ class _GradesPageState extends State<GradesPage> {
       }
 
       averageGradeMap.addAll({
-        groupedCoursesMap.keys.elementAt(i):
-            combinedWeight > 0 ? (combinedGrade / combinedWeight).toStringAsFixed(3) : "-"
+        groupedCoursesMap.keys.elementAt(i): combinedWeight > 0
+            ? (combinedGrade / combinedWeight).toStringAsFixed(3)
+            : "-"
       });
     }
     final lowestAverages = averageGradeMap.values
@@ -253,13 +254,15 @@ class _GradesPageState extends State<GradesPage> {
                                         groupedCoursesMap.values
                                                 .elementAt(index)[i]
                                                 .mark
-                                                ?.toString() ?? "-",
+                                                ?.toString() ??
+                                            "-",
                                         style: TextStyle(
                                             color: _gradeColor(groupedCoursesMap
-                                                .values
-                                                .elementAt(index)[i]
-                                                .mark
-                                                ?.toDouble() ?? 0.0),
+                                                    .values
+                                                    .elementAt(index)[i]
+                                                    .mark
+                                                    ?.toDouble() ??
+                                                0.0),
                                             fontSize: 18,
                                             fontWeight: FontWeight.w500),
                                       ),
@@ -402,32 +405,37 @@ class _GradesPageState extends State<GradesPage> {
                                                               .length;
                                                       i++)
                                                     _gradeColor(List.from(
-                                                            groupedCoursesMap
-                                                                .values
-                                                                .elementAt(
-                                                                    index))
-                                                        .reversed
-                                                        .toList()[i]
-                                                        .mark
-                                                        ?.toDouble() ?? 0.0)
+                                                                groupedCoursesMap
+                                                                    .values
+                                                                    .elementAt(
+                                                                        index))
+                                                            .reversed
+                                                            .toList()[i]
+                                                            .mark
+                                                            ?.toDouble() ??
+                                                        0.0)
                                                 ]
                                               : [
                                                   _gradeColor(List.from(
-                                                          groupedCoursesMap
-                                                              .values
-                                                              .elementAt(index))
-                                                      .reversed
-                                                      .toList()[0]
-                                                      .mark
-                                                      ?.toDouble() ?? 0.0),
+                                                              groupedCoursesMap
+                                                                  .values
+                                                                  .elementAt(
+                                                                      index))
+                                                          .reversed
+                                                          .toList()[0]
+                                                          .mark
+                                                          ?.toDouble() ??
+                                                      0.0),
                                                   _gradeColor(List.from(
-                                                          groupedCoursesMap
-                                                              .values
-                                                              .elementAt(index))
-                                                      .reversed
-                                                      .toList()[0]
-                                                      .mark
-                                                      ?.toDouble() ?? 0.0)
+                                                              groupedCoursesMap
+                                                                  .values
+                                                                  .elementAt(
+                                                                      index))
+                                                          .reversed
+                                                          .toList()[0]
+                                                          .mark
+                                                          ?.toDouble() ??
+                                                      0.0)
                                                 ]),
                                       spots: [
                                         for (var i = 0;
@@ -437,13 +445,14 @@ class _GradesPageState extends State<GradesPage> {
                                                     .length;
                                             i++)
                                           FlSpot(
-                                              i.toDouble(),
-                                              List.from(groupedCoursesMap.values
-                                                      .elementAt(index))
-                                                  .reversed
-                                                  .toList()[i]
-                                                  .mark
-                                                  ?.toDouble() ?? 0.0,
+                                            i.toDouble(),
+                                            List.from(groupedCoursesMap.values
+                                                        .elementAt(index))
+                                                    .reversed
+                                                    .toList()[i]
+                                                    .mark
+                                                    ?.toDouble() ??
+                                                0.0,
                                           ),
                                       ],
                                       belowBarData: BarAreaData(
@@ -463,38 +472,38 @@ class _GradesPageState extends State<GradesPage> {
                                                                     index)
                                                                 .length;
                                                         i++)
-                                                      _gradeColor(List.from(
-                                                                  groupedCoursesMap
+                                                      _gradeColor(List.from(groupedCoursesMap
                                                                       .values
                                                                       .elementAt(
                                                                           index))
-                                                              .reversed
-                                                              .toList()[i]
-                                                              .mark
-                                                              ?.toDouble() ?? 0.0)
+                                                                  .reversed
+                                                                  .toList()[i]
+                                                                  .mark
+                                                                  ?.toDouble() ??
+                                                              0.0)
                                                           .withValues(
                                                               alpha: 0.3)
                                                   ]
                                                 : [
-                                                    _gradeColor(List.from(
-                                                                groupedCoursesMap
+                                                    _gradeColor(List.from(groupedCoursesMap
                                                                     .values
                                                                     .elementAt(
                                                                         index))
-                                                            .reversed
-                                                            .toList()[0]
-                                                            .mark
-                                                            ?.toDouble() ?? 0.0)
+                                                                .reversed
+                                                                .toList()[0]
+                                                                .mark
+                                                                ?.toDouble() ??
+                                                            0.0)
                                                         .withValues(alpha: 0.3),
-                                                    _gradeColor(List.from(
-                                                                groupedCoursesMap
+                                                    _gradeColor(List.from(groupedCoursesMap
                                                                     .values
                                                                     .elementAt(
                                                                         index))
-                                                            .reversed
-                                                            .toList()[0]
-                                                            .mark
-                                                            ?.toDouble() ?? 0.0)
+                                                                .reversed
+                                                                .toList()[0]
+                                                                .mark
+                                                                ?.toDouble() ??
+                                                            0.0)
                                                         .withValues(alpha: 0.3)
                                                   ]),
                                       ))
