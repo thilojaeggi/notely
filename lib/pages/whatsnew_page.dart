@@ -7,7 +7,27 @@ import 'package:flutter/material.dart';
 class WhatsNew extends StatefulWidget {
   const WhatsNew({super.key, required this.school});
   final String school;
-  static final List<WhatsNewEntry> updates = [];
+  static final List<WhatsNewEntry> updates = [
+    const WhatsNewEntry(
+      title: "App-Performance & Architektur",
+      description: "Wir haben die gesamte App modernisiert! Sie läuft nun spürbar effizienter, ist besser strukturiert und extrem stabil für zukünftige Funktionen.",
+      icon: CupertinoIcons.rocket,
+      accent: Colors.blue,
+      highlighted: true,
+    ),
+    const WhatsNewEntry(
+      title: "Noten-Diagramm korrigiert",
+      description: "Ein Logikfehler wurde behoben: Das Notendiagramm zeigt deine Noten nun wieder verlässlich in der korrekten chronologischen Reihenfolge an.",
+      icon: CupertinoIcons.graph_square,
+      accent: Colors.green,
+    ),
+    const WhatsNewEntry(
+      title: "Absturzbehebungen",
+      description: "Ein schwerer Fehler wurde gelöst, der die App zum Absturz brachte, falls eine Prüfung vom Lehrer noch nicht mit einer Note versehen war.",
+      icon: CupertinoIcons.wrench,
+      accent: Colors.orange,
+    ),
+  ];
 
   @override
   State<WhatsNew> createState() => _WhatsNewState();
