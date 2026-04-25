@@ -1,4 +1,4 @@
-import 'package:notely/config/app_config.dart';
+import 'package:notely/core/config/app_config.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 

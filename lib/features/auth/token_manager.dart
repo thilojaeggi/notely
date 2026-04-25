@@ -5,15 +5,15 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:notely/secure_storage.dart';
+import 'package:notely/core/storage/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:crypto/crypto.dart' as crypto;
 
-import 'navigation_service.dart';
+import '../../core/navigation/navigation_service.dart';
 import 'otp_helper.dart';
-import '../widgets/two_factor_sheet.dart';
-import 'package:notely/config/app_config.dart';
+import 'widgets/two_factor_sheet.dart';
+import 'package:notely/core/config/app_config.dart';
 
 class TokenManager {
   TokenManager._internal();
