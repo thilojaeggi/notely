@@ -291,7 +291,7 @@ class _SettingsPageState extends State<SettingsPage> {
           child: const LoginPage(),
         ));
   }
-
+  
   void changeAppIcon() {
     if (Platform.isIOS) {
       showModalBottomSheet(
@@ -551,6 +551,37 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 )
               : const SizedBox.shrink(),
+          _buildSection(
+            title: "Rechtliches",
+            children: [
+              _SettingsTile(
+                icon: CupertinoIcons.doc_text_fill,
+                accentColor: Colors.blueGrey,
+                title: "Datenschutzrichtlinie",
+                trailing: const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 20,
+                ),
+                onTap: () {
+                  launchUrl(Uri.parse('https://notely.ch/datenschutz/'),
+                      mode: LaunchMode.externalApplication);
+                },
+              ),
+              _SettingsTile(
+                icon: CupertinoIcons.doc_plaintext,
+                accentColor: Colors.blueGrey,
+                title: "Nutzungsbedingungen",
+                trailing: const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 20,
+                ),
+                onTap: () {
+                  launchUrl(Uri.parse('https://notely.ch/nutzungsbedingungen/'),
+                      mode: LaunchMode.externalApplication);
+                },
+              ),
+            ],
+          ),
           _buildSection(
             title: "Support",
             children: [
