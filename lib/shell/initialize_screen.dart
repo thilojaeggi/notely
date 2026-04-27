@@ -98,9 +98,7 @@ class _InitializeScreenState extends State<InitializeScreen> {
       final prefs = await SharedPreferences.getInstance();
       final lastVersionCode = prefs.getInt('version_code');
       final isFirstLaunchOn131 = lastVersionCode == null || lastVersionCode < 33;
-      if (isFirstLaunchOn131 && SubscriptionManager().isPremium) {
-        ViewContainerWidget.pendingInitialPage = 1;
-      }
+
 
       Future.microtask(() => checkForUpdates(context));
 
