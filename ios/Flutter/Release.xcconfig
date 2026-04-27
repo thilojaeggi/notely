@@ -1,3 +1,4 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
 TARGETED_DEVICE_FAMILY = 1
+ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES
