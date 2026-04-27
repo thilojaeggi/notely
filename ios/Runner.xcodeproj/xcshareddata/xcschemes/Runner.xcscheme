@@ -65,15 +65,15 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-FIRDebugEnabled"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-FIRAnalyticsDebugEnabled "
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <StoreKitConfigurationFileReference
-         identifier = "../Runner/app5123c401f5.storekit">
+         identifier = "../SyncedProducts.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
