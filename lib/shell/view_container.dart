@@ -4,6 +4,9 @@ import 'package:notely/pages/timetable_page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:notely/features/subscription/subscription_manager.dart';
+import 'package:notely/features/widget/widget_sync_service.dart';
 
 import '../pages/absences_page.dart';
 import '../pages/grades_page.dart';
@@ -24,6 +27,9 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     keepPage: true,
   );
   int _selectedIndex = 0;
+
+  static const _deeplinkChannel = MethodChannel('ch.notely.app/deeplink');
+  bool _isPresentingPaywall = false;
 
   void changeDestination(int index) {
     setState(() {
@@ -54,6 +60,47 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
     super.initState();
     FirebaseAnalytics.instance
         .logScreenView(screenName: _pageNames[_selectedIndex]);
+    _initDeepLinks();
+  }
+
+  Future<void> _initDeepLinks() async {
+    // Listen for deep links while app is running (warm start)
+    _deeplinkChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onDeepLink') {
+        _handleDeepLink(call.arguments as String?);
+      }
+    });
+
+    // Check for a pending deep link from cold start
+    try {
+      final pending =
+          await _deeplinkChannel.invokeMethod<String?>('getPendingDeepLink');
+      _handleDeepLink(pending);
+    } catch (e) {
+      debugPrint('Failed to get pending deep link: $e');
+    }
+  }
+
+  void _handleDeepLink(String? url) {
+    if (url == null) return;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+
+    if (uri.host == 'paywall') {
+      if (!SubscriptionManager().isPremium && !_isPresentingPaywall) {
+        _isPresentingPaywall = true;
+        // Delay to ensure route transition from InitializeScreen is fully
+        // complete and the root view controller can present the paywall sheet.
+        Future.delayed(const Duration(milliseconds: 800), () async {
+          if (!mounted) {
+            _isPresentingPaywall = false;
+            return;
+          }
+          await SubscriptionManager().presentNotelyPremiumPaywall();
+          _isPresentingPaywall = false;
+        });
+      }
+    }
   }
 
   @override
@@ -64,7 +111,10 @@ class _ViewContainerWidgetState extends State<ViewContainerWidget>
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed) {}
+    if (state == AppLifecycleState.resumed) {
+      // Sync the next 7 days of schedule data to the widget
+      WidgetSyncService().syncScheduleToWidget();
+    }
   }
 
   void bottomTapped(int index) {
