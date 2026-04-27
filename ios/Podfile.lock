@@ -156,20 +156,20 @@ PODS:
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.4.0)
-  - purchases_flutter (9.10.6):
+  - purchases_flutter (10.0.1):
     - Flutter
-    - PurchasesHybridCommon (= 17.27.1)
-  - purchases_ui_flutter (9.10.6):
+    - PurchasesHybridCommon (= 18.1.0)
+  - purchases_ui_flutter (10.0.1):
     - Flutter
-    - PurchasesHybridCommonUI (= 17.27.1)
-  - PurchasesHybridCommon (17.27.1):
-    - RevenueCat (= 5.54.1)
-  - PurchasesHybridCommonUI (17.27.1):
-    - PurchasesHybridCommon (= 17.27.1)
-    - RevenueCatUI (= 5.54.1)
-  - RevenueCat (5.54.1)
-  - RevenueCatUI (5.54.1):
-    - RevenueCat (= 5.54.1)
+    - PurchasesHybridCommonUI (= 18.1.0)
+  - PurchasesHybridCommon (18.1.0):
+    - RevenueCat (= 5.68.0)
+  - PurchasesHybridCommonUI (18.1.0):
+    - PurchasesHybridCommon (= 18.1.0)
+    - RevenueCatUI (= 5.68.0)
+  - RevenueCat (5.68.0)
+  - RevenueCatUI (5.68.0):
+    - RevenueCat (= 5.68.0)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -313,12 +313,12 @@ SPEC CHECKSUMS:
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  purchases_flutter: 4ae3d41c7a6d14c80fdb26b8a9526091532cd59a
-  purchases_ui_flutter: 3051276ba2d682eea4182ad831c592c7ec168d0c
-  PurchasesHybridCommon: 027f03312519c51056457eb2e4f7ee1c91b61b8f
-  PurchasesHybridCommonUI: 48afb5e29204958bff1276b0f7acb8e4b59fe99a
-  RevenueCat: ecbba580fa453b0d4a0475449b904196d74ef678
-  RevenueCatUI: ac7492873928e9e7f297e5e27a7c4f23f9008326
+  purchases_flutter: 50a5d9fa83ee5605a8fc653792d667404ca90bce
+  purchases_ui_flutter: e89e9f04bfa136e068c75426fffc291741ca39bb
+  PurchasesHybridCommon: 32902b8fad349cf549f096183926ee33af00e36a
+  PurchasesHybridCommonUI: 658bc5ca18c14a4bcc543740a3acc092cd0064f6
+  RevenueCat: c535d3739d51163f6d9d5dbd01c7b5d93b718ff5
+  RevenueCatUI: fb23ded3007789db7a240f05c35c2237a197d629
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   store_redirect: 55fd455802ceab09803b2df6e68f19a58815266a
@@ -326,6 +326,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: be25ea076077bf2a157d1f4523e3fecdb9184d54
+PODFILE CHECKSUM: 5c27013b05e3cc002f836757693554ba2b777fd1
 
 COCOAPODS: 1.16.2
