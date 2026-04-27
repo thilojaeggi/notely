@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:notely/features/home/helpers/text_styles.dart';
+import 'package:notely/features/subscription/subscription_manager.dart';
 import '../models/exam.dart';
 
 class ExamsPage extends StatefulWidget {
@@ -71,7 +72,7 @@ class _ExamsPageState extends State<ExamsPage> {
   }
 
   void _updateNativeAdIndex(int length) {
-    if (length <= 0) {
+    if (length <= 0 || SubscriptionManager().isPremium) {
       _nativeAdIndex = -1;
       return;
     }
@@ -79,6 +80,8 @@ class _ExamsPageState extends State<ExamsPage> {
   }
 
   void _loadNativeAdFor(Brightness brightness) {
+    if (SubscriptionManager().isPremium) return;
+
     // dispose old ad if any
     _nativeAd?.dispose();
     _nativeAd = null;
@@ -234,7 +237,7 @@ class _ExamsPageState extends State<ExamsPage> {
 
     final Color cardColor =
         isDark ? const Color(0xFF1C1C1E) : Colors.white.withValues(alpha: 0.05);
-    if (_nativeAd == null || !_nativeAdIsLoaded) {
+    if (SubscriptionManager().isPremium || _nativeAd == null || !_nativeAdIsLoaded) {
       return const SizedBox.shrink();
     }
     return Align(

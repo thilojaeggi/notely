@@ -133,6 +133,8 @@ class _StartPageState extends State<StartPage> {
   }
 
   Future<void> _loadNativeAdFor(Brightness brightness) async {
+    if (SubscriptionManager().isPremium) return;
+
     // dispose old ad if any
     _nativeAd?.dispose();
     _nativeAd = null;
@@ -543,7 +545,7 @@ class _StartPageState extends State<StartPage> {
   }
 
   Widget _buildNativeAd() {
-    if (_nativeAd == null || !_nativeAdIsLoaded) {
+    if (SubscriptionManager().isPremium || _nativeAd == null || !_nativeAdIsLoaded) {
       return const SizedBox.shrink();
     }
     return Align(
