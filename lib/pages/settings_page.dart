@@ -33,6 +33,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  static const _iconChannel = MethodChannel('ch.notely.app/icon');
+  static bool _hasAttemptedPremiumIcon = false;
   TextEditingController targetGradeController = TextEditingController();
   bool notificationsEnabled = false;
   bool _isPresentingPremium = false;
@@ -70,6 +72,30 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
       );
+    } else {
+      if (SubscriptionManager().isPremium && Platform.isIOS && !_hasAttemptedPremiumIcon) {
+        _hasAttemptedPremiumIcon = true;
+        try {
+          final current =
+              await _iconChannel.invokeMethod<String?>('getAlternateIconName');
+          if (current != "AppIcon-Premium") {
+            // Wait for everything to settle
+            await Future.delayed(const Duration(milliseconds: 500));
+            await _iconChannel.invokeMethod(
+                'setAlternateIconName', "AppIcon-Premium");
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      "Premium freigeschaltet! Dein App-Icon wurde aktualisiert. 👑"),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          debugPrint("Failed to set premium icon: $e");
+        }
+      }
     }
   }
 
@@ -227,6 +253,11 @@ class _SettingsPageState extends State<SettingsPage> {
       value: null,
     );
 
+    await FirebaseAnalytics.instance.setUserProperty(
+      name: 'is_premium',
+      value: null,
+    );
+
     await FirebaseAnalytics.instance.setUserId(id: null);
   }
 
@@ -290,7 +321,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 onPressed: () {
                   Navigator.pop(context);
                   launchUrl(Uri.parse(
-                      "https://play.google.com/store/apps/details?id=de.notely.app"));
+                      "https://play.google.com/store/apps/details?id=ch.notely.app"));
                 },
                 child: const Text("App öffnen"),
               )
@@ -360,6 +391,29 @@ class _SettingsPageState extends State<SettingsPage> {
             style: headlineStyle,
           ),
           const SizedBox(height: 20),
+          if (!SubscriptionManager().isPremium || true)
+            _buildSection(
+              title: "Notely Premium",
+              children: [
+                _SettingsTile(
+                  icon: CupertinoIcons.star_fill,
+                  accentColor: Colors.orangeAccent,
+                  title: "Notely Premium",
+                  subtitle: "Keine Werbung & mehr",
+                  trailing: _isPresentingPremium
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CupertinoActivityIndicator(),
+                        )
+                      : const Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 20,
+                        ),
+                  onTap: _presentNotelyPremiumPaywall,
+                ),
+              ],
+            ),
           _buildSection(
             title: "Darstellung",
             children: [
@@ -456,29 +510,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           ),
-          if (false)
-            _buildSection(
-              title: "Notely Premium",
-              children: [
-                _SettingsTile(
-                  icon: CupertinoIcons.star_fill,
-                  accentColor: Colors.orangeAccent,
-                  title: "Notely Premium",
-                  subtitle: "Keine Werbung & mehr",
-                  trailing: _isPresentingPremium
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CupertinoActivityIndicator(),
-                        )
-                      : const Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 20,
-                        ),
-                  onTap: _presentNotelyPremiumPaywall,
-                ),
-              ],
-            ),
           !kIsWeb
               ? FutureBuilder<bool>(
                   future: _future,
@@ -551,6 +582,27 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 onTap: logout,
               ),
+              if (kDebugMode)
+              _SettingsTile( 
+                  icon: CupertinoIcons.square_arrow_right_fill,
+                  accentColor: Colors.greenAccent,
+                  title: "Set invalid password for testing",
+                  subtitle: "Simulates wrong credentials to test token refresh logic",
+                  trailing: const Icon(
+                    CupertinoIcons.chevron_right,
+                    size: 20,
+                  ),
+                  onTap: () async {
+                    final storage = SecureStorage();
+                    await storage.write(key: "password", value: "invalid");
+                    await storage.clearAccessToken();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Password set to 'invalid' for testing."),
+                      ),
+                    );
+                  },
+                ),
               if (kDebugMode)
                 _SettingsTile(
                   icon: CupertinoIcons.refresh_circled,
@@ -1153,19 +1205,27 @@ class ChangeAppIconSheet extends StatefulWidget {
 }
 
 class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
+  static const _iconChannel = MethodChannel('ch.notely.app/icon');
   static const List<_IconOption> _iconOptions = [
     _IconOption(
-      iconName: 'Classic',
-      title: "Klassisch",
-      description: "Das ursprüngliche Notely Symbol",
-      assetPath: "assets/icons/icon-classic.png",
-    ),
-    _IconOption(
-      iconName: 'Aktuell',
+      iconName: 'AppIcon',
       title: "Modern",
       description: "Die moderne Variante",
       assetPath: "assets/icons/notely.png",
       isDefault: true,
+    ),
+    _IconOption(
+      iconName: 'AppIcon-Classic',
+      title: "Classic",
+      description: "Die klassische Variante",
+      assetPath: "assets/icons/icon-classic.png",
+    ),
+    _IconOption(
+      iconName: 'AppIcon-Premium',
+      title: "Premium",
+      description: "Exklusiv für Premium Nutzer",
+      assetPath: "assets/icons/icon-premium.png",
+      isPremiumOnly: true,
     ),
   ];
 
@@ -1181,7 +1241,8 @@ class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
 
   Future<void> _loadCurrentIcon() async {
     try {
-      final current = await FlutterDynamicIconPlus.alternateIconName;
+      final current =
+          await _iconChannel.invokeMethod<String?>('getAlternateIconName');
       if (!mounted) return;
       setState(() {
         _currentIconName = current;
@@ -1205,19 +1266,8 @@ class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
     final messenger = ScaffoldMessenger.maybeOf(context);
     bool changed = false;
     try {
-      final supports = await FlutterDynamicIconPlus.supportsAlternateIcons;
-      if (!supports) {
-        messenger?.showSnackBar(
-          const SnackBar(
-            content:
-                Text("Das Gerät unterstützt keine alternativen App-Icons."),
-          ),
-        );
-        return;
-      }
-
-      await FlutterDynamicIconPlus.setAlternateIconName(
-          iconName: option.iconName);
+      await _iconChannel.invokeMethod(
+          'setAlternateIconName', option.isDefault ? null : option.iconName);
       changed = true;
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -1334,7 +1384,9 @@ class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
                 if (_loadingSelection)
                   const Center(child: CupertinoActivityIndicator())
                 else
-                  ..._iconOptions.map(
+                  ..._iconOptions
+                      .where((o) => !o.isPremiumOnly || SubscriptionManager().isPremium)
+                      .map(
                     (option) => _IconOptionTile(
                       option: option,
                       isSelected: _resolvedSelection() == option.iconName,
@@ -1359,6 +1411,7 @@ class _IconOption {
   final String description;
   final String assetPath;
   final bool isDefault;
+  final bool isPremiumOnly;
 
   const _IconOption({
     required this.iconName,
@@ -1366,6 +1419,7 @@ class _IconOption {
     required this.description,
     required this.assetPath,
     this.isDefault = false,
+    this.isPremiumOnly = false,
   });
 }
 
