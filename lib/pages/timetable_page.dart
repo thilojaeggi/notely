@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:fl_toast/fl_toast.dart';
@@ -7,9 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:home_widget/home_widget.dart';
 import 'package:notely/models/exam.dart';
 import 'package:notely/data/database/homework_database.dart';
+import 'package:notely/features/widget/widget_sync_service.dart';
 import 'package:notely/data/repositories/event_repository.dart';
 import 'package:notely/data/repositories/exam_repository.dart';
 import 'package:notely/features/home/helpers/text_styles.dart';
@@ -29,13 +28,16 @@ class _TimetablePageState extends State<TimetablePage> {
   late Future<List<Event>> _eventsFuture;
   final EventRepository _eventRepository = EventRepository();
   final ExamRepository _examRepository = ExamRepository();
+  final WidgetSyncService _widgetSyncService = WidgetSyncService();
 
   void _loadEvents(DateTime date) {
     _eventsFuture =
         _eventRepository.getEvents(date, onUpdate: (freshEvents) async {
       final exams = await _examRepository.getExams();
       _markExams(freshEvents, exams);
-      await _syncWidgetWithEvents(freshEvents);
+      await _widgetSyncService.syncEventsForDate(freshEvents, date);
+      // Also trigger a full multi-day sync in the background
+      _widgetSyncService.syncScheduleToWidget();
       if (!mounted) return;
       setState(() {
         _eventsFuture = Future.value(freshEvents);
@@ -43,7 +45,7 @@ class _TimetablePageState extends State<TimetablePage> {
     }).then((cachedEvents) async {
       final exams = await _examRepository.getExams();
       _markExams(cachedEvents, exams);
-      await _syncWidgetWithEvents(cachedEvents);
+      await _widgetSyncService.syncEventsForDate(cachedEvents, date);
       return cachedEvents;
     }).catchError((e) {
       debugPrint('Error loading events: $e');
@@ -99,92 +101,7 @@ class _TimetablePageState extends State<TimetablePage> {
     }
   }
 
-  Future<void> _syncWidgetWithEvents(List<Event> events) async {
-    try {
-      final now = DateTime.now();
-      final sortedEvents = events
-          .where((event) => event.startDate != null)
-          .toList()
-        ..sort((a, b) => a.startDate!.compareTo(b.startDate!));
 
-      Event? currentEvent;
-      Event? nextEvent;
-
-      for (final event in sortedEvents) {
-        final start = event.startDate!;
-        final end = event.endDate ?? start;
-
-        final hasStarted = !now.isBefore(start);
-        final isOngoing = now.isBefore(end);
-
-        if (currentEvent == null && hasStarted && isOngoing) {
-          currentEvent = event;
-        }
-        if (nextEvent == null && start.isAfter(now)) {
-          nextEvent = event;
-        }
-        if (currentEvent != null && nextEvent != null) {
-          break;
-        }
-      }
-
-      final dailyLessons = sortedEvents.map(_lessonDetails).toList();
-
-      final payload = {
-        'currentLesson': _lessonDetails(currentEvent),
-        'nextLesson': _lessonDetails(nextEvent),
-        'dailyLessons': dailyLessons,
-      };
-
-      await HomeWidget.saveWidgetData<String>(
-        'notely_lesson_data',
-        jsonEncode(payload),
-      );
-      await HomeWidget.updateWidget(
-        name: 'ScheduleWidget',
-        iOSName: 'ScheduleWidget',
-      );
-    } catch (e) {
-      debugPrint('Failed to sync widget data: $e');
-    }
-  }
-
-  Map<String, String> _lessonDetails(Event? event) {
-    if (event == null) {
-      return _emptyLessonDetails();
-    }
-
-    final lessonName = (event.courseName?.trim().isNotEmpty ?? false)
-        ? event.courseName!
-        : (event.text ?? '');
-    final teacher = (event.teachers != null && event.teachers!.isNotEmpty)
-        ? event.teachers!.first
-        : '';
-    final room = event.roomToken ?? '';
-    final time = (event.startDate != null) ? _formatTime(event.startDate!) : '';
-    final start = event.startDate?.toUtc().toIso8601String() ?? '';
-    final end = event.endDate?.toUtc().toIso8601String() ?? '';
-
-    return {
-      'lessonName': lessonName,
-      'room': room,
-      'teacher': teacher,
-      'time': time,
-      'start': start,
-      'end': end,
-    };
-  }
-
-  Map<String, String> _emptyLessonDetails() {
-    return {
-      'lessonName': '',
-      'room': '',
-      'teacher': '',
-      'time': '',
-      'start': '',
-      'end': '',
-    };
-  }
 
 // Define start and end of the day as DateTime objects
   final startOfDay = DateTime(
@@ -200,10 +117,6 @@ class _TimetablePageState extends State<TimetablePage> {
   initState() {
     super.initState();
     _loadEvents(today);
-  }
-
-  String _formatTime(DateTime dateTime) {
-    return DateFormat('HH:mm').format(dateTime);
   }
 
   String _humanReadableDuration(Duration duration) {
