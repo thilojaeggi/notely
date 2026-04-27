@@ -6,6 +6,7 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/core/config/style.dart';
 import 'package:notely/core/navigation/navigation_service.dart';
+import 'package:notely/features/auth/auth_result.dart';
 import 'package:notely/features/auth/auth_service.dart';
 import 'package:notely/pages/login_page.dart';
 import 'package:notely/shell/initialize_screen.dart';
@@ -21,7 +22,7 @@ class NotelyApp extends StatefulWidget {
 }
 
 class _NotelyAppState extends State<NotelyApp> {
-  late Future<bool> isLoggedIn;
+  late Future<AuthResult> authResult;
   final InAppReview inAppReview = InAppReview.instance;
 
   Future<void> askForReview(BuildContext context) async {
@@ -43,7 +44,7 @@ class _NotelyAppState extends State<NotelyApp> {
   @override
   void initState() {
     super.initState();
-    isLoggedIn = AuthService.login();
+    authResult = AuthService.login();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(
           () => askForReview(NavigationService.navigatorKey.currentContext!));
@@ -110,8 +111,8 @@ class _NotelyAppState extends State<NotelyApp> {
               FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
             ],
             theme: ThemeProvider.themeOf(themeContext).data,
-            home: FutureBuilder<bool>(
-                future: isLoggedIn,
+            home: FutureBuilder<AuthResult>(
+                future: authResult,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Material(
@@ -120,23 +121,14 @@ class _NotelyAppState extends State<NotelyApp> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Melde an..",
-                          style: TextStyle(fontSize: 32.0),
+                        Image.asset(
+                          'assets/icons/notely.png',
+                          width: 80,
+                          height: 80,
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 24),
                         LoadingAnimationWidget.waveDots(
                             color: Colors.white, size: 48),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Falls es länger Dauert überprüfe deine Internetverbindung.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18.0),
-                        )
                       ],
                     )));
                   } else if (snapshot.hasError) {
@@ -167,13 +159,17 @@ class _NotelyAppState extends State<NotelyApp> {
                       ),
                     );
                   }
-                  bool loggedIn = snapshot.data ?? false;
+                  final result = snapshot.data ?? AuthResult.unauthenticated;
 
-                  return loggedIn
-                      ? const InitializeScreen(
-                          targetWidget: ViewContainerWidget(),
-                        )
-                      : const LoginPage();
+                  switch (result) {
+                    case AuthResult.authenticated:
+                    case AuthResult.deferred:
+                      return const InitializeScreen(
+                        targetWidget: ViewContainerWidget(),
+                      );
+                    case AuthResult.unauthenticated:
+                      return const LoginPage();
+                  }
                 }),
           ),
         ),
