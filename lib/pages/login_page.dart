@@ -241,19 +241,14 @@ class _LoginPageState extends State<LoginPage> {
     final prefs = await SharedPreferences.getInstance();
     final storedUsername = await storage.read(key: "username") ?? '';
     final storedPassword = await storage.read(key: "password") ?? '';
-    final storedSchool = prefs.getString("school") ?? '';
+    final prefsSchool = prefs.getString("school") ?? '';
+    final secureSchool = await storage.read(key: "school") ?? '';
+    final storedSchool = prefsSchool.isNotEmpty ? prefsSchool : secureSchool;
     final normalizedSchool = storedSchool.toUpperCase();
-    final lowerSchool = normalizedSchool.toLowerCase();
     final hasValidSchool = _schoolOptions.containsValue(normalizedSchool);
     final canAutoLogin = storedUsername.isNotEmpty &&
         storedPassword.isNotEmpty &&
         hasValidSchool;
-
-    // Try to reuse a stored token first; falls back to full sign-in (including OTP) when expired.
-    if (hasValidSchool) {
-      final resumed = await _tryUseStoredToken(lowerSchool);
-      if (resumed) return;
-    }
 
     if (!mounted) return;
 
@@ -274,40 +269,6 @@ class _LoginPageState extends State<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _attemptAutoSignIn();
       });
-    }
-  }
-
-  Future<bool> _tryUseStoredToken(String schoolCode) async {
-    final apiClient = APIClient();
-    try {
-      final cached = await _tokenManager.getValidAccessToken(schoolCode);
-      if (cached == null || cached.isEmpty) {
-        return false;
-      }
-      final isValid = await apiClient.isAccessTokenValid(cached, schoolCode);
-      if (!isValid) {
-        return false;
-      }
-
-      apiClient.accessToken = cached;
-      apiClient.school = schoolCode;
-
-      if (!mounted) return true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            type: PageTransitionType.fade,
-            duration: const Duration(milliseconds: 450),
-            alignment: Alignment.bottomCenter,
-            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
-          ),
-        );
-      });
-      return true;
-    } catch (e, s) {
-      debugPrint('Failed to reuse stored token: $e\n$s');
-      return false;
     }
   }
 
@@ -503,6 +464,7 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         await storage.write(key: "username", value: username);
         await storage.write(key: "password", value: password);
+        await storage.write(key: "school", value: school);
         await prefs.setString("school", school);
         await storage.saveAccessToken(
           accessToken,
@@ -592,8 +554,12 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (loginResp.statusCode != 200 && loginResp.statusCode != 201) {
-        throw Exception(
-            'Login failed: ${loginResp.statusCode} ${loginResp.body}');
+        if (loginResp.statusCode == 401) {
+          throw Exception('Benutzername oder Passwort falsch');
+        } else if (loginResp.statusCode >= 500) {
+          throw Exception('Server nicht erreichbar. Versuche es später erneut');
+        }
+        throw Exception('Anmeldung fehlgeschlagen (Fehler ${loginResp.statusCode})');
       }
 
       final loginData = jsonDecode(loginResp.body);
@@ -659,6 +625,7 @@ class _LoginPageState extends State<LoginPage> {
 
         await storage.write(key: "username", value: username);
         await storage.write(key: "password", value: password);
+        await storage.write(key: "school", value: schoolLower);
         await prefs.setString("school", schoolLower);
 
         await storage.saveAccessToken(
@@ -716,7 +683,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              "Anmeldung fehlgeschlagen: $e",
+              e.toString().replaceFirst('Exception: ', ''),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16.0,
@@ -738,26 +705,31 @@ class _LoginPageState extends State<LoginPage> {
     final school = dropdownValue.toLowerCase();
 
     // 1. Check for valid cached token to skip login if possible
-    final cachedToken = await _tokenManager.getValidAccessToken(school);
-    if (cachedToken != null &&
-        cachedToken.isNotEmpty &&
-        await apiClient.isAccessTokenValid(cachedToken, school)) {
-      apiClient.accessToken = cachedToken;
-      apiClient.school = school;
-      if (!mounted) return;
-      setState(() {
-        _loginHasBeenPressed = false;
-      });
-      Navigator.pushReplacement(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          duration: const Duration(milliseconds: 450),
-          alignment: Alignment.bottomCenter,
-          child: const InitializeScreen(targetWidget: ViewContainerWidget()),
-        ),
-      );
-      return;
+    try {
+      final cachedToken = await _tokenManager.getValidAccessToken(school);
+      if (cachedToken != null &&
+          cachedToken.isNotEmpty &&
+          await apiClient.isAccessTokenValid(cachedToken, school)) {
+        apiClient.accessToken = cachedToken;
+        apiClient.school = school;
+        if (!mounted) return;
+        setState(() {
+          _loginHasBeenPressed = false;
+        });
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            duration: const Duration(milliseconds: 450),
+            alignment: Alignment.bottomCenter,
+            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
+          ),
+        );
+        return;
+      }
+    } on InvalidCredentialsException {
+      // Stored credentials rejected — continue to fresh login below
+      debugPrint('Cached credentials invalid, proceeding with fresh login');
     }
 
     // 2. Handle Demo Mode
@@ -920,6 +892,7 @@ class _LoginPageState extends State<LoginPage> {
           final prefs = await SharedPreferences.getInstance();
           await storage.write(key: "username", value: username);
           await storage.write(key: "password", value: password);
+          await storage.write(key: "school", value: school);
           await prefs.setString("school", school);
           await storage.saveAccessToken(trimmedString);
 
@@ -1243,7 +1216,9 @@ class _LoginPageState extends State<LoginPage> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        "Anmelden",
+                                        _loginHasBeenPressed
+                                            ? "Anmelden..."
+                                            : "Anmelden",
                                         style: TextStyle(
                                           color: _loginHasBeenPressed
                                               ? Colors.white
@@ -1254,13 +1229,21 @@ class _LoginPageState extends State<LoginPage> {
                                       const SizedBox(
                                         width: 5,
                                       ),
-                                      Icon(
-                                        CupertinoIcons.arrow_right,
-                                        color: _loginHasBeenPressed
-                                            ? Colors.white
-                                            : Colors.black,
-                                        size: 30.0,
-                                      ),
+                                      if (_loginHasBeenPressed)
+                                        const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      else
+                                        Icon(
+                                          CupertinoIcons.arrow_right,
+                                          color: Colors.black,
+                                          size: 30.0,
+                                        ),
                                     ],
                                   ),
                                 ),
