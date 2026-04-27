@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/features/ads/initialization_helper.dart';
+import 'package:notely/features/subscription/subscription_manager.dart';
 import 'package:notely/pages/whatsnew_page.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,9 +28,21 @@ class _InitializeScreenState extends State<InitializeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+  Widget build(BuildContext context) => Material(
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/icons/notely.png',
+                width: 80,
+                height: 80,
+              ),
+              const SizedBox(height: 24),
+              LoadingAnimationWidget.waveDots(color: Colors.white, size: 48),
+            ],
+          ),
         ),
       );
 
@@ -48,8 +62,11 @@ class _InitializeScreenState extends State<InitializeScreen> {
         kDebugMode && WhatsNew.updates.isNotEmpty) {
       if (!mounted) return;
 
+      final bool isFirstLaunchOn131 = lastVersionCode == null ||
+          lastVersionCode < 33 || kDebugMode && WhatsNew.updates.isNotEmpty; // build number for 1.3.1
+
       // The app was updated, show a modal popup
-      showModalBottomSheet<void>(
+      await showModalBottomSheet<void>(
           context: context,
           constraints: const BoxConstraints(
             maxWidth: 700,
@@ -59,6 +76,11 @@ class _InitializeScreenState extends State<InitializeScreen> {
             return WhatsNew(school: school);
           });
       prefs.setInt('version_code', currentVersionCode);
+
+      // Show premium paywall on first launch of 1.3.1
+      if (isFirstLaunchOn131) {
+        SubscriptionManager().presentNotelyPremiumPaywall();
+      }
     }
   }
 
