@@ -55,8 +55,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   html: ^0.15.4
-  purchases_flutter: ^9.10.5
-  purchases_ui_flutter: ^9.10.5
+  purchases_flutter: ^10.0.1
+  purchases_ui_flutter: ^10.0.1
   mobile_scanner: ^7.1.3
   path: any
 dev_dependencies:
