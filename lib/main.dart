@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:universal_io/universal_io.dart' show Platform;
 
@@ -15,7 +16,7 @@ import 'package:notely/features/subscription/subscription_manager.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isIOS) {
-    HomeWidget.setAppGroupId('group.ch.thilojaeggi.notely');
+    await HomeWidget.setAppGroupId('group.ch.thilojaeggi.notely');
   }
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -28,5 +29,20 @@ Future<void> main() async {
 
   await SubscriptionManager().initialize();
   await analytics.setAnalyticsCollectionEnabled(true);
+
+  // Reset premium icon if user is not premium
+  if (Platform.isIOS && !SubscriptionManager().isPremium) {
+    try {
+      const iconChannel = MethodChannel('ch.notely.app/icon');
+      final current =
+          await iconChannel.invokeMethod<String?>('getAlternateIconName');
+      if (current == 'AppIcon-Premium') {
+        await iconChannel.invokeMethod('setAlternateIconName', null);
+      }
+    } catch (e) {
+      debugPrint('Failed to reset premium icon: $e');
+    }
+  }
+
   runApp(const NotelyApp());
 }
