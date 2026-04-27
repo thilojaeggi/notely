@@ -16,25 +16,54 @@
 	<dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>Aktuell</key>
+			<key>AppIcon-Classic</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
-					<string>notely</string>
+					<string>AppIcon-Classic</string>
 				</array>
 			</dict>
-			<key>Classic</key>
+			<key>AppIcon-Premium</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
-					<string>icon-classic</string>
+					<string>AppIcon-Premium</string>
 				</array>
 			</dict>
 		</dict>
 		<key>CFBundlePrimaryIcon</key>
 		<dict>
 			<key>CFBundleIconFiles</key>
-			<array/>
+			<array>
+				<string>AppIcon</string>
+			</array>
+		</dict>
+	</dict>
+	<key>CFBundleIcons~ipad</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>AppIcon-Classic</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIcon-Classic</string>
+				</array>
+			</dict>
+			<key>AppIcon-Premium</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIcon-Premium</string>
+				</array>
+			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
@@ -56,7 +85,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>my.test.app</string>
+				<string>notely</string>
 			</array>
 		</dict>
 	</array>
