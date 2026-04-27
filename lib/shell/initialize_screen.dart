@@ -4,6 +4,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/features/ads/initialization_helper.dart';
 import 'package:notely/features/subscription/subscription_manager.dart';
 import 'package:notely/pages/whatsnew_page.dart';
+import 'package:notely/shell/view_container.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
@@ -78,7 +79,7 @@ class _InitializeScreenState extends State<InitializeScreen> {
       prefs.setInt('version_code', currentVersionCode);
 
       // Show premium paywall on first launch of 1.3.1
-      if (isFirstLaunchOn131) {
+      if (isFirstLaunchOn131 && !SubscriptionManager().isPremium) {
         SubscriptionManager().presentNotelyPremiumPaywall();
       }
     }
@@ -91,6 +92,16 @@ class _InitializeScreenState extends State<InitializeScreen> {
       if (!kIsWeb && !Platform.isMacOS) {
         await _initializationHelper.initialize();
       }
+
+      // Initialize subscription status and set timetable as initial page for premium users on first 1.3.1 launch
+      await SubscriptionManager().initialize();
+      final prefs = await SharedPreferences.getInstance();
+      final lastVersionCode = prefs.getInt('version_code');
+      final isFirstLaunchOn131 = lastVersionCode == null || lastVersionCode < 33;
+      if (isFirstLaunchOn131 && SubscriptionManager().isPremium) {
+        ViewContainerWidget.pendingInitialPage = 1;
+      }
+
       Future.microtask(() => checkForUpdates(context));
 
       navigator.pushReplacement(

@@ -9,23 +9,24 @@ class WhatsNew extends StatefulWidget {
   final String school;
   static final List<WhatsNewEntry> updates = [
     const WhatsNewEntry(
-      title: "App-Performance & Architektur",
-      description: "Wir haben die gesamte App modernisiert! Sie läuft nun spürbar effizienter, ist besser strukturiert und extrem stabil für zukünftige Funktionen.",
-      icon: CupertinoIcons.rocket,
-      accent: Colors.blue,
+      title: "Stundenplan-Widget",
+      description: "Dein Stundenplan direkt auf dem Homescreen! Das neue Widget zeigt dir immer die nächsten Lektionen an – exklusiv mit Notely Premium.",
+      icon: CupertinoIcons.square_grid_2x2,
+      accent: Colors.purple,
       highlighted: true,
     ),
     const WhatsNewEntry(
-      title: "Noten-Diagramm korrigiert",
-      description: "Ein Logikfehler wurde behoben: Das Notendiagramm zeigt deine Noten nun wieder verlässlich in der korrekten chronologischen Reihenfolge an.",
-      icon: CupertinoIcons.graph_square,
-      accent: Colors.green,
+      title: "Notely Premium",
+      description: "Erlebe Notely ohne Werbung und mit exklusiven Funktionen! Unterstütze die Weiterentwicklung der App mit Notely Premium.",
+      icon: CupertinoIcons.star_fill,
+      accent: Colors.amber,
+      highlighted: true,
     ),
     const WhatsNewEntry(
-      title: "Absturzbehebungen",
-      description: "Ein schwerer Fehler wurde gelöst, der die App zum Absturz brachte, falls eine Prüfung vom Lehrer noch nicht mit einer Note versehen war.",
-      icon: CupertinoIcons.wrench,
-      accent: Colors.orange,
+      title: "Verbesserte Anmeldung",
+      description: "Der Login-Prozess wurde grundlegend überarbeitet: Stabilere Verbindung, schnellere Authentifizierung und zuverlässigere Sitzungsverwaltung.",
+      icon: CupertinoIcons.lock_shield,
+      accent: Colors.blue,
     ),
   ];
 
