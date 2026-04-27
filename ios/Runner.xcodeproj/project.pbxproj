@@ -9,22 +9,19 @@
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		5822E51629D898C400B67DA2 /* notely@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5822E51429D898C400B67DA2 /* notely@2x.png */; };
-		5822E51729D898C400B67DA2 /* notely@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5822E51529D898C400B67DA2 /* notely@3x.png */; };
 		582EE95B29C588F4006690F6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 582EE95A29C588F4006690F6 /* GoogleService-Info.plist */; };
-		589EFF0429D773C300638097 /* icon-classic@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 589EFF0129D773C300638097 /* icon-classic@2x.png */; };
-		589EFF0529D773C300638097 /* icon-classic@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 589EFF0229D773C300638097 /* icon-classic@3x.png */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		B631139C2AC9E3160063D103 /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B631139B2AC9E3160063D103 /* AppTrackingTransparency.framework */; };
-		B63CFC652ED4C0760034E660 /* app5123c401f5.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B63CFC642ED4C0760034E660 /* app5123c401f5.storekit */; };
 		B692580C2ECA4BB700E8B55D /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = B692580B2ECA4BB700E8B55D /* AppIcon.icon */; };
-		B692580E2ECBA34200E8B55D /* AppIcon-Premium.icon in Resources */ = {isa = PBXBuildFile; fileRef = B692580D2ECBA34200E8B55D /* AppIcon-Premium.icon */; };
 		B6DBF2BF2ED3EFFC00F08AD4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AC8DB32899E8D5000C18CF /* WidgetKit.framework */; };
 		B6DBF2C02ED3EFFC00F08AD4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6AC8DB52899E8D5000C18CF /* SwiftUI.framework */; };
 		B6DBF2D12ED3EFFD00F08AD4 /* ScheduleWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B6DBF2BE2ED3EFFC00F08AD4 /* ScheduleWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B6DF39AA2F9E575F005E1526 /* SyncedProducts.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B6DF39A92F9E575F005E1526 /* SyncedProducts.storekit */; };
+		B6DF3B692F9E7863005E1526 /* AppIcon-Premium.icon in Resources */ = {isa = PBXBuildFile; fileRef = B6DF3B682F9E7862005E1526 /* AppIcon-Premium.icon */; };
+		B6DF3BFE2F9E7BBA005E1526 /* AppIcon-Classic.icon in Resources */ = {isa = PBXBuildFile; fileRef = B6DF3BFD2F9E7BBA005E1526 /* AppIcon-Classic.icon */; };
 		CD42F9CFFCDFBA29F275C3B5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 061987DBC643B51C7E6B457C /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -69,13 +66,9 @@
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		566CC0ED1067BC778D3C7346 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
-		5822E51429D898C400B67DA2 /* notely@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "notely@2x.png"; sourceTree = "<group>"; };
-		5822E51529D898C400B67DA2 /* notely@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "notely@3x.png"; sourceTree = "<group>"; };
 		582EE95A29C588F4006690F6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		586B57D929C8BB2F00E6DC2B /* de-CH */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "de-CH"; path = "de-CH.lproj/Main.strings"; sourceTree = "<group>"; };
 		586B57DA29C8BB2F00E6DC2B /* de-CH */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "de-CH"; path = "de-CH.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
-		589EFF0129D773C300638097 /* icon-classic@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-classic@2x.png"; sourceTree = "<group>"; };
-		589EFF0229D773C300638097 /* icon-classic@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-classic@3x.png"; sourceTree = "<group>"; };
 		59E4D5EEE6B2B01AD4604462 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -88,14 +81,15 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B631139B2AC9E3160063D103 /* AppTrackingTransparency.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppTrackingTransparency.framework; path = System/Library/Frameworks/AppTrackingTransparency.framework; sourceTree = SDKROOT; };
-		B63CFC642ED4C0760034E660 /* app5123c401f5.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = app5123c401f5.storekit; sourceTree = "<group>"; };
 		B6585EA429C01B3700955CF9 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		B692580B2ECA4BB700E8B55D /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
-		B692580D2ECBA34200E8B55D /* AppIcon-Premium.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-Premium.icon"; sourceTree = "<group>"; };
 		B6AC8DB32899E8D5000C18CF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		B6AC8DB52899E8D5000C18CF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		B6DBF2BE2ED3EFFC00F08AD4 /* ScheduleWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScheduleWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6DBF2D72ED3F01600F08AD4 /* ScheduleWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScheduleWidgetExtension.entitlements; sourceTree = "<group>"; };
+		B6DF39A92F9E575F005E1526 /* SyncedProducts.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = SyncedProducts.storekit; sourceTree = "<group>"; };
+		B6DF3B682F9E7862005E1526 /* AppIcon-Premium.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-Premium.icon"; sourceTree = "<group>"; };
+		B6DF3BFD2F9E7BBA005E1526 /* AppIcon-Classic.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-Classic.icon"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -155,17 +149,6 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		589EFEFF29D7738600638097 /* AlternativeIcons */ = {
-			isa = PBXGroup;
-			children = (
-				5822E51429D898C400B67DA2 /* notely@2x.png */,
-				5822E51529D898C400B67DA2 /* notely@3x.png */,
-				589EFF0129D773C300638097 /* icon-classic@2x.png */,
-				589EFF0229D773C300638097 /* icon-classic@3x.png */,
-			);
-			path = AlternativeIcons;
-			sourceTree = "<group>";
-		};
 		61CEE9E889250A951954143D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -191,6 +174,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				B6DF39A92F9E575F005E1526 /* SyncedProducts.storekit */,
 				B6DBF2D72ED3F01600F08AD4 /* ScheduleWidgetExtension.entitlements */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
@@ -213,7 +197,6 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				589EFEFF29D7738600638097 /* AlternativeIcons */,
 				582EE95A29C588F4006690F6 /* GoogleService-Info.plist */,
 				B6585EA429C01B3700955CF9 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
@@ -224,9 +207,9 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				B6DF3BFD2F9E7BBA005E1526 /* AppIcon-Classic.icon */,
+				B6DF3B682F9E7862005E1526 /* AppIcon-Premium.icon */,
 				B692580B2ECA4BB700E8B55D /* AppIcon.icon */,
-				B692580D2ECBA34200E8B55D /* AppIcon-Premium.icon */,
-				B63CFC642ED4C0760034E660 /* app5123c401f5.storekit */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -323,16 +306,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B63CFC652ED4C0760034E660 /* app5123c401f5.storekit in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
-				5822E51729D898C400B67DA2 /* notely@3x.png in Resources */,
-				589EFF0429D773C300638097 /* icon-classic@2x.png in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				582EE95B29C588F4006690F6 /* GoogleService-Info.plist in Resources */,
+				B6DF3B692F9E7863005E1526 /* AppIcon-Premium.icon in Resources */,
+				B6DF3BFE2F9E7BBA005E1526 /* AppIcon-Classic.icon in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
-				B692580E2ECBA34200E8B55D /* AppIcon-Premium.icon in Resources */,
-				5822E51629D898C400B67DA2 /* notely@2x.png in Resources */,
-				589EFF0529D773C300638097 /* icon-classic@3x.png in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				B692580C2ECA4BB700E8B55D /* AppIcon.icon in Resources */,
 			);
@@ -342,6 +321,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6DF39AA2F9E575F005E1526 /* SyncedProducts.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,6 +524,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
@@ -554,7 +535,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -690,6 +671,7 @@
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
@@ -700,7 +682,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -724,6 +706,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
@@ -734,7 +717,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
