@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:notely/features/auth/token_manager.dart';
+import 'package:notely/features/auth/token_manager.dart' show TokenManager, InvalidCredentialsException;
 import 'package:notely/models/absence.dart';
 import 'package:notely/models/event.dart';
 import 'package:notely/models/exam.dart';
@@ -16,10 +16,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 class APIClient {
   static final APIClient _singleton = APIClient._internal();
   static const String _baseUrl = 'https://kaschuso.so.ch/public';
-  late String _accessToken;
-  late String school;
+  String _accessToken = '';
+  String school = '';
   bool _fakeData = false;
   final TokenManager _tokenManager = TokenManager();
+
+  /// Detects HTML responses (login redirects, error pages) regardless of casing.
+  /// Valid JSON never starts with '<', so this also catches partial HTML like
+  /// bare `<p>` error messages returned by the server.
+  static bool _looksLikeHtml(String body) {
+    final trimmed = body.trimLeft();
+    if (trimmed.startsWith('<')) return true;
+    final lower = trimmed.toLowerCase();
+    return lower.contains('<html') || lower.startsWith('<!doctype');
+  }
 
   factory APIClient() {
     return _singleton;
@@ -51,7 +61,7 @@ class APIClient {
         Uri.parse(finalUrl),
         headers: {'Authorization': 'Bearer $token'},
       );
-      return response.statusCode == 200 && !response.body.contains('<html>');
+      return response.statusCode == 200 && !_looksLikeHtml(response.body);
     } catch (e) {
       debugPrint('isAccessTokenValid error: $e');
       return false;
@@ -75,6 +85,21 @@ class APIClient {
       throw Exception('Anmeldung erforderlich');
     }
     _accessToken = freshToken;
+  }
+
+  /// Clears the cached token and forces a full re-authentication.
+  /// Returns `true` if a new valid token was obtained.
+  Future<bool> _forceTokenRefresh(SharedPreferences prefs) async {
+    debugPrint('Forcing token refresh after 401');
+    await _tokenManager.clearTokens();
+    try {
+      await _ensureValidAccessToken(prefs);
+      return true;
+    } on InvalidCredentialsException {
+      rethrow;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<T> get<T>(
@@ -108,7 +133,7 @@ class APIClient {
           : prefs.getString('events');
 
       if (cachedData != null) {
-        if (cachedData.contains('<html>')) {
+        if (_looksLikeHtml(cachedData)) {
           prefs.remove(path);
           prefs.remove('events');
           return get(path, fromJson, cached);
@@ -119,9 +144,21 @@ class APIClient {
     final urlString = '$_baseUrl/$school$path';
     final finalUrl =
         kIsWeb ? 'https://lite.corsfix.com/?$urlString' : urlString;
-    final response = await http.get(Uri.parse(finalUrl),
+    var response = await http.get(Uri.parse(finalUrl),
         headers: {'Authorization': 'Bearer $_accessToken'});
-    if (response.statusCode == 200 && !response.body.contains("<html>")) {
+
+    // On 401/403, the token was rejected server-side. Clear it and retry once.
+    if ((response.statusCode == 401 || response.statusCode == 403) ||
+        _looksLikeHtml(response.body)) {
+      debugPrint('API auth error: $path → ${response.statusCode}, retrying with fresh token');
+      final refreshed = await _forceTokenRefresh(prefs);
+      if (refreshed) {
+        response = await http.get(Uri.parse(finalUrl),
+            headers: {'Authorization': 'Bearer $_accessToken'});
+      }
+    }
+
+    if (response.statusCode == 200 && !_looksLikeHtml(response.body)) {
       // Cache data in shared preferences
       (!path.contains("events"))
           ? prefs.setString(path, response.body)
@@ -129,6 +166,7 @@ class APIClient {
 
       return fromJson(json.decode(response.body));
     } else {
+      debugPrint('API error: $path → ${response.statusCode} (body ${response.body.length} chars)');
       throw Exception('Daten konnten nicht geladen werden');
     }
   }
@@ -161,6 +199,48 @@ class APIClient {
         (json) {
       return (json as List<dynamic>).map((e) => Event.fromJson(e)).toList();
     }, cached);
+  }
+
+  /// Fetches events for a date range without touching the single-day cache.
+  /// Used by [WidgetSyncService] to pre-fetch multiple days for the widget.
+  Future<List<Event>> getEventsForDateRange(
+      DateTime start, DateTime end) async {
+    final startFormatted =
+        '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
+    final endFormatted =
+        '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}';
+
+    if (_fakeData) return [];
+
+    final prefs = await SharedPreferences.getInstance();
+    await _ensureValidAccessToken(prefs);
+
+    final path =
+        '/rest/v1/me/events?min_date=$startFormatted&max_date=$endFormatted';
+    final urlString = '$_baseUrl/$school$path';
+    final finalUrl =
+        kIsWeb ? 'https://lite.corsfix.com/?$urlString' : urlString;
+    var response = await http.get(Uri.parse(finalUrl),
+        headers: {'Authorization': 'Bearer $_accessToken'});
+
+    // On 401/403, the token was rejected server-side. Clear it and retry once.
+    if ((response.statusCode == 401 || response.statusCode == 403) ||
+        _looksLikeHtml(response.body)) {
+      debugPrint('getEventsForDateRange auth error: ${response.statusCode}, retrying with fresh token');
+      final refreshed = await _forceTokenRefresh(prefs);
+      if (refreshed) {
+        response = await http.get(Uri.parse(finalUrl),
+            headers: {'Authorization': 'Bearer $_accessToken'});
+      }
+    }
+
+    if (response.statusCode == 200 && !_looksLikeHtml(response.body)) {
+      final json = jsonDecode(response.body);
+      return (json as List<dynamic>).map((e) => Event.fromJson(e)).toList();
+    } else {
+      debugPrint('getEventsForDateRange: HTTP ${response.statusCode}, body ${response.body.length} chars, html=${_looksLikeHtml(response.body)}');
+      throw Exception('Daten konnten nicht geladen werden (HTTP ${response.statusCode})');
+    }
   }
 
   Future<List<Grade>> getGrades(bool cached) async {

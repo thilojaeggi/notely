@@ -15,6 +15,13 @@ import 'otp_helper.dart';
 import 'widgets/two_factor_sheet.dart';
 import 'package:notely/core/config/app_config.dart';
 
+class InvalidCredentialsException implements Exception {
+  final String message;
+  InvalidCredentialsException(this.message);
+  @override
+  String toString() => 'InvalidCredentialsException: $message';
+}
+
 class TokenManager {
   TokenManager._internal();
 
@@ -45,13 +52,19 @@ class TokenManager {
   }
 
   Future<String?> getValidAccessToken(String school) async {
-    final token = await _storage.readAccessToken();
+    // Read token and expiry in parallel
+    final results = await Future.wait([
+      _storage.readAccessToken(),
+      _storage.readAccessTokenExpiry(),
+    ]);
+    final token = results[0] as String?;
+    final expiry = results[1] as DateTime?;
+
     if (token == null || token.isEmpty) {
       return _runReauthOnce(school);
     }
-    final expiry = await _storage.readAccessTokenExpiry();
-    final now = DateTime.now();
-    final isFresh = expiry != null && expiry.isAfter(now);
+
+    final isFresh = expiry != null && expiry.isAfter(DateTime.now());
     if (isFresh) return token;
 
     // Expired or missing expiry -> try to refresh, otherwise force re-auth
@@ -449,7 +462,10 @@ class TokenManager {
       if (loginResp.statusCode != 200 && loginResp.statusCode != 201) {
         debugPrint(
             'Web reauth login failed: ${loginResp.statusCode} ${loginResp.body}');
-        return null; // Login failed
+        if (loginResp.statusCode == 401) {
+          throw InvalidCredentialsException('Login failed: invalid credentials');
+        }
+        return null; // Login failed for other reasons (network, server error)
       }
 
       final loginData = jsonDecode(loginResp.body);
@@ -539,6 +555,8 @@ class TokenManager {
 
         return accessToken;
       }
+    } on InvalidCredentialsException {
+      rethrow;
     } catch (e, s) {
       debugPrint('Web reauth error: $e\n$s');
     }
