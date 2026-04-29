@@ -14,11 +14,7 @@ dependencies:
   http: ^1.2.1
   crypto: ^3.0.3
   shared_preferences: ^2.0.15
-  google_mobile_ads:
-    git:
-      url: https://github.com/thilojaeggi/googleads-mobile-flutter.git
-      path: packages/google_mobile_ads
-      ref: main
+  google_mobile_ads: ^8.0.0
   theme_provider: ^0.6.0
   fl_chart: ^1.1.1
   rename: ^2.0.1
