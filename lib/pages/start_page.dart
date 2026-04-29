@@ -114,7 +114,7 @@ class _StartPageState extends State<StartPage> {
 
   String get _nativeAdUnitId {
     if (kIsWeb) return _androidNativeAdUnitId;
-    if (kDebugMode)
+    if (kDebugMode && false)
       return Platform.isIOS
           ? 'ca-app-pub-3940256099942544/3986624511'
           : 'ca-app-pub-3940256099942544/2247696110';
@@ -164,7 +164,7 @@ class _StartPageState extends State<StartPage> {
       ),
       request: const AdRequest(),
       nativeTemplateStyle: NativeTemplateStyle(
-        templateType: TemplateType.small,
+        templateType: TemplateType.medium,
         mainBackgroundColor: Colors.transparent,
         cornerRadius: 4.0,
         primaryTextStyle: NativeTemplateTextStyle(
@@ -172,6 +172,22 @@ class _StartPageState extends State<StartPage> {
           backgroundColor: Colors.transparent,
           style: NativeTemplateFontStyle.normal,
           size: 14.0,
+        ),
+        secondaryTextStyle: NativeTemplateTextStyle(
+          textColor: isDark
+              ? Colors.white.withValues(alpha: 0.7)
+              : Colors.black.withValues(alpha: 0.7),
+          backgroundColor: Colors.transparent,
+          style: NativeTemplateFontStyle.normal,
+          size: 12.0,
+        ),
+        tertiaryTextStyle: NativeTemplateTextStyle(
+          textColor: isDark
+              ? Colors.white.withValues(alpha: 0.5)
+              : Colors.black.withValues(alpha: 0.5),
+          backgroundColor: Colors.transparent,
+          style: NativeTemplateFontStyle.normal,
+          size: 10.0,
         ),
       ),
     );
@@ -552,28 +568,36 @@ class _StartPageState extends State<StartPage> {
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxHeight: 110,
+          minWidth: 320, 
+    maxHeight: 350,
+
         ),
         child: Container(
-            padding: const EdgeInsets.all(4.0),
             decoration: BoxDecoration(
               color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.white.withValues(alpha: 0.05)
                   : Colors.white,
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: BorderRadius.circular(18.0),
               border: Border.all(
                   color: Theme.of(context).brightness == Brightness.dark
                       ? Colors.white.withValues(alpha: 0.05)
                       : Colors.black.withValues(alpha: 0.05)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 0),
+                  color: Colors.black.withValues(alpha: 0.10),
+                  blurRadius: 18,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
-            child: AdWidget(ad: _nativeAd!)),
+            child: ClipRRect(borderRadius: BorderRadius.circular(18.0),
+              child: ClipRect(
+clipper: _InlineCustomClipper(),
+                child: Align(
+                  alignment: Alignment.center,
+    widthFactor: 1.0, // Tighten to child
+    heightFactor: 1.0,
+                  child: AdWidget(ad: _nativeAd!))))),
       ),
     );
   }
@@ -695,4 +719,11 @@ class _StatCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _InlineCustomClipper extends CustomClipper<Rect> {
+  @override
+  Rect getClip(Size size) => Rect.fromLTRB(1.0, 1.0, size.width - 1.0, size.height - 1.0);
+  @override
+  bool shouldReclip(oldClipper) => false;
 }
