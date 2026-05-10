@@ -111,7 +111,7 @@ class _ExamsPageState extends State<ExamsPage> {
       ),
       request: const AdRequest(),
       nativeTemplateStyle: NativeTemplateStyle(
-        templateType: TemplateType.small,
+        templateType: TemplateType.medium,
         mainBackgroundColor: Colors.transparent,
         cornerRadius: 4.0,
         primaryTextStyle: NativeTemplateTextStyle(
@@ -119,6 +119,14 @@ class _ExamsPageState extends State<ExamsPage> {
           backgroundColor: Colors.transparent,
           style: NativeTemplateFontStyle.normal,
           size: 14.0,
+        ),
+        secondaryTextStyle: NativeTemplateTextStyle(
+          textColor: isDark
+              ? Colors.white.withValues(alpha: 0.7)
+              : Colors.black.withValues(alpha: 0.7),
+          backgroundColor: Colors.transparent,
+          style: NativeTemplateFontStyle.normal,
+          size: 12.0,
         ),
       ),
     );
@@ -244,8 +252,8 @@ class _ExamsPageState extends State<ExamsPage> {
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          minWidth: 300,
-          maxHeight: 120,
+          minWidth: 320,
+          maxHeight: 350,
           maxWidth: 450,
         ),
         child: Container(

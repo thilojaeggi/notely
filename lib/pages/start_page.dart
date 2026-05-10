@@ -561,10 +561,18 @@ class _StartPageState extends State<StartPage> {
   }
 
   Widget _buildNativeAd() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final backgroundColor = isDark
+        ? Colors.white.withValues(alpha: 0.03)
+        : theme.colorScheme.surface;
+    
     if (SubscriptionManager().isPremium || _nativeAd == null || !_nativeAdIsLoaded) {
       return const SizedBox.shrink();
     }
+    
     return Align(
+      
       alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
@@ -574,12 +582,10 @@ class _StartPageState extends State<StartPage> {
         ),
         child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Colors.white,
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(18.0),
               border: Border.all(
-                  color: Theme.of(context).brightness == Brightness.dark
+                  color: isDark
                       ? Colors.white.withValues(alpha: 0.05)
                       : Colors.black.withValues(alpha: 0.05)),
               boxShadow: [
