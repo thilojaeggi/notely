@@ -1,3 +1,4 @@
+import 'package:app_install_date/app_install_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -63,9 +64,6 @@ class _InitializeScreenState extends State<InitializeScreen> {
         kDebugMode && WhatsNew.updates.isNotEmpty) {
       if (!mounted) return;
 
-      final bool isFirstLaunchOn131 = lastVersionCode == null ||
-          lastVersionCode < 33 || kDebugMode && WhatsNew.updates.isNotEmpty; // build number for 1.3.1
-
       // The app was updated, show a modal popup
       await showModalBottomSheet<void>(
           context: context,
@@ -77,12 +75,31 @@ class _InitializeScreenState extends State<InitializeScreen> {
             return WhatsNew(school: school);
           });
       prefs.setInt('version_code', currentVersionCode);
-
-      // Show premium paywall on first launch of 1.3.1
-      if (isFirstLaunchOn131 && !SubscriptionManager().isPremium) {
-        SubscriptionManager().presentNotelyPremiumPaywall();
-      }
     }
+
+    // Show paywall once for existing users (installed before today)
+    await _showPaywallForExistingUsers(prefs);
+  }
+
+  Future<void> _showPaywallForExistingUsers(SharedPreferences prefs) async {
+    if (SubscriptionManager().isPremium) return;
+    if (prefs.getBool('has_seen_returning_paywall') == true) return;
+
+    try {
+      final installDate = await AppInstallDate().installDate;
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final installDay = DateTime(installDate.year, installDate.month, installDate.day);
+
+      if (installDay.isBefore(today)) {
+        await SubscriptionManager().presentNotelyPremiumPaywall();
+      }
+    } catch (e) {
+      debugPrint('Failed to check install date: $e');
+    }
+
+    // Mark as shown regardless of outcome so we don't retry
+    await prefs.setBool('has_seen_returning_paywall', true);
   }
 
   Future<void> _initialize() async {
@@ -93,12 +110,8 @@ class _InitializeScreenState extends State<InitializeScreen> {
         await _initializationHelper.initialize();
       }
 
-      // Initialize subscription status and set timetable as initial page for premium users on first 1.3.1 launch
+      // Initialize subscription status
       await SubscriptionManager().initialize();
-      final prefs = await SharedPreferences.getInstance();
-      final lastVersionCode = prefs.getInt('version_code');
-      final isFirstLaunchOn131 = lastVersionCode == null || lastVersionCode < 33;
-
 
       Future.microtask(() => checkForUpdates(context));
 
