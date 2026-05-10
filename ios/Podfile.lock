@@ -1,4 +1,6 @@
 PODS:
+  - app_install_date (0.0.1):
+    - Flutter
   - app_settings (5.1.1):
     - Flutter
   - cupertino_native (0.0.1):
@@ -186,6 +188,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - app_install_date (from `.symlinks/plugins/app_install_date/ios`)
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - cupertino_native (from `.symlinks/plugins/cupertino_native/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
@@ -234,6 +237,8 @@ SPEC REPOS:
     - SwiftTryCatch
 
 EXTERNAL SOURCES:
+  app_install_date:
+    :path: ".symlinks/plugins/app_install_date/ios"
   app_settings:
     :path: ".symlinks/plugins/app_settings/ios"
   cupertino_native:
@@ -282,6 +287,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  app_install_date: f5c947bbc2378d3b9f1f88240a3b9db32e6380dd
   app_settings: 5127ae0678de1dcc19f2293271c51d37c89428b2
   cupertino_native: 1db0611c94f9a9ea28433ed16a344dcb996370b5
   Firebase: a451a7b61536298fd5cbfe3a746fd40443a50679
