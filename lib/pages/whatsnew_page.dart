@@ -8,26 +8,7 @@ class WhatsNew extends StatefulWidget {
   const WhatsNew({super.key, required this.school});
   final String school;
   static final List<WhatsNewEntry> updates = [
-    const WhatsNewEntry(
-      title: "Stundenplan-Widget",
-      description: "Dein Stundenplan direkt auf dem Homescreen! Das neue Widget zeigt dir immer die nächsten Lektionen an – exklusiv mit Notely Premium.",
-      icon: CupertinoIcons.square_grid_2x2,
-      accent: Colors.purple,
-      highlighted: true,
-    ),
-    const WhatsNewEntry(
-      title: "Notely Premium",
-      description: "Erlebe Notely ohne Werbung und mit exklusiven Funktionen! Unterstütze die Weiterentwicklung der App mit Notely Premium.",
-      icon: CupertinoIcons.star_fill,
-      accent: Colors.amber,
-      highlighted: true,
-    ),
-    const WhatsNewEntry(
-      title: "Verbesserte Anmeldung",
-      description: "Der Login-Prozess wurde grundlegend überarbeitet: Stabilere Verbindung, schnellere Authentifizierung und zuverlässigere Sitzungsverwaltung.",
-      icon: CupertinoIcons.lock_shield,
-      accent: Colors.blue,
-    ),
+  
   ];
 
   @override
