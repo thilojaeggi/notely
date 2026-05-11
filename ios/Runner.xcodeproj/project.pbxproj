@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -93,7 +93,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B6DBF2D22ED3EFFD00F08AD4 /* Exceptions for "ScheduleWidget" folder in "ScheduleWidgetExtension" target */ = {
+		B6DBF2D22ED3EFFD00F08AD4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -103,18 +103,8 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		B6DBF2C12ED3EFFC00F08AD4 /* ScheduleWidget */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B6DBF2D22ED3EFFD00F08AD4 /* Exceptions for "ScheduleWidget" folder in "ScheduleWidgetExtension" target */,
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = ScheduleWidget;
-			sourceTree = "<group>";
-		};
+		B68147C22FB159B000E977E2 /* ci_scripts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ci_scripts; sourceTree = "<group>"; };
+		B6DBF2C12ED3EFFC00F08AD4 /* ScheduleWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (B6DBF2D22ED3EFFD00F08AD4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ScheduleWidget; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +164,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				B68147C22FB159B000E977E2 /* ci_scripts */,
 				B6DF39A92F9E575F005E1526 /* SyncedProducts.storekit */,
 				B6DBF2D72ED3F01600F08AD4 /* ScheduleWidgetExtension.entitlements */,
 				9740EEB11CF90186004384FC /* Flutter */,
@@ -255,6 +246,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				B68147C22FB159B000E977E2 /* ci_scripts */,
 				B6DBF2C12ED3EFFC00F08AD4 /* ScheduleWidget */,
 			);
 			name = ScheduleWidgetExtension;
@@ -336,9 +328,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -353,9 +349,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
