@@ -24,7 +24,7 @@
     "_developerTeamID" : "9YF6CJQ2G8",
     "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 798942513.01926696,
+    "_lastSynchronizedDate" : 808996333.55488706,
     "_locale" : "de",
     "_renewalBillingIssuesEnabled" : false,
     "_storefront" : "CHE",
@@ -33,6 +33,9 @@
     ],
     "_timeRate" : 0
   },
+  "subscriptionBundleGroups" : [
+
+  ],
   "subscriptionGroups" : [
     {
       "id" : "21840907",
@@ -49,6 +52,15 @@
           "adHocOffers" : [
 
           ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "0.95",
+              "displayPrice" : "0.95",
+              "internalID" : "6755689654_BILLED_UPFRONT",
+              "isEnabled" : true
+            }
+          ],
           "codeOffers" : [
 
           ],
@@ -58,7 +70,7 @@
           "internalID" : "6755689654",
           "introductoryOffer" : {
             "billingPlanType" : "BILLED_UPFRONT",
-            "internalID" : "1FBEC254",
+            "internalID" : "eyJzIjoiNjc1NTY4OTY1NCIsImQiOjE3NzcyNzMyMDAsImkiOiJDSCIsInQiOiIiLCJwIjoiMCJ9",
             "numberOfPeriods" : 1,
             "paymentMode" : "free",
             "subscriptionPeriod" : "P1W"
@@ -66,7 +78,7 @@
           "introductoryOffers" : [
             {
               "billingPlanType" : "BILLED_UPFRONT",
-              "internalID" : "1FBEC254",
+              "internalID" : "eyJzIjoiNjc1NTY4OTY1NCIsImQiOjE3NzcyNzMyMDAsImkiOiJDSCIsInQiOiIiLCJwIjoiMCJ9",
               "numberOfPeriods" : 1,
               "paymentMode" : "free",
               "subscriptionPeriod" : "P1W"
@@ -91,8 +103,11 @@
       ]
     }
   ],
+  "subscriptionSuiteGroups" : [
+
+  ],
   "version" : {
-    "major" : 5,
-    "minor" : 0
+    "major" : 6,
+    "minor" : 3
   }
 }
