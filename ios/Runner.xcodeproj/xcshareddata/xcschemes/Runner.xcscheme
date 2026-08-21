@@ -75,6 +75,9 @@
       <StoreKitConfigurationFileReference
          identifier = "../SyncedProducts.storekit">
       </StoreKitConfigurationFileReference>
+      <MetalAPIValidationSettings
+         isEnabled = "No">
+      </MetalAPIValidationSettings>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Profile"
