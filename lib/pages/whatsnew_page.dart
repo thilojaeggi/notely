@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cupertino_native/cupertino_native.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +6,28 @@ class WhatsNew extends StatefulWidget {
   const WhatsNew({super.key, required this.school});
   final String school;
   static final List<WhatsNewEntry> updates = [
-  
+    const WhatsNewEntry(
+      title: "Blitzschnelle Anmeldung",
+      description:
+          "Der Login wurde grundlegend optimiert und läuft nun direkt auf deinem Gerät – für spürbar schnellere Ladezeiten und eine verzögerungsfreie 2-Faktor-Authentifizierung.",
+      icon: CupertinoIcons.bolt_fill,
+      accent: Colors.blueAccent,
+      highlighted: true,
+    ),
+    const WhatsNewEntry(
+      title: "Natives iOS-Design",
+      description:
+          "Erlebe eine moderne Navigation mit neuer nativer iOS Tab-Bar, verfeinerten Symbolen und optimierter Darstellung im Hell- und Dunkelmodus.",
+      icon: CupertinoIcons.sparkles,
+      accent: Colors.purpleAccent,
+    ),
+    const WhatsNewEntry(
+      title: "Widget & Deep Links",
+      description:
+          "Das überarbeitete Stundenplan-Widget und neue Schnellverknüpfungen bringen dich mit einem Fingertipp direkt zu Plan, Noten und Absenzen.",
+      icon: CupertinoIcons.square_grid_2x2_fill,
+      accent: Colors.amber,
+    ),
   ];
 
   @override
