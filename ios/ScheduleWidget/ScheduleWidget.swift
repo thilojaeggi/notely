@@ -10,7 +10,6 @@ import WidgetKit
 import SwiftUI
 import Intents
 
-
 private let widgetAppGroupIdentifier = "group.ch.thilojaeggi.notely"
 private let widgetLessonDataKey = "notely_lesson_data"
 private let widgetPremiumKey = "is_premium"
@@ -56,6 +55,7 @@ struct LessonEntry: TimelineEntry {
     let nextLesson: Lesson?
     let isStale: Bool
     let hasData: Bool
+    let isPremium: Bool
 }
 
 // MARK: - Timeline Provider
@@ -69,16 +69,23 @@ struct Provider: IntentTimelineProvider {
         LessonEntry(
             date: Date(),
             configuration: ConfigurationIntent(),
-            currentLesson: placeholderLesson(),
-            nextLesson: placeholderLesson(),
+            currentLesson: placeholderCurrentLesson(),
+            nextLesson: placeholderNextLesson(),
             isStale: false,
-            hasData: true
+            hasData: true,
+            isPremium: true
         )
     }
 
     func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (LessonEntry) -> ()) {
+        if context.isPreview {
+            completion(placeholder(in: context))
+            return
+        }
+
         let now = Date()
-        let payload = loadLessonPayload()
+        let isPremium = Self.readIsPremium()
+        let payload = isPremium ? loadLessonPayload() : nil
         let todayKey = Self.dateKey(for: now)
         let lessons = payload?.lessons(for: todayKey) ?? []
         let (current, next) = Self.lessonState(at: now, lessons: lessons)
@@ -89,13 +96,31 @@ struct Provider: IntentTimelineProvider {
             currentLesson: current,
             nextLesson: next,
             isStale: Self.isDataStale(payload),
-            hasData: payload != nil
+            hasData: payload != nil,
+            isPremium: isPremium
         ))
     }
 
     func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         let now = Date()
         let calendar = Self.calendar
+        let isPremium = Self.readIsPremium()
+
+        // If not premium, output a single locked entry
+        guard isPremium else {
+            let entry = LessonEntry(
+                date: now,
+                configuration: configuration,
+                currentLesson: nil,
+                nextLesson: nil,
+                isStale: false,
+                hasData: false,
+                isPremium: false
+            )
+            let refreshDate = now.addingTimeInterval(2 * 3600)
+            completion(Timeline(entries: [entry], policy: .after(refreshDate)))
+            return
+        }
 
         let payload = loadLessonPayload()
         let isStale = Self.isDataStale(payload)
@@ -112,13 +137,14 @@ struct Provider: IntentTimelineProvider {
 
         var entries: [LessonEntry] = []
 
-        // Today's entries (from now through end of school)
+        // Today's entries (from now through end of day)
         entries.append(contentsOf: Self.entriesForDay(
             lessons: todayLessons,
             from: now,
             configuration: configuration,
             isStale: isStale,
-            hasData: hasData
+            hasData: hasData,
+            isPremium: true
         ))
 
         // Tomorrow's entries (from midnight onward)
@@ -127,7 +153,8 @@ struct Provider: IntentTimelineProvider {
             from: tomorrowStart,
             configuration: configuration,
             isStale: isStale,
-            hasData: hasData
+            hasData: hasData,
+            isPremium: true
         ))
 
         // Always have at least one entry
@@ -138,12 +165,13 @@ struct Provider: IntentTimelineProvider {
                 currentLesson: nil,
                 nextLesson: nil,
                 isStale: isStale,
-                hasData: hasData
+                hasData: hasData,
+                isPremium: true
             ))
         }
 
         // Refresh tomorrow morning at 5 AM, or in 4 hours – whichever is sooner.
-        // This ensures the widget re-reads UserDefaults daily even without the app.
+        // This ensures the widget re-reads UserDefaults daily even without opening the app.
         let tomorrowMorning = tomorrowStart.addingTimeInterval(5 * 3600)
         let fourHoursFromNow = now.addingTimeInterval(4 * 3600)
         let refreshDate = min(tomorrowMorning, fourHoursFromNow)
@@ -160,7 +188,8 @@ struct Provider: IntentTimelineProvider {
         from startTime: Date,
         configuration: ConfigurationIntent,
         isStale: Bool,
-        hasData: Bool
+        hasData: Bool,
+        isPremium: Bool
     ) -> [LessonEntry] {
         // Even with no lessons, emit one entry so the widget shows "Keine Lektionen"
         guard !lessons.isEmpty else {
@@ -170,7 +199,8 @@ struct Provider: IntentTimelineProvider {
                 currentLesson: nil,
                 nextLesson: nil,
                 isStale: isStale,
-                hasData: hasData
+                hasData: hasData,
+                isPremium: isPremium
             )]
         }
 
@@ -182,7 +212,8 @@ struct Provider: IntentTimelineProvider {
                 currentLesson: nil,
                 nextLesson: nil,
                 isStale: isStale,
-                hasData: hasData
+                hasData: hasData,
+                isPremium: isPremium
             )]
         }
 
@@ -204,7 +235,8 @@ struct Provider: IntentTimelineProvider {
                 currentLesson: current,
                 nextLesson: next,
                 isStale: isStale,
-                hasData: hasData
+                hasData: hasData,
+                isPremium: isPremium
             ))
         }
 
@@ -286,7 +318,7 @@ struct Provider: IntentTimelineProvider {
         // Premium flag is stored as a string "true"/"false" to avoid
         // Dart bool → NSNumber bridging issues through home_widget.
         if let str = defaults.string(forKey: widgetPremiumKey) {
-            return str == "true"
+            return str.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "true"
         }
         // Fallback: also accept a legacy bool value
         return defaults.bool(forKey: widgetPremiumKey)
@@ -311,8 +343,12 @@ private func loadLessonPayload() -> WidgetLessonPayload? {
     }
 }
 
-private func placeholderLesson() -> Lesson {
+private func placeholderCurrentLesson() -> Lesson {
     Lesson(lessonName: "Mathematik", room: "A123", teacher: "Max Mustermann", time: "9:45")
+}
+
+private func placeholderNextLesson() -> Lesson {
+    Lesson(lessonName: "Deutsch", room: "A205", teacher: "Erika Muster", time: "10:45")
 }
 
 // MARK: - Views
@@ -320,25 +356,25 @@ private func placeholderLesson() -> Lesson {
 struct ScheduleWidgetEntryView: View {
     var entry: Provider.Entry
 
-    /// Read premium status fresh from UserDefaults at render time.
+    /// Read premium status from entry or fresh from UserDefaults.
     private var isPremium: Bool {
-        Provider.readIsPremium()
+        entry.isPremium || Provider.readIsPremium()
     }
 
     var body: some View {
-            ZStack(alignment: .bottomTrailing) {
-                if isPremium {
-                    if !entry.hasData {
-                        noDataView
-                    } else {
-                        content
-                    }
+        ZStack(alignment: .bottomTrailing) {
+            if isPremium {
+                if !entry.hasData {
+                    noDataView
                 } else {
-                    premiumOverlay
+                    content
                 }
-                debugOverlay
+            } else {
+                premiumOverlay
             }
+            debugOverlay
         }
+    }
 
     private var noDataView: some View {
         VStack(spacing: 8) {
@@ -360,12 +396,12 @@ struct ScheduleWidgetEntryView: View {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    .frame(width: 52, height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .shadow(color: .black.opacity(0.25), radius: 4, y: 2)
             } else {
                 Image(systemName: "star.circle.fill")
-                    .font(.system(size: 44))
+                    .font(.system(size: 40))
                     .foregroundStyle(.yellow)
                     .shadow(color: .black.opacity(0.25), radius: 4, y: 2)
             }
@@ -413,7 +449,7 @@ struct ScheduleWidgetEntryView: View {
                 // ---- CURRENT LESSON ----
                 if let current = entry.currentLesson {
                     Text("JETZT")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.red)
                         .lineLimit(1)
 
@@ -425,14 +461,14 @@ struct ScheduleWidgetEntryView: View {
                 }
 
                 if entry.currentLesson != nil && entry.nextLesson != nil {
-                    Divider().padding(.vertical, 4.0)
+                    Divider().padding(.vertical, 2.0)
                 }
 
                 // ---- NEXT LESSON ----
                 if let next = entry.nextLesson {
                     Text("UM \(next.time)")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.red)
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(entry.currentLesson == nil ? .red : .secondary)
                         .lineLimit(1)
 
                     LessonCompact(
@@ -459,21 +495,20 @@ struct ScheduleWidgetEntryView: View {
     }
 
     @ViewBuilder
-        private var debugOverlay: some View {
-            #if DEBUG
-            VStack {
-                Text("↻ \(entry.date.formatted(date: .omitted, time: .shortened))")
-                    .font(.system(size: 18, weight: .medium, design: .monospaced))
-                    .padding(3)
-                    .background(Color.black.opacity(0.35))
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-            }
-                .padding(4)
-            #endif
+    private var debugOverlay: some View {
+        #if DEBUG
+        VStack {
+            Text("↻ \(entry.date.formatted(date: .omitted, time: .shortened))")
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .padding(2)
+                .background(Color.black.opacity(0.35))
+                .foregroundColor(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 3))
         }
+        .padding(4)
+        #endif
+    }
 }
-
 
 private struct LessonCompact: View {
     let title: String
@@ -483,31 +518,35 @@ private struct LessonCompact: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
-Text(title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .lineLimit(2)              // ← allow 2 lines
+                Text(title)
+                    .font(.system(size: 14, weight: .semibold))
+                    .lineLimit(1)
                     .truncationMode(.tail)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .layoutPriority(1)   // ← may be truncated first
+                    .layoutPriority(1)
 
                 Spacer(minLength: 4)
 
-                Text(room)
-                    .font(.system(size: 13, weight: .bold))
-                    .padding(.horizontal, 4)   // slightly tighter pill
-                    .padding(.vertical, 1)
-                    .foregroundStyle(Color.white.opacity(0.9))
-                    .background(Color.blue.opacity(0.5))
-                    .clipShape(Capsule())
-                    .lineLimit(1)
-                    .layoutPriority(1)   // ← try to keep room visible
+                if !room.isEmpty {
+                    Text(room)
+                        .font(.system(size: 12, weight: .bold))
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .foregroundStyle(Color.white.opacity(0.9))
+                        .background(Color.blue.opacity(0.5))
+                        .clipShape(Capsule())
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .layoutPriority(2)
+                }
             }
 
-            Text(teacher)
-                .font(.system(size: 12))
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .truncationMode(.tail)
+            if !teacher.isEmpty {
+                Text(teacher)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
         }
     }
 }
@@ -517,8 +556,8 @@ struct ScheduleWidget: Widget {
 
     var body: some WidgetConfiguration {
         IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider()) { entry in
-            let isPremium = Provider.readIsPremium()
-            let widgetURL = isPremium ? URL(string: "notely://") : URL(string: "notely://paywall")
+            let isPremium = entry.isPremium || Provider.readIsPremium()
+            let widgetURL = isPremium ? URL(string: "notely://timetable") : URL(string: "notely://paywall")
 
             if #available(iOSApplicationExtension 17.0, *) {
                 ScheduleWidgetEntryView(entry: entry)
@@ -530,7 +569,6 @@ struct ScheduleWidget: Widget {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .widgetURL(widgetURL)
             }
-
         }
         .configurationDisplayName("Stundenplan")
         .description("Zeigt dir immer deine aktuelle und nächste Lektion")
@@ -540,7 +578,18 @@ struct ScheduleWidget: Widget {
 
 struct ScheduleWidget_Previews: PreviewProvider {
     static var previews: some View {
-        ScheduleWidgetEntryView(entry: LessonEntry(date: Date(), configuration: ConfigurationIntent(), currentLesson: Lesson(lessonName: "Mathematik", room: "A123", teacher: "Max Mustermann", time: "9:45"), nextLesson: Lesson(lessonName: "Deutsch", room: "A205", teacher: "Elvira Schneider", time: "10:45"), isStale: false, hasData: true))
-            .previewContext(WidgetPreviewContext(family: .systemSmall))
+        ScheduleWidgetEntryView(
+            entry: LessonEntry(
+                date: Date(),
+                configuration: ConfigurationIntent(),
+                currentLesson: Lesson(lessonName: "Mathematik", room: "A123", teacher: "Max Mustermann", time: "9:45"),
+                nextLesson: Lesson(lessonName: "Deutsch", room: "A205", teacher: "Erika Muster", time: "10:45"),
+                isStale: false,
+                hasData: true,
+                isPremium: true
+            )
+        )
+        .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
 }
+
