@@ -3,14 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:notely/core/config/style.dart';
 import 'package:notely/core/navigation/navigation_service.dart';
-import 'package:notely/features/auth/auth_result.dart';
-import 'package:notely/features/auth/auth_service.dart';
-import 'package:notely/pages/login_page.dart';
 import 'package:notely/shell/initialize_screen.dart';
-import 'package:notely/shell/view_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 
@@ -22,7 +17,6 @@ class NotelyApp extends StatefulWidget {
 }
 
 class _NotelyAppState extends State<NotelyApp> {
-  late Future<AuthResult> authResult;
   final InAppReview inAppReview = InAppReview.instance;
 
   Future<void> askForReview(BuildContext context) async {
@@ -44,7 +38,6 @@ class _NotelyAppState extends State<NotelyApp> {
   @override
   void initState() {
     super.initState();
-    authResult = AuthService.login();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(
           () => askForReview(NavigationService.navigatorKey.currentContext!));
@@ -111,66 +104,10 @@ class _NotelyAppState extends State<NotelyApp> {
               FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
             ],
             theme: ThemeProvider.themeOf(themeContext).data,
-            home: FutureBuilder<AuthResult>(
-                future: authResult,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Material(
-                        child: Center(
-                            child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/icons/notely.png',
-                          width: 80,
-                          height: 80,
-                        ),
-                        const SizedBox(height: 24),
-                        LoadingAnimationWidget.waveDots(
-                            color: Colors.white, size: 48),
-                      ],
-                    )));
-                  } else if (snapshot.hasError) {
-                    return const Material(
-                      child: SafeArea(
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.error,
-                                  size: 128,
-                                ),
-                                Text(
-                                  "Error",
-                                  style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "Versuche es später erneut oder überprüfe deine Internetverbindung.",
-                                  style: TextStyle(fontSize: 18.0),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ]),
-                        ),
-                      ),
-                    );
-                  }
-                  final result = snapshot.data ?? AuthResult.unauthenticated;
-
-                  switch (result) {
-                    case AuthResult.authenticated:
-                    case AuthResult.deferred:
-                      return const InitializeScreen(
-                        targetWidget: ViewContainerWidget(),
-                      );
-                    case AuthResult.unauthenticated:
-                      return const LoginPage();
-                  }
-                }),
+            home: const InitializeScreen(),
+            onUnknownRoute: (settings) => MaterialPageRoute(
+              builder: (_) => const SizedBox.shrink(),
+            ),
           ),
         ),
       ),
