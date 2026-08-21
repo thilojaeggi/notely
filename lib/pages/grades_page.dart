@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
 import 'package:notely/data/api_client.dart';
 import 'package:notely/data/repositories/grade_repository.dart';
 import 'package:notely/features/home/helpers/grade_color.dart';
@@ -183,6 +184,9 @@ class _GradesPageState extends State<GradesPage> {
             key: expansionTileKey,
             onExpansionChanged: (isExpanded) {
               if (isExpanded) {
+                AnalyticsService().logGradesSubjectViewed(
+                  subject: groupedCoursesMap.keys.elementAt(index),
+                );
                 _scrollToSelectedContent(expansionTileKey: expansionTileKey);
               }
             },

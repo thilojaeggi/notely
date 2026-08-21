@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
 import 'package:notely/data/repositories/absence_repository.dart';
 import 'package:notely/features/home/helpers/text_styles.dart';
 import 'package:notely/models/absence.dart';
@@ -57,6 +58,7 @@ class _AbsencesPageState extends State<AbsencesPage> {
   @override
   initState() {
     super.initState();
+    AnalyticsService().logAbsencesOverviewViewed();
     _absencesFuture = _repository.getAbsences(onUpdate: (freshList) {
       if (!mounted) return;
       setState(() {

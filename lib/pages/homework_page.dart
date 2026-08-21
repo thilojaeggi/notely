@@ -1,7 +1,12 @@
+import 'dart:ui';
+
+import 'package:cupertino_native/cupertino_native.dart';
 import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
 import 'package:notely/models/homework.dart';
 import 'package:notely/data/database/homework_database.dart';
 import 'package:notely/features/home/helpers/text_styles.dart';
@@ -24,65 +29,41 @@ class _HomeworkPageState extends State<HomeworkPage> {
   @override
   initState() {
     super.initState();
+    AnalyticsService().logScreenView(screenName: 'HomeworkPage');
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     List<Homework> homeworkList = widget.homeworkList;
     final titleStyle = pageTitleTextStyle(context);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: Theme.of(context).canvasColor.withValues(alpha: 0.96),
+        color: Theme.of(context).canvasColor,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16.0),
           topRight: Radius.circular(16.0),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 0.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Hausaufgaben",
-                        style: titleStyle,
-                      ),
-                    ],
-                  ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () => Navigator.pop(context),
-                  child: SizedBox(
-                    height: 44,
-                    width: 44,
-                    child: Icon(
-                      CupertinoIcons.xmark,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-              child: Stack(
-            children: [
-              (homeworkList.isNotEmpty)
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: (homeworkList.isNotEmpty)
                   ? Scrollbar(
                       thumbVisibility: true,
                       child: ListView.builder(
                         shrinkWrap: false,
+                        padding: EdgeInsets.only(
+                          top: 68,
+                          bottom: MediaQuery.of(context).padding.bottom + 84,
+                        ),
                         itemCount: homeworkList.length,
                         itemBuilder: (BuildContext ctxt, int index) {
                           Homework homework = homeworkList[index];
@@ -94,42 +75,56 @@ class _HomeworkPageState extends State<HomeworkPage> {
                         },
                       ),
                     )
-                  : const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "😄",
-                            style: TextStyle(fontSize: 128),
-                          ),
-                          Text(
-                            "Keine Hausaufgaben vorhanden!",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
+                  : Center(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24.0, 70.0, 24.0, 24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.checkmark_seal,
+                              size: 72,
+                              color: Theme.of(context).primaryColor,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            "Hausaufgaben kannst du hier hinzufügen oder indem du auf eine zukünftige Lektion unter \"Plan\" tippst.",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
+                            const SizedBox(height: 20),
+                            const Text(
+                              "Keine Hausaufgaben vorhanden!",
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                            const SizedBox(height: 12),
+                            Text(
+                              "Hausaufgaben kannst du hier hinzufügen oder indem du auf eine zukünftige Lektion unter \"Plan\" tippst.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color
+                                    ?.withValues(alpha: 0.7),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-              Align(
+            ),
+            SafeArea(
+              top: false,
+              child: Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CupertinoButton(
+                  padding: const EdgeInsets.all(20.0),
+                  child: CNButton.icon(
+                    icon: const CNSymbol('plus', size: 22.0),
+                    size: 52.0,
+                    style: CNButtonStyle.glass,
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
@@ -143,6 +138,10 @@ class _HomeworkPageState extends State<HomeworkPage> {
                               onHomeworkAdded: (homework) async {
                                 await HomeworkDatabase.instance
                                     .create(homework);
+                                AnalyticsService().logHomeworkCreated(
+                                  subject: homework.lessonName,
+                                  hasDueDate: true,
+                                );
                                 setState(() {
                                   homeworkList.add(homework);
                                 });
@@ -151,33 +150,67 @@ class _HomeworkPageState extends State<HomeworkPage> {
                         },
                       );
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(32),
-                        color: Theme.of(context).primaryColor,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 16,
-                            offset: const Offset(0, 10),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16.0, 10.0, 8.0, 10.0),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .canvasColor
+                          .withValues(alpha: isDark ? 0.75 : 0.7),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.black.withValues(alpha: 0.05),
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Hausaufgaben",
+                            style: titleStyle,
                           ),
-                        ],
-                      ),
-                      child: const Icon(
-                        CupertinoIcons.add,
-                        color: Colors.white,
-                        size: 32,
-                        fontWeight: FontWeight.w900,
-                      ),
+                        ),
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () => Navigator.pop(context),
+                          child: Container(
+                            height: 32,
+                            width: 32,
+                            decoration: BoxDecoration(
+                              color: (isDark ? Colors.white : Colors.black)
+                                  .withValues(alpha: 0.08),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              CupertinoIcons.xmark,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          )),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -188,30 +221,49 @@ class _HomeworkPageState extends State<HomeworkPage> {
     required List<Homework> homeworkList,
   }) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color accentColor = homework.isDone
+    final DateTime dueDate = homework.dueDate.toLocal();
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final DateTime dueDay = DateTime(dueDate.year, dueDate.month, dueDate.day);
+    final int diffDays = dueDay.difference(today).inDays;
+
+    final bool isOverdue = !homework.isDone && diffDays < 0;
+    final bool isToday = diffDays == 0;
+    final bool isTomorrow = diffDays == 1;
+
+    final Color statusAccentColor = homework.isDone
         ? const Color(0xFF34C759)
-        : Theme.of(context).primaryColor;
+        : isOverdue
+            ? const Color(0xFFFF3B30)
+            : isToday
+                ? const Color(0xFFFF9500)
+                : isTomorrow
+                    ? Colors.blueAccent
+                    : (isDark ? Colors.white70 : const Color(0xFF636366));
+
+    final String timeStr = DateFormat("HH:mm").format(dueDate);
+    final String baseDateText = isToday
+        ? "Heute · $timeStr"
+        : isTomorrow
+            ? "Morgen · $timeStr"
+            : DateFormat("EEE, dd. MMM · HH:mm", 'de_CH').format(dueDate);
+
+    final String dateBadgeText = isOverdue
+        ? "Überfällig · ${DateFormat("dd.MM. · HH:mm").format(dueDate)}"
+        : baseDateText;
+
     final Color cardColor = homework.isDone
-        ? (isDark
-            ? const Color(0xFF1F1F1F)
-            : Colors.white.withValues(alpha: 0.05))
-        : (isDark
-            ? const Color(0xFF1C1C1E)
-            : Colors.white.withValues(alpha: 0.05));
+        ? (isDark ? const Color(0xFF161618) : const Color(0xFFFAFAFA))
+        : (isDark ? const Color(0xFF1C1C1E) : Colors.white);
+
     final Color dividerColor = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : Colors.black.withValues(alpha: 0.06);
-    final TextStyle subtitleStyle = TextStyle(
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.6)
-          : Colors.black.withValues(alpha: 0.6),
-      fontSize: 14,
-    );
-    final String formattedDate =
-        DateFormat("dd.MM.yyyy · HH:mm").format(homework.dueDate.toLocal());
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.05);
 
     Future<void> handleDelete() async {
+      HapticFeedback.mediumImpact();
       await HomeworkDatabase.instance.delete(homework.id);
+      AnalyticsService().logHomeworkDeleted(subject: homework.lessonName);
       setState(() {
         homeworkList.removeAt(index);
       });
@@ -219,8 +271,13 @@ class _HomeworkPageState extends State<HomeworkPage> {
     }
 
     Future<void> handleToggle(bool value) async {
+      HapticFeedback.lightImpact();
       Homework updatedHomework = homework.copyWith(isDone: value);
       await HomeworkDatabase.instance.update(updatedHomework);
+      AnalyticsService().logHomeworkToggled(
+        isDone: value,
+        subject: homework.lessonName,
+      );
 
       setState(() {
         homeworkList[index] = updatedHomework;
@@ -231,24 +288,23 @@ class _HomeworkPageState extends State<HomeworkPage> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(14.0),
         border: Border.all(
           color: homework.isDone
-              ? accentColor.withValues(alpha: 0.35)
-              : Colors.transparent,
+              ? const Color(0xFF34C759).withValues(alpha: isDark ? 0.35 : 0.4)
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.06)),
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.5)
-                : Colors.black.withValues(alpha: 0.08),
-            blurRadius: 30,
-            offset: const Offset(0, 18),
-            spreadRadius: isDark ? 0 : -8,
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.035),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -256,40 +312,69 @@ class _HomeworkPageState extends State<HomeworkPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  homework.lessonName,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      CupertinoIcons.time,
-                      size: 16,
-                      color: accentColor,
+                      CupertinoIcons.book_fill,
+                      size: 11.5,
+                      color: isDark ? Colors.white70 : Colors.black87,
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     Text(
-                      formattedDate,
+                      homework.lessonName,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: accentColor,
+                        letterSpacing: -0.2,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                decoration: BoxDecoration(
+                  color: (homework.isDone || isOverdue || isToday || isTomorrow)
+                      ? statusAccentColor.withValues(alpha: isDark ? 0.18 : 0.12)
+                      : (isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.05)),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      homework.isDone
+                          ? CupertinoIcons.checkmark_circle_fill
+                          : isOverdue
+                              ? CupertinoIcons.exclamationmark_circle_fill
+                              : CupertinoIcons.clock_fill,
+                      size: 11.5,
+                      color: statusAccentColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      dateBadgeText,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.1,
+                        color: statusAccentColor,
                       ),
                     ),
                   ],
@@ -297,70 +382,120 @@ class _HomeworkPageState extends State<HomeworkPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             homework.title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            homework.details,
             style: TextStyle(
-              fontSize: 16,
-              height: 1.4,
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.75)
-                  : Colors.black.withValues(alpha: 0.7),
+              fontSize: 17.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+              height: 1.2,
+              decoration: homework.isDone ? TextDecoration.lineThrough : null,
+              decorationColor: isDark ? Colors.white38 : Colors.black38,
+              color: homework.isDone
+                  ? (isDark ? Colors.white38 : Colors.black38)
+                  : (isDark ? Colors.white : Colors.black87),
             ),
           ),
-          const SizedBox(height: 18),
+          if (homework.details.trim().isNotEmpty) ...[
+            Container(
+              margin: const EdgeInsets.only(top: 6),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.035)
+                    : Colors.black.withValues(alpha: 0.025),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.04),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    CupertinoIcons.text_quote,
+                    size: 13,
+                    color: isDark ? Colors.white38 : Colors.black38,
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      homework.details,
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.3,
+                        color: homework.isDone
+                            ? (isDark ? Colors.white38 : Colors.black38)
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.75)
+                                : Colors.black.withValues(alpha: 0.7)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
           Divider(color: dividerColor, height: 1),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           Row(
             children: [
               CupertinoButton(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                sizeStyle: CupertinoButtonSize.small,
                 onPressed: handleDelete,
-                color: Colors.redAccent.withValues(alpha: 0.1),
-                sizeStyle: CupertinoButtonSize.medium,
-                borderRadius: BorderRadius.circular(8.0),
-                child: const Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.trash,
-                      size: 24,
-                      color: Colors.redAccent,
-                    ),
-                  ],
+                color: Colors.redAccent.withValues(alpha: isDark ? 0.15 : 0.1),
+                borderRadius: BorderRadius.circular(6.0),
+                child: const Icon(
+                  CupertinoIcons.trash,
+                  size: 15,
+                  color: Colors.redAccent,
                 ),
               ),
               const Spacer(),
-              Text(
-                "Erledigt",
-                style: subtitleStyle.copyWith(fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(width: 2),
-              Transform.scale(
-                scale: 1.5,
-                child: Checkbox(
-                  value: homework.isDone,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+              GestureDetector(
+                onTap: () => handleToggle(!homework.isDone),
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: homework.isDone
+                        ? const Color(0xFF34C759)
+                            .withValues(alpha: isDark ? 0.18 : 0.12)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  checkColor: Colors.white,
-                  activeColor: accentColor,
-                  side: BorderSide(
-                    color: accentColor.withValues(alpha: 0.6),
-                    width: 1.5,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Erledigt",
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: homework.isDone
+                              ? const Color(0xFF34C759)
+                              : (isDark ? Colors.white70 : Colors.black54),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Icon(
+                        homework.isDone
+                            ? CupertinoIcons.checkmark_circle_fill
+                            : CupertinoIcons.circle,
+                        size: 20,
+                        color: homework.isDone
+                            ? const Color(0xFF34C759)
+                            : (isDark ? Colors.white38 : Colors.black26),
+                      ),
+                    ],
                   ),
-                  visualDensity: VisualDensity.compact,
-                  onChanged: (bool? value) {
-                    if (value == null) return;
-                    handleToggle(value);
-                  },
                 ),
               ),
             ],
