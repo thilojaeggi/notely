@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
 import 'package:notely/models/exam.dart';
 import 'package:notely/data/database/homework_database.dart';
 import 'package:notely/features/widget/widget_sync_service.dart';
@@ -202,6 +203,9 @@ class _TimetablePageState extends State<TimetablePage> {
               return;
             }
             HapticFeedback.selectionClick();
+            AnalyticsService().logTimetableLessonTapped(
+              subject: event.courseName,
+            );
             // Check if required fields are available before showing dialog
             if (event.id == null ||
                 event.courseName == null ||
@@ -421,6 +425,14 @@ class _TimetablePageState extends State<TimetablePage> {
             ),
             timelineOptions: const TimelineOptions(height: 80.0),
             onDateChange: (date) {
+              final now = DateTime.now();
+              final todayDate = DateTime(now.year, now.month, now.day);
+              final targetDate = DateTime(date.year, date.month, date.day);
+              final offset = targetDate.difference(todayDate).inDays;
+              AnalyticsService().logTimetableDateSelected(
+                dayOffset: offset,
+                isToday: offset == 0,
+              );
               setState(() {
                 today = date;
                 _loadEvents(today);
