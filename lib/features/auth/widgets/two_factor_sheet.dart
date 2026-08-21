@@ -28,16 +28,25 @@ class _TwoFactorSheetState extends State<TwoFactorSheet> {
   }
 
   void _handleChange() {
-    final hasText = widget.textController.text.trim().isNotEmpty;
+    final text = widget.textController.text.trim();
+    final hasText = text.isNotEmpty;
     if (hasText != _hasInput) {
       setState(() {
         _hasInput = hasText;
       });
     }
+    // Auto-submit when a full 6-digit code is typed or autofilled from Keychain
+    if (text.length == 6) {
+      _submit();
+    }
   }
 
   void _submit() {
-    Navigator.of(context).pop(widget.textController.text.trim());
+    final code = widget.textController.text.trim();
+    if (code.isNotEmpty && mounted) {
+      TextInput.finishAutofillContext();
+      Navigator.of(context).pop(code);
+    }
   }
 
   @override
@@ -78,104 +87,109 @@ class _TwoFactorSheetState extends State<TwoFactorSheet> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey4.resolveFrom(context),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '2-Faktor-Code',
-                        style: cupertinoTheme.textTheme.navTitleTextStyle
-                            .copyWith(fontSize: 22),
+            child: AutofillGroup(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 48,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey4.resolveFrom(context),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    CupertinoButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      padding: const EdgeInsets.all(8),
-                      minimumSize: const Size.square(32.0),
-                      child: Icon(
-                        CupertinoIcons.xmark_circle_fill,
-                        size: 24,
-                        color: CupertinoColors.systemGrey.resolveFrom(context),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Bitte gib den aktuellen Code aus deiner Authentifizierungs-App ein.',
-                  style: helperStyle,
-                ),
-                const SizedBox(height: 18),
-                CupertinoTextField(
-                  controller: widget.textController,
-                  autofocus: true,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    letterSpacing: 6,
-                    fontWeight: FontWeight.w600,
                   ),
-                  cursorColor: Theme.of(context).colorScheme.primary,
-                  decoration: BoxDecoration(
-                    color: fieldBackground,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(6),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Der Code ändert sich alle paar Sekunden und aktualisiert sich hier automatisch. In den Einstellungen kannst du automatisches Ausfüllen für künftige Logins aktivieren.',
-                  style: helperStyle,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CupertinoButton(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        color: fieldBackground,
-                        onPressed: () => Navigator.of(context).pop(),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
                         child: Text(
-                          'Abbrechen',
-                          style: cupertinoTheme.textTheme.textStyle.copyWith(
-                            color:
-                                CupertinoColors.label.resolveFrom(context),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                          '2-Faktor-Code',
+                          style: cupertinoTheme.textTheme.navTitleTextStyle
+                              .copyWith(fontSize: 22),
+                        ),
+                      ),
+                      CupertinoButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        padding: const EdgeInsets.all(8),
+                        minimumSize: const Size.square(32.0),
+                        child: Icon(
+                          CupertinoIcons.xmark_circle_fill,
+                          size: 24,
+                          color: CupertinoColors.systemGrey.resolveFrom(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Bitte gib den aktuellen Code aus deiner Authentifizierungs-App ein.',
+                    style: helperStyle,
+                  ),
+                  const SizedBox(height: 18),
+                  CupertinoTextField(
+                    controller: widget.textController,
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    autofillHints: const [AutofillHints.oneTimeCode],
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _submit(),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      letterSpacing: 6,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    cursorColor: Theme.of(context).colorScheme.primary,
+                    decoration: BoxDecoration(
+                      color: fieldBackground,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Der Code ändert sich alle paar Sekunden. In den Einstellungen kannst du automatisches Ausfüllen für künftige Logins aktivieren.',
+                    style: helperStyle,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoButton(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          color: fieldBackground,
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(
+                            'Abbrechen',
+                            style: cupertinoTheme.textTheme.textStyle.copyWith(
+                              color:
+                                  CupertinoColors.label.resolveFrom(context),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: CupertinoButton.filled(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        onPressed: _hasInput ? _submit : null,
-                        child: const Text('Senden'),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CupertinoButton.filled(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          onPressed: _hasInput ? _submit : null,
+                          child: const Text('Senden'),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
