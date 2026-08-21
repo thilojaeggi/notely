@@ -1,31 +1,23 @@
-import 'dart:convert'; // NEW
-import 'dart:developer';
-import 'dart:math'; // NEW
-
-import 'package:crypto/crypto.dart' as crypto; // NEW
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-
-import 'package:notely/core/config/app_config.dart';
-import 'package:notely/data/api_client.dart';
-import 'package:notely/shell/initialize_screen.dart';
-import 'package:notely/core/widgets/outlined_box_shadow.dart';
-import 'package:notely/pages/help_page.dart';
-import 'package:fl_toast/fl_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:notely/core/storage/secure_storage.dart';
-import 'package:notely/features/auth/widgets/auth_text_field.dart';
-import 'package:notely/features/auth/widgets/two_factor_sheet.dart';
+import 'package:fl_toast/fl_toast.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as parser;
-import 'package:html/dom.dart' as dom;
+
+import 'package:notely/core/analytics/analytics_constants.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
+import 'package:notely/core/config/style.dart';
+import 'package:notely/core/storage/secure_storage.dart';
+import 'package:notely/core/widgets/outlined_box_shadow.dart';
+import 'package:notely/data/api_client.dart';
+import 'package:notely/features/auth/kaschuso_auth_service.dart';
 import 'package:notely/features/auth/otp_helper.dart';
 import 'package:notely/features/auth/token_manager.dart';
-import 'package:notely/core/config/style.dart';
+import 'package:notely/features/auth/widgets/auth_text_field.dart';
+import 'package:notely/features/auth/widgets/two_factor_sheet.dart';
+import 'package:notely/pages/help_page.dart';
+import 'package:notely/shell/initialize_screen.dart';
 import 'package:notely/shell/view_container.dart';
 
 class LoginPage extends StatefulWidget {
@@ -39,7 +31,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _loginHasBeenPressed = false;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  HeadlessInAppWebView? headlessWebView;
   String dropdownValue = 'KSSO';
   bool _hasStoredCredentials = false;
   bool _autoSignInTriggered = false;
@@ -55,185 +46,17 @@ class _LoginPageState extends State<LoginPage> {
     'KBS Olten': 'KBSOL',
   };
 
-  // PKCE + state (NEW)
-  String? _codeVerifier;
-  String? _codeChallenge;
-  String? _oauthState;
-
-  String _base64UrlNoPadding(List<int> bytes) {
-    return base64Url.encode(bytes).replaceAll('=', '');
-  }
-
-  void _generatePkceAndState() {
-    final rand = Random.secure();
-
-    // code_verifier: 32 random bytes
-    final verifierBytes = List<int>.generate(32, (_) => rand.nextInt(256));
-    _codeVerifier = _base64UrlNoPadding(verifierBytes);
-
-    // code_challenge = BASE64URL(SHA256(verifier))
-    final verifierUtf8 = utf8.encode(_codeVerifier!);
-    final digest = crypto.sha256.convert(verifierUtf8);
-    _codeChallenge = _base64UrlNoPadding(digest.bytes);
-
-    // INCREASED SIZE: state & nonce (match their long strings)
-    final stateBytes = List<int>.generate(43, (_) => rand.nextInt(256));
-    _oauthState = _base64UrlNoPadding(stateBytes);
-
-    debugPrint('PKCE generated with longer state: $_oauthState');
-  }
-
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb) {
-      _createHeadlessWebView();
-    }
     _loadStoredCredentials();
   }
 
-  void _createHeadlessWebView() {
-    const initialUrl = "https://schulnetz.web.app/";
-    final initialUri = Uri.parse(
-        kIsWeb ? 'https://lite.corsfix.com/?$initialUrl' : initialUrl);
-    headlessWebView = HeadlessInAppWebView(
-      initialUrlRequest: URLRequest(url: WebUri.uri(initialUri)),
-      onWebViewCreated: (controller) {
-        debugPrint('HeadlessInAppWebView created!');
-      },
-      onConsoleMessage: (controller, consoleMessage) {
-        debugPrint("CONSOLE MESSAGE: ${consoleMessage.message}");
-      },
-      onLoadStart: (controller, url) async {
-        debugPrint("onLoadStart $url");
-      },
-      onLoadStop: (controller, url) async {
-        debugPrint("onLoadStop $url");
-
-        if (url
-            .toString()
-            .contains("https://schulnetz.web.app/login?mandant")) {
-          debugPrint("gotologin");
-          await headlessWebView!.webViewController
-              ?.evaluateJavascript(source: """
-      document.querySelectorAll('button').forEach(button => {
-        if (button.textContent.trim() === 'Log in') {
-          button.click();
-          console.log('clicked');
-        }
-      });
-    """);
-        }
-
-        if (url.toString().contains("authorize.php")) {
-          debugPrint("authorize");
-
-          try {
-            final pageHtml = await controller.getHtml();
-            if (pageHtml != null) {
-              final errorMessage = _extractAuthorizeError(pageHtml);
-              if (errorMessage != null) {
-                await _handleAuthorizeError(errorMessage);
-                return;
-              }
-            }
-          } catch (e, s) {
-            debugPrint('Failed to fetch authorize HTML: $e\n$s');
-          }
-
-          // 1) Detect if this is the OTP page
-          final hasPinField = await headlessWebView!.webViewController
-              ?.evaluateJavascript(
-                  source: "document.querySelector('input#pin') != null;");
-
-          final bool pinPage =
-              hasPinField == true || hasPinField?.toString() == 'true';
-
-          if (pinPage) {
-            // --- OTP / TOTP PAGE ---
-            debugPrint("OTP page detected");
-
-            final otp = await _getOtpCode();
-            if (otp == null || otp.isEmpty) {
-              debugPrint("User cancelled or empty OTP");
-              setState(() {
-                _loginHasBeenPressed = false;
-              });
-              return;
-            }
-
-            await headlessWebView!.webViewController
-                ?.evaluateJavascript(source: """
-        (function() {
-          var pinInput = document.getElementById('pin');
-          if (pinInput) {
-            pinInput.value = '${otp.replaceAll("'", "\\'")}';
-          }
-          var submitBtn = document.querySelector('.login-submit');
-          if (submitBtn) {
-            submitBtn.click();
-          }
-        })();
-      """);
-          } else {
-            // --- USERNAME / PASSWORD PAGE (old behavior) ---
-            await headlessWebView!.webViewController
-                ?.evaluateJavascript(source: """
-        if (document.getElementById("login") && document.getElementById("passwort")) {
-          document.getElementById("login").value = "${_usernameController.text}";
-          document.getElementById("passwort").value = "${_passwordController.text}";
-          var submitBtn = document.querySelector('.login-submit');
-          if (submitBtn) {
-            submitBtn.click();
-          }
-        }
-      """);
-          }
-        }
-      },
-      onUpdateVisitedHistory: (controller, url, androidIsReload) async {
-        if (!mounted) return;
-        final urlString = url?.toString() ?? '';
-        debugPrint("onUpdateVisitedHistory $urlString");
-
-        // NEW: Handle OAuth2 /callback?code=...
-        if (urlString.startsWith('https://schulnetz.web.app/callback')) {
-          final uri = Uri.parse(urlString);
-          final code = uri.queryParameters['code'];
-          final state = uri.queryParameters['state'];
-
-          debugPrint(
-              'callback code=$code state=$state (expected state=$_oauthState)');
-
-          if (code != null && state != null && state == _oauthState) {
-            // We have a valid code – stop headless webview and exchange for token
-            await _disposeHeadlessWebView();
-            if (!mounted) return;
-            setState(() {
-              _loginHasBeenPressed = false;
-            });
-            await _exchangeCodeForToken(code);
-            return;
-          } else {
-            debugPrint('State mismatch or no code – ignoring callback');
-          }
-        }
-
-        // OLD / LEGACY: original "redirect back to /login" behavior
-        if (urlString.contains("/login")) {
-          debugPrint("successfully authenticated for the first time");
-
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            await _disposeHeadlessWebView();
-            if (!mounted) return;
-            setState(() {
-              _loginHasBeenPressed = false;
-            });
-            await signIn();
-          });
-        }
-      },
-    );
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadStoredCredentials() async {
@@ -285,6 +108,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<String?> _askForOtpCode() async {
     if (!mounted) return null;
 
+    AnalyticsService().logTwoFactorPrompted(school: dropdownValue);
     final controller = TextEditingController();
 
     final result = await showModalBottomSheet<String>(
@@ -300,10 +124,14 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     controller.dispose();
+    AnalyticsService().logTwoFactorCompleted(
+      school: dropdownValue,
+      isSuccess: result != null && result.isNotEmpty,
+    );
     return result;
   }
 
-  Future<String?> _getOtpCode() async {
+  Future<String?> _getStoredOtp() async {
     try {
       final storage = SecureStorage();
       final storedSecret = await storage.readOtpSecret();
@@ -318,45 +146,11 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e, s) {
       debugPrint('Failed to generate stored OTP: $e\n$s');
     }
-
-    return _askForOtpCode();
-  }
-
-  String? _extractAuthorizeError(String html) {
-    try {
-      final dom.Document document = parser.parse(html);
-      final errorNode = document
-          .querySelector('.mdl-cell.mdl-cell--12-col[style*="#ffb138"]');
-
-      if (errorNode != null) {
-        final text = errorNode.text.trim();
-        if (text.isNotEmpty && text.toLowerCase().startsWith('fehler')) {
-          return text;
-        }
-      }
-
-      final bodyText = document.body?.text ?? '';
-      if (bodyText.toLowerCase().contains('fehler:')) {
-        return bodyText.split('\n').map((line) => line.trim()).firstWhere(
-              (line) => line.toLowerCase().startsWith('fehler'),
-              orElse: () => 'Fehler bei der Anmeldung',
-            );
-      }
-    } catch (e, s) {
-      debugPrint('Error parsing authorize.php HTML: $e\n$s');
-    }
-
     return null;
   }
 
-  Future<void> _handleAuthorizeError(String message) async {
-    debugPrint('Authorize error detected: $message');
-    await _disposeHeadlessWebView();
-
-    if (!mounted) {
-      return;
-    }
-
+  void _showErrorToast(String message) {
+    if (!mounted) return;
     showToast(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -367,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         padding: const EdgeInsets.all(10.0),
         child: Text(
-          message.replaceAll(' Ihre Aktion wurde aufgezeichnet.', ''),
+          message,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16.0,
@@ -377,330 +171,12 @@ class _LoginPageState extends State<LoginPage> {
       ),
       context: context,
     );
-
-    setState(() {
-      _loginHasBeenPressed = false;
-    });
-  }
-
-  Future<void> _disposeHeadlessWebView() async {
-    if (headlessWebView != null) {
-      try {
-        await headlessWebView!.dispose();
-      } catch (e, s) {
-        debugPrint('Error disposing headlessWebView: $e\n$s');
-      }
-      headlessWebView = null;
-    }
-  }
-
-  // NEW: exchange code for access_token via token.php
-// NEW: exchange code for access_token via token.php
-  Future<void> _exchangeCodeForToken(String code) async {
-    final storage = SecureStorage();
-    final apiClient = APIClient();
-    final school = dropdownValue.toLowerCase();
-
-    if (_codeVerifier == null) {
-      debugPrint('No code_verifier available, cannot exchange code');
-      return;
-    }
-
-    // 1. Use the correct URL including /public/ as seen in the working logs
-    final tokenUrlString = "https://kaschuso.so.ch/public/$school/token.php";
-    final tokenUrl = Uri.parse(
-        kIsWeb ? 'https://lite.corsfix.com/?$tokenUrlString' : tokenUrlString);
-
-    // 2. Extract cookies from the Headless WebView session to maintain context
-    final cookieManager = CookieManager.instance();
-    final cookies =
-        await cookieManager.getCookies(url: WebUri("https://kaschuso.so.ch"));
-    String cookieString = cookies.map((e) => "${e.name}=${e.value}").join("; ");
-
-    debugPrint("Sending cookies to token.php: $cookieString");
-
-    // 3. Build the request body with the empty redirect_uri seen in the HAR [cite: 1, 3]
-    final body = {
-      'grant_type': 'authorization_code',
-      'code': code,
-      'redirect_uri': '',
-      'code_verifier': _codeVerifier!,
-      'client_id': 'ppyybShnMerHdtBQ',
-    };
-
-    try {
-      final resp = await http.post(
-        tokenUrl,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json, text/plain, */*',
-          'Cookie': cookieString, // Attach session ID
-          'User-Agent':
-              'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
-          'Origin': 'https://schulnetz.web.app',
-          'Referer': 'https://schulnetz.web.app',
-        },
-        body: body,
-      );
-
-      debugPrint('token.php status: ${resp.statusCode}');
-      debugPrint('token.php body: ${resp.body}');
-
-      if (resp.statusCode == 200 && resp.body.trim().isNotEmpty) {
-        final jsonData = jsonDecode(resp.body) as Map<String, dynamic>;
-        final accessToken = jsonData['access_token'] as String?;
-        final refreshToken = jsonData['refresh_token'] as String?;
-        final expiresIn = jsonData['expires_in'];
-        final expiresAt = TokenManager.deriveExpiry(expiresIn);
-
-        if (accessToken == null) {
-          debugPrint('No access_token field in token.php response');
-          return;
-        }
-
-        final username = _usernameController.text;
-        final password = _passwordController.text;
-
-        final prefs = await SharedPreferences.getInstance();
-        await storage.write(key: "username", value: username);
-        await storage.write(key: "password", value: password);
-        await storage.write(key: "school", value: school);
-        await prefs.setString("school", school);
-        await storage.saveAccessToken(
-          accessToken,
-          expiresAt: expiresAt,
-          refreshToken: refreshToken,
-        );
-
-        apiClient.accessToken = accessToken;
-        apiClient.school = school;
-
-        if (!mounted) return;
-
-        showToast(
-          alignment: Alignment.bottomCenter,
-          duration: const Duration(seconds: 1),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 32.0),
-            decoration: const BoxDecoration(
-              color: Colors.greenAccent,
-              borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            ),
-            padding: const EdgeInsets.all(6.0),
-            child: const Text(
-              "Erfolgreich angemeldet",
-              style: TextStyle(color: Colors.white, fontSize: 16.0),
-            ),
-          ),
-          context: context,
-        );
-
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            type: PageTransitionType.fade,
-            duration: const Duration(milliseconds: 450),
-            alignment: Alignment.bottomCenter,
-            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
-          ),
-        );
-      } else {
-        debugPrint(
-            "Token response was empty or failed with status: ${resp.statusCode}");
-        throw Exception("Empty response from token.php");
-      }
-    } catch (e, s) {
-      debugPrint('Error during token exchange: $e\n$s');
-      if (!mounted) return;
-      showToast(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 32.0),
-          decoration: const BoxDecoration(
-            color: Colors.redAccent,
-            borderRadius: BorderRadius.all(Radius.circular(12.0)),
-          ),
-          padding: const EdgeInsets.all(6.0),
-          child: const Text(
-            "2FA-Token konnte nicht geholt werden",
-            style: TextStyle(color: Colors.white, fontSize: 16.0),
-          ),
-        ),
-        context: context,
-      );
-    }
-  }
-
-  Future<void> _signInWeb(
-      String username, String password, String schoolCode) async {
-    final storage = SecureStorage();
-    final apiClient = APIClient();
-    final prefs = await SharedPreferences.getInstance();
-    final apiBase = AppConfig.authProxyUrl;
-    print(apiBase);
-    try {
-      // 1. Send Credentials
-      final loginUrl = Uri.parse('$apiBase/auth/login');
-      final loginBody = jsonEncode({
-        "username": username,
-        "password": password,
-        "school": schoolCode,
-      });
-
-      final loginResp = await http.post(
-        loginUrl,
-        headers: {'Content-Type': 'application/json'},
-        body: loginBody,
-      );
-
-      if (loginResp.statusCode != 200 && loginResp.statusCode != 201) {
-        if (loginResp.statusCode == 401) {
-          throw Exception('Benutzername oder Passwort falsch');
-        } else if (loginResp.statusCode >= 500) {
-          throw Exception('Server nicht erreichbar. Versuche es später erneut');
-        }
-        throw Exception('Anmeldung fehlgeschlagen (Fehler ${loginResp.statusCode})');
-      }
-
-      final loginData = jsonDecode(loginResp.body);
-      final status = loginData['status'];
-
-      String? accessToken;
-      String? refreshToken;
-      dynamic expiresIn;
-
-      // 2. Handle OTP Requirement
-      if (status == 'OTP_REQUIRED') {
-        final sessionId = loginData['sessionId'];
-
-        // Prompt for OTP (or use stored secret)
-        final otp = await _getOtpCode();
-        if (otp == null || otp.isEmpty) {
-          if (mounted) {
-            setState(() {
-              _loginHasBeenPressed = false;
-            });
-          }
-          return;
-        }
-
-        // 3. Send OTP
-        final otpUrl = Uri.parse('$apiBase/auth/otp');
-        final otpBody = jsonEncode({
-          "sessionId": sessionId,
-          "otp": otp,
-        });
-
-        final otpResp = await http.post(
-          otpUrl,
-          headers: {'Content-Type': 'application/json'},
-          body: otpBody,
-        );
-
-        if (otpResp.statusCode != 200 && otpResp.statusCode != 201) {
-          throw Exception('OTP validation failed: ${otpResp.statusCode}');
-        }
-
-        final otpData = jsonDecode(otpResp.body);
-        if (otpData['status'] == 'SUCCESS') {
-          accessToken = otpData['access_token'];
-          refreshToken = otpData['refresh_token'];
-          expiresIn = otpData['expires_in'];
-        } else {
-          throw Exception('OTP status not SUCCESS: ${otpData['status']}');
-        }
-      } else if (status == 'SUCCESS') {
-        // Direct success (no OTP)
-        accessToken = loginData['access_token'];
-        refreshToken = loginData['refresh_token'];
-        expiresIn = loginData['expires_in'];
-      } else {
-        throw Exception('Unknown login status: $status');
-      }
-
-      // 4. Save Token and Complete Login
-      if (accessToken != null) {
-        final schoolLower = schoolCode.toLowerCase();
-        final expiresAt = TokenManager.deriveExpiry(expiresIn);
-
-        await storage.write(key: "username", value: username);
-        await storage.write(key: "password", value: password);
-        await storage.write(key: "school", value: schoolLower);
-        await prefs.setString("school", schoolLower);
-
-        await storage.saveAccessToken(
-          accessToken,
-          expiresAt: expiresAt,
-          refreshToken: refreshToken,
-        );
-
-        apiClient.accessToken = accessToken;
-        apiClient.school = schoolLower;
-
-        if (!mounted) return;
-
-        showToast(
-          alignment: Alignment.bottomCenter,
-          duration: const Duration(seconds: 1),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 32.0),
-            decoration: const BoxDecoration(
-              color: Colors.greenAccent,
-              borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            ),
-            padding: const EdgeInsets.all(6.0),
-            child: const Text(
-              "Erfolgreich angemeldet",
-              style: TextStyle(color: Colors.white, fontSize: 16.0),
-            ),
-          ),
-          context: context,
-        );
-
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            type: PageTransitionType.fade,
-            duration: const Duration(milliseconds: 450),
-            alignment: Alignment.bottomCenter,
-            child: const InitializeScreen(targetWidget: ViewContainerWidget()),
-          ),
-        );
-      }
-    } catch (e, s) {
-      debugPrint('Web login error: $e\n$s');
-      if (mounted) {
-        setState(() {
-          _loginHasBeenPressed = false;
-        });
-        showToast(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 32.0),
-            decoration: const BoxDecoration(
-              color: Colors.redAccent,
-              borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            ),
-            padding: const EdgeInsets.all(10.0),
-            child: Text(
-              e.toString().replaceFirst('Exception: ', ''),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          context: context,
-        );
-      }
-    }
   }
 
   Future<void> signIn() async {
     final storage = SecureStorage();
     final apiClient = APIClient();
-    final String username = _usernameController.text;
+    final String username = _usernameController.text.trim();
     final String password = _passwordController.text;
     final school = dropdownValue.toLowerCase();
 
@@ -712,6 +188,11 @@ class _LoginPageState extends State<LoginPage> {
           await apiClient.isAccessTokenValid(cachedToken, school)) {
         apiClient.accessToken = cachedToken;
         apiClient.school = school;
+        AnalyticsService().setSchool(school);
+        AnalyticsService().logLoginSuccess(
+          method: LoginMethod.cachedToken,
+          school: school,
+        );
         if (!mounted) return;
         setState(() {
           _loginHasBeenPressed = false;
@@ -728,7 +209,6 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
     } on InvalidCredentialsException {
-      // Stored credentials rejected — continue to fresh login below
       debugPrint('Cached credentials invalid, proceeding with fresh login');
     }
 
@@ -751,72 +231,99 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // 3. Web Login Flow (NEW)
-    if (kIsWeb || AppConfig.forceWebFlow) {
-      await _signInWeb(username, password, dropdownValue);
-      return;
-    }
-
-    // 4. Start PKCE flow
-    _generatePkceAndState();
-
-    // 5. Dispose and recreate Headless WebView to ensure a clean session
-    await _disposeHeadlessWebView();
-    _createHeadlessWebView();
-
-    if (headlessWebView == null) {
-      debugPrint('Failed to create HeadlessInAppWebView instance');
-      if (mounted) setState(() => _loginHasBeenPressed = false);
-      return;
-    }
-
-    await headlessWebView!.run();
-
-    // 6. Build the Authorization URL exactly as seen in the HAR
-    const redirectUri = "https://schulnetz.web.app/callback";
-    final authUrlString =
-        "https://kaschuso.so.ch/public/$school/authorize.php" // Keep /public/
-        "?response_type=code"
-        "&client_id=ppyybShnMerHdtBQ"
-        "&state=${_oauthState!}"
-        "&redirect_uri=" // Must be empty to match the HAR
-        "&scope=openid%20"
-        "&code_challenge=${_codeChallenge!}"
-        "&code_challenge_method=S256"
-        "&nonce=${_oauthState!}"
-        "&id=";
-    final authUrl =
-        kIsWeb ? 'https://lite.corsfix.com/?$authUrlString' : authUrlString;
-    debugPrint("Launching Auth Flow: $authUrl");
-
-    // Load the URL. The WebView's onLoadStop will automatically
-    // handle entering the username/password and clicking login.
-    await headlessWebView!.webViewController?.loadUrl(
-      urlRequest: URLRequest(
-        url: WebUri.uri(Uri.parse(authUrl)),
-      ),
+    // 3. Native Direct Auth Flow
+    final startTime = DateTime.now();
+    AnalyticsService().logLoginAttempt(
+      method: LoginMethod.manual,
+      school: dropdownValue,
     );
-  }
 
-/*
-  Future<void> signIn() async {
-    final storage = SecureStorage();
-    final apiClient = APIClient();
-    final String username = _usernameController.text;
-    final String password = _passwordController.text;
-    final school = dropdownValue.toLowerCase();
+    final authService = KaschusoAuthService();
 
-    // If we already have a fresh token (or can refresh it), skip the whole re-auth flow.
-    final cachedToken = await _tokenManager.getValidAccessToken(school);
-    if (cachedToken != null &&
-        cachedToken.isNotEmpty &&
-        await apiClient.isAccessTokenValid(cachedToken, school)) {
-      apiClient.accessToken = cachedToken;
+    try {
+      final storedOtp = await _getStoredOtp();
+      KaschusoTokens tokens;
+
+      try {
+        tokens = await authService.login(
+          username: username,
+          password: password,
+          school: school,
+          otpCode: storedOtp,
+        );
+      } on KaschusoOtpRequiredException {
+        // Prompt for OTP
+        final manualOtp = await _askForOtpCode();
+        if (manualOtp == null || manualOtp.trim().isEmpty) {
+          if (mounted) {
+            setState(() {
+              _loginHasBeenPressed = false;
+            });
+          }
+          return;
+        }
+        tokens = await authService.submitOtp(otpCode: manualOtp.trim());
+      } on KaschusoAuthException catch (e) {
+        // If stored OTP was rejected, allow manual OTP entry if session is active
+        if (authService.hasActiveSession && e.message.toLowerCase().contains('code')) {
+          debugPrint('[LoginPage] Stored OTP rejected, falling back to manual entry');
+          final manualOtp = await _askForOtpCode();
+          if (manualOtp == null || manualOtp.trim().isEmpty) {
+            if (mounted) {
+              setState(() {
+                _loginHasBeenPressed = false;
+              });
+            }
+            return;
+          }
+          tokens = await authService.submitOtp(otpCode: manualOtp.trim());
+        } else {
+          rethrow;
+        }
+      }
+
+      // Save credentials & tokens
+      final prefs = await SharedPreferences.getInstance();
+      await storage.write(key: "username", value: username);
+      await storage.write(key: "password", value: password);
+      await storage.write(key: "school", value: school);
+      await prefs.setString("school", school);
+
+      await storage.saveAccessToken(
+        tokens.accessToken,
+        expiresAt: tokens.expiresAt,
+        refreshToken: tokens.refreshToken,
+      );
+
+      apiClient.accessToken = tokens.accessToken;
       apiClient.school = school;
+      AnalyticsService().setSchool(school);
+      AnalyticsService().logLoginSuccess(
+        method: LoginMethod.manual,
+        school: school,
+        durationMs: DateTime.now().difference(startTime).inMilliseconds,
+      );
+
       if (!mounted) return;
-      setState(() {
-        _loginHasBeenPressed = false;
-      });
+
+      showToast(
+        alignment: Alignment.bottomCenter,
+        duration: const Duration(seconds: 1),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 32.0),
+          decoration: const BoxDecoration(
+            color: Colors.greenAccent,
+            borderRadius: BorderRadius.all(Radius.circular(12.0)),
+          ),
+          padding: const EdgeInsets.all(6.0),
+          child: const Text(
+            "Erfolgreich angemeldet",
+            style: TextStyle(color: Colors.white, fontSize: 16.0),
+          ),
+        ),
+        context: context,
+      );
+
       Navigator.pushReplacement(
         context,
         PageTransition(
@@ -826,175 +333,35 @@ class _LoginPageState extends State<LoginPage> {
           child: const InitializeScreen(targetWidget: ViewContainerWidget()),
         ),
       );
-      return;
-    }
-
-    // Generate new PKCE + state (NEW)
-    _generatePkceAndState();
-
-    final redirectUri = "https://schulnetz.web.app/callback";    // 1. Build auth URL
-    final url = Uri.parse("https://kaschuso.so.ch/public/$school/authorize.php"
-    "?response_type=code"
-    "&client_id=ppyybShnMerHdtBQ"
-    "&state=${_oauthState!}"
-    "&redirect_uri=${Uri.encodeComponent(redirectUri)}" // Added this
-    "&scope=openid"
-    "&code_challenge=${_codeChallenge!}"
-    "&code_challenge_method=S256"
-    "&nonce=${_oauthState!}");
-
-    if (username == "demo" && password == "demo") {
-      apiClient.fakeData = true;
-      apiClient.school = "demo";
-      await storage.write(key: "username", value: username);
-      await storage.write(key: "password", value: password);
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          duration: const Duration(milliseconds: 450),
-          alignment: Alignment.bottomCenter,
-          child: const ViewContainerWidget(),
-        ),
+    } on KaschusoInvalidCredentialsException catch (e) {
+      debugPrint('Login credentials error: ${e.message}');
+      AnalyticsService().logLoginFailure(
+        method: LoginMethod.manual,
+        school: dropdownValue,
+        reason: e.message,
       );
-      return;
-    } else {
-      apiClient.fakeData = false;
-    }
-
-    await http.post(url, body: {
-      "login": username,
-      "passwort": password,
-    }, headers: {
-      'accept-encoding': 'gzip, deflate',
-      'access-control-allow-credentials': 'true',
-      'access-control-allow-headers': '*',
-      'access-control-allow-methods': '*',
-      'access-control-allow-origin': '*',
-      'access-control-expose-headers': '*'
-    }).then((response) async {
-      debugPrint(response.statusCode.toString());
-      debugPrint(response.body.toString());
-      debugPrint(response.headers.toString());
-
-      if (response.statusCode == 302 && response.headers['location'] != null) {
-        String locationHeader = response.headers['location'].toString();
-        debugPrint(locationHeader);
-
-        // LEGACY: implicit-flow fragment with access_token
-        if (locationHeader.contains('#access_token=')) {
-          var trimmedString =
-              locationHeader.substring(0, locationHeader.indexOf('&'));
-          trimmedString = trimmedString
-              .substring(trimmedString.indexOf("#") + 1)
-              .replaceAll("access_token=", "");
-          final prefs = await SharedPreferences.getInstance();
-          await storage.write(key: "username", value: username);
-          await storage.write(key: "password", value: password);
-          await storage.write(key: "school", value: school);
-          await prefs.setString("school", school);
-          await storage.saveAccessToken(trimmedString);
-
-          apiClient.accessToken = trimmedString;
-          apiClient.school = school;
-          if (!mounted) return;
-
-          showToast(
-            alignment: Alignment.bottomCenter,
-            duration: const Duration(seconds: 1),
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 32.0),
-              decoration: const BoxDecoration(
-                color: Colors.greenAccent,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(12.0),
-                ),
-              ),
-              padding: const EdgeInsets.all(6.0),
-              child: const Text(
-                "Erfolgreich angemeldet",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
-                ),
-              ),
-            ),
-            context: context,
-          );
-          Navigator.pushReplacement(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              duration: const Duration(milliseconds: 450),
-              alignment: Alignment.bottomCenter,
-              child:
-                  const InitializeScreen(targetWidget: ViewContainerWidget()),
-            ),
-          );
-        } else {
-          // If they ever start redirecting directly with ?code=... in Location,
-          // you could also parse that here and call _exchangeCodeForToken(code).
-          debugPrint('302 without access_token fragment – not handled here');
-        }
-      } else if (response.statusCode == 200 &&
-          response.headers['location'] == null) {
-
-        await _disposeHeadlessWebView();
-        _createHeadlessWebView();
-
-        if (headlessWebView == null) {
-          debugPrint('Failed to create HeadlessInAppWebView instance');
-          setState(() {
-            _loginHasBeenPressed = false;
-          });
-          return;
-        }
-
-        await headlessWebView!.run();
-
-        headlessWebView!.webViewController?.loadUrl(
-          urlRequest: URLRequest(
-            url: WebUri.uri(Uri.parse(
-                "https://kaschuso.so.ch/public/$school/authorize.php"
-                "?response_type=code"
-                "&client_id=ppyybShnMerHdtBQ"
-                "&state=${_oauthState!}"
-                "&redirect_uri=https://schulnetz.web.app/callback"
-                "&scope=openid"
-                "&code_challenge=${_codeChallenge!}"
-                "&code_challenge_method=S256"
-                "&nonce=${_oauthState!}")),
-          ),
-        );
-      } else {
-        showToast(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 32.0),
-            decoration: const BoxDecoration(
-              color: Colors.redAccent,
-              borderRadius: BorderRadius.all(
-                Radius.circular(12.0),
-              ),
-            ),
-            padding: const EdgeInsets.all(6.0),
-            child: const Text(
-              "Etwas ist schiefgelaufen",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-              ),
-            ),
-          ),
-          context: context,
-        );
+      if (mounted) {
         setState(() {
           _loginHasBeenPressed = false;
         });
+        _showErrorToast(e.message);
       }
-    });
-  }*/
+    } catch (e, s) {
+      debugPrint('Login error: $e\n$s');
+      AnalyticsService().logLoginFailure(
+        method: LoginMethod.manual,
+        school: dropdownValue,
+        reason: e.toString(),
+      );
+      if (mounted) {
+        setState(() {
+          _loginHasBeenPressed = false;
+        });
+        final displayMsg = e.toString().replaceFirst('Exception: ', '').replaceFirst('KaschusoAuthException: ', '');
+        _showErrorToast(displayMsg);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1239,7 +606,7 @@ class _LoginPageState extends State<LoginPage> {
                                           ),
                                         )
                                       else
-                                        Icon(
+                                        const Icon(
                                           CupertinoIcons.arrow_right,
                                           color: Colors.black,
                                           size: 30.0,
