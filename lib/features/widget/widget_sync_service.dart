@@ -1,12 +1,13 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
 import 'package:notely/data/api_client.dart';
 import 'package:notely/features/subscription/subscription_manager.dart';
 import 'package:notely/models/event.dart';
+import 'package:universal_io/universal_io.dart' show Platform;
 
 /// Centralized service for syncing schedule data to the iOS home screen widget.
 ///
@@ -14,6 +15,10 @@ import 'package:notely/models/event.dart';
 /// doesn't open the app every day. Data is stored in the app-group
 /// UserDefaults and read by the WidgetKit extension.
 class WidgetSyncService {
+  static const String appGroupId = 'group.ch.thilojaeggi.notely';
+  static const String lessonDataKey = 'notely_lesson_data';
+  static const String widgetName = 'ScheduleWidget';
+
   static final WidgetSyncService _instance = WidgetSyncService._internal();
   factory WidgetSyncService() => _instance;
   WidgetSyncService._internal();
@@ -21,10 +26,12 @@ class WidgetSyncService {
   final APIClient _apiClient = APIClient();
   bool _syncing = false;
 
+  bool get _isSupported => !kIsWeb && Platform.isIOS;
+
   /// Fetches events for the next 7 days and syncs them all to the widget.
-  /// Call this on app resume or after login to keep the widget fresh.
+  /// Call this on app resume, after login, or when premium is granted.
   Future<void> syncScheduleToWidget() async {
-    if (!Platform.isIOS || kIsWeb) return;
+    if (!_isSupported) return;
     if (_syncing) return;
     if (!SubscriptionManager().isPremium) return;
     _syncing = true;
@@ -46,7 +53,8 @@ class WidgetSyncService {
 
       for (final dayLessons in days.values) {
         dayLessons.sort(
-            (a, b) => (a['start'] ?? '').compareTo(b['start'] ?? ''));
+          (a, b) => (a['start'] ?? '').compareTo(b['start'] ?? ''),
+        );
       }
 
       final payload = {
@@ -55,15 +63,23 @@ class WidgetSyncService {
       };
 
       await HomeWidget.saveWidgetData<String>(
-        'notely_lesson_data',
+        lessonDataKey,
         jsonEncode(payload),
       );
       await HomeWidget.updateWidget(
-        name: 'ScheduleWidget',
-        iOSName: 'ScheduleWidget',
+        name: widgetName,
+        iOSName: widgetName,
+      );
+      AnalyticsService().logWidgetSyncCompleted(
+        status: 'success',
+        itemCount: events.length,
       );
     } catch (e) {
       debugPrint('WidgetSyncService: failed to sync – $e');
+      AnalyticsService().logWidgetSyncCompleted(
+        status: 'failure',
+        error: e.toString(),
+      );
     } finally {
       _syncing = false;
     }
@@ -73,7 +89,7 @@ class WidgetSyncService {
   /// while the user is on the timetable page). Preserves other days already
   /// stored in the payload and cleans up dates in the past.
   Future<void> syncEventsForDate(List<Event> events, DateTime date) async {
-    if (!Platform.isIOS || kIsWeb) return;
+    if (!_isSupported) return;
     if (!SubscriptionManager().isPremium) return;
 
     try {
@@ -82,7 +98,7 @@ class WidgetSyncService {
 
       // Read existing widget payload to preserve other days
       final existingJson =
-          await HomeWidget.getWidgetData<String>('notely_lesson_data');
+          await HomeWidget.getWidgetData<String>(lessonDataKey);
       Map<String, dynamic> existingPayload = {};
       if (existingJson != null) {
         try {
@@ -114,15 +130,29 @@ class WidgetSyncService {
       };
 
       await HomeWidget.saveWidgetData<String>(
-        'notely_lesson_data',
+        lessonDataKey,
         jsonEncode(payload),
       );
       await HomeWidget.updateWidget(
-        name: 'ScheduleWidget',
-        iOSName: 'ScheduleWidget',
+        name: widgetName,
+        iOSName: widgetName,
       );
     } catch (e) {
       debugPrint('WidgetSyncService: failed to sync date – $e');
+    }
+  }
+
+  /// Clears stored widget lesson data on logout or when premium is lost.
+  Future<void> clearWidgetData() async {
+    if (!_isSupported) return;
+    try {
+      await HomeWidget.saveWidgetData<String>(lessonDataKey, '');
+      await HomeWidget.updateWidget(
+        name: widgetName,
+        iOSName: widgetName,
+      );
+    } catch (e) {
+      debugPrint('WidgetSyncService: failed to clear widget data – $e');
     }
   }
 
