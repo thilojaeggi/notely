@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:intl/intl.dart';
 import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -216,18 +215,9 @@ class _StartPageState extends State<StartPage> {
   }
 
   Future<void> _setAnalyticsProperties(Student student) async {
-    final analytics = FirebaseAnalytics.instance;
-
     final school = await _getAnalyticsSchool();
     if (school == null) return;
-
-    try {
-      await analytics.setUserProperty(name: 'school', value: school);
-      debugPrint("Set school property");
-      await analytics.setDefaultEventParameters({'school': school});
-    } catch (e) {
-      debugPrint('Failed to set analytics school: $e');
-    }
+    await AnalyticsService().setSchool(school);
   }
 
   Future<String?> _getAnalyticsSchool() async {
@@ -253,9 +243,19 @@ class _StartPageState extends State<StartPage> {
 
   Brightness? _lastBrightness;
 
+  void _onPremiumChanged() {
+    if (SubscriptionManager().isPremium) {
+      _nativeAd?.dispose();
+      _nativeAd = null;
+      _nativeAdIsLoaded = false;
+    }
+    if (mounted) setState(() {});
+  }
+
   @override
-  initState() {
+  void initState() {
     super.initState();
+    SubscriptionManager().isPremiumListenable.addListener(_onPremiumChanged);
 
     _getGrades();
     _getStudent();
@@ -267,6 +267,7 @@ class _StartPageState extends State<StartPage> {
 
   @override
   void dispose() {
+    SubscriptionManager().isPremiumListenable.removeListener(_onPremiumChanged);
     _nativeAd?.dispose();
     super.dispose();
   }
@@ -274,23 +275,23 @@ class _StartPageState extends State<StartPage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Column(
+      top: true,
+      bottom: false,
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          10,
+          12,
+          10,
+          MediaQuery.of(context).padding.bottom + 84,
+        ),
         children: [
-          Expanded(
-            child: ListView(
-              shrinkWrap: true,
-              padding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-              children: [
-                _buildGreetingHeader(),
-                const SizedBox(height: 12),
-                _buildQuickActions(),
-                const SizedBox(height: 12),
-                _buildNativeAd(),
-                const SizedBox(height: 12),
-                _buildGradesSection(),
-              ],
-            ),
-          ),
+          _buildGreetingHeader(),
+          const SizedBox(height: 12),
+          _buildQuickActions(),
+          const SizedBox(height: 12),
+          _buildNativeAd(),
+          const SizedBox(height: 12),
+          _buildGradesSection(),
         ],
       ),
     );
