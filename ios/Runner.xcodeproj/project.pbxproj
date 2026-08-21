@@ -105,17 +105,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		B68147C22FB159B000E977E2 /* ci_scripts */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = ci_scripts;
-			sourceTree = "<group>";
-		};
 		B6DBF2C12ED3EFFC00F08AD4 /* ScheduleWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -187,7 +176,6 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
-				B68147C22FB159B000E977E2 /* ci_scripts */,
 				B6DF39A92F9E575F005E1526 /* SyncedProducts.storekit */,
 				B6DBF2D72ED3F01600F08AD4 /* ScheduleWidgetExtension.entitlements */,
 				9740EEB11CF90186004384FC /* Flutter */,
@@ -270,7 +258,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				B68147C22FB159B000E977E2 /* ci_scripts */,
 				B6DBF2C12ED3EFFC00F08AD4 /* ScheduleWidget */,
 			);
 			name = ScheduleWidgetExtension;
