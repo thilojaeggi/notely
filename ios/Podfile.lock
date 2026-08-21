@@ -62,7 +62,6 @@ PODS:
   - Flutter (1.0.0)
   - flutter_dynamic_icon_plus (1.0.0):
     - Flutter
-    - SwiftTryCatch
   - flutter_inappwebview_ios (0.0.1):
     - Flutter
     - flutter_inappwebview_ios/Core (= 0.0.1)
@@ -180,7 +179,6 @@ PODS:
     - FlutterMacOS
   - store_redirect (0.0.1):
     - Flutter
-  - SwiftTryCatch (0.0.1)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -234,7 +232,6 @@ SPEC REPOS:
     - PurchasesHybridCommonUI
     - RevenueCat
     - RevenueCatUI
-    - SwiftTryCatch
 
 EXTERNAL SOURCES:
   app_install_date:
@@ -300,7 +297,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 631b38da2e11a83daa4bfb482f79d286a5dfa7ad
   FirebaseMessaging: a61bc42dcab3f7a346d94bbb54dab2c9435b18b2
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
-  flutter_dynamic_icon_plus: 3ddd12bc2316b98ffdd4048e9cdd3cf51e02095d
+  flutter_dynamic_icon_plus: a7c81df360708aa1c9538f89cd96958fdda608ea
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
@@ -328,7 +325,6 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   store_redirect: 55fd455802ceab09803b2df6e68f19a58815266a
-  SwiftTryCatch: fb6d2b34abe48efd69578dac919293a44f95b481
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
