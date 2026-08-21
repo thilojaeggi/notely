@@ -2,18 +2,19 @@ import 'dart:async';
 import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:notely/core/analytics/analytics_constants.dart';
+import 'package:notely/core/analytics/analytics_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
 
 import 'package:notely/data/api_client.dart';
 import 'package:notely/features/ads/initialization_helper.dart';
 import 'package:notely/features/auth/otp_helper.dart';
-import 'package:notely/features/subscription/subscription_manager.dart';
 import 'package:notely/features/auth/token_manager.dart';
+import 'package:notely/features/subscription/subscription_manager.dart';
+import 'package:notely/features/widget/widget_sync_service.dart';
 import 'package:notely/core/storage/secure_storage.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,10 +39,17 @@ class _SettingsPageState extends State<SettingsPage> {
   TextEditingController targetGradeController = TextEditingController();
   bool notificationsEnabled = false;
   bool _isPresentingPremium = false;
+  bool _isRestoringPurchases = false;
   final _initializationHelper = InitializationHelper();
   late final Future<bool> _future;
   String? _otpSecret;
   bool _loadingOtpSecret = true;
+
+  void _onSubscriptionChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   Future<PackageInfo> _getPackageInfo() {
     return PackageInfo.fromPlatform();
@@ -54,7 +62,9 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     final paywallPresented =
-        await SubscriptionManager().presentNotelyPremiumPaywall();
+        await SubscriptionManager().presentNotelyPremiumPaywall(
+      source: PaywallSource.settingsBanner,
+    );
 
     if (!mounted) {
       return;
@@ -96,6 +106,39 @@ class _SettingsPageState extends State<SettingsPage> {
           debugPrint("Failed to set premium icon: $e");
         }
       }
+    }
+  }
+
+  Future<void> _restorePurchases() async {
+    if (_isRestoringPurchases) return;
+    setState(() {
+      _isRestoringPurchases = true;
+    });
+
+    final restored = await SubscriptionManager().restorePurchases();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isRestoringPurchases = false;
+    });
+
+    if (restored) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Käufe erfolgreich wiederhergestellt! 👑"),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Keine aktiven Käufe gefunden oder Wiederherstellung fehlgeschlagen.",
+          ),
+        ),
+      );
     }
   }
 
@@ -243,33 +286,11 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _clearAnalyticsUserProperties() async {
-    await FirebaseAnalytics.instance.setUserProperty(
-      name: 'otp_autofill_enabled',
-      value: null,
-    );
-
-    await FirebaseAnalytics.instance.setUserProperty(
-      name: 'school',
-      value: null,
-    );
-
-    await FirebaseAnalytics.instance.setUserProperty(
-      name: 'is_premium',
-      value: null,
-    );
-
-    await FirebaseAnalytics.instance.setUserId(id: null);
+    await AnalyticsService().clearUserData();
   }
 
   Future<void> _setOtpAutofillUserProperty(bool enabled) async {
-    try {
-      await FirebaseAnalytics.instance.setUserProperty(
-        name: 'otp_autofill_enabled',
-        value: enabled ? 'true' : 'false',
-      );
-    } catch (e) {
-      debugPrint('Failed to set otp_autofill_enabled user property: $e');
-    }
+    await AnalyticsService().setOtpAutofillEnabled(enabled);
   }
 
   void logout() async {
@@ -278,18 +299,29 @@ class _SettingsPageState extends State<SettingsPage> {
     } catch (e) {
       debugPrint('Error clearing storage during logout: $e');
     }
+    await TokenManager().clearTokens();
+    final client = APIClient();
+    client.accessToken = '';
+    client.school = '';
+    client.fakeData = false;
+
+    await WidgetSyncService().clearWidgetData();
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove("school");
+    await prefs.remove("school");
     await _clearAnalyticsUserProperties();
+    await AnalyticsService().logLogout();
     if (!mounted) return;
 
-    Navigator.pushReplacement(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          alignment: Alignment.bottomCenter,
-          child: const LoginPage(),
-        ));
+    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const LoginPage(),
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) =>
+                FadeTransition(opacity: animation, child: child),
+      ),
+      (route) => false,
+    );
   }
   
   void changeAppIcon() {
@@ -334,6 +366,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    SubscriptionManager().isPremiumListenable.addListener(_onSubscriptionChanged);
+
     SharedPreferences.getInstance().then((value) {
       setState(() {
         notificationsEnabled = value.getBool("notificationsEnabled") ?? false;
@@ -346,7 +380,15 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    SubscriptionManager().isPremiumListenable.removeListener(_onSubscriptionChanged);
+    targetGradeController.dispose();
+    super.dispose();
+  }
+
   Future<void> enableDarkMode(bool dark) async {
+    AnalyticsService().logThemeChanged(dark ? 'dark' : 'light');
     if (dark) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
           statusBarColor: const Color(0xFF0d0d0d), // status bar color
@@ -381,8 +423,15 @@ class _SettingsPageState extends State<SettingsPage> {
         );
 
     return SafeArea(
+      top: true,
+      bottom: false,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          16,
+          20,
+          MediaQuery.of(context).padding.bottom + 84,
+        ),
         physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics()),
         children: [
@@ -391,29 +440,46 @@ class _SettingsPageState extends State<SettingsPage> {
             style: headlineStyle,
           ),
           const SizedBox(height: 20),
-          if (!SubscriptionManager().isPremium || true)
-            _buildSection(
-              title: "Notely Premium",
-              children: [
-                _SettingsTile(
-                  icon: CupertinoIcons.star_fill,
-                  accentColor: Colors.orangeAccent,
-                  title: "Notely Premium",
-                  subtitle: "Keine Werbung & mehr",
-                  trailing: _isPresentingPremium
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CupertinoActivityIndicator(),
-                        )
-                      : const Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 20,
-                        ),
-                  onTap: _presentNotelyPremiumPaywall,
-                ),
-              ],
-            ),
+          _buildSection(
+            title: "Notely Premium",
+            children: [
+              _SettingsTile(
+                icon: CupertinoIcons.star_fill,
+                accentColor: Colors.orangeAccent,
+                title: "Notely Premium",
+                subtitle: SubscriptionManager().isPremium
+                    ? "Aktiv 👑"
+                    : "Keine Werbung & mehr",
+                trailing: _isPresentingPremium
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CupertinoActivityIndicator(),
+                      )
+                    : const Icon(
+                        CupertinoIcons.chevron_right,
+                        size: 20,
+                      ),
+                onTap: _presentNotelyPremiumPaywall,
+              ),
+              _SettingsTile(
+                icon: CupertinoIcons.arrow_2_circlepath,
+                accentColor: Colors.blueAccent,
+                title: "Käufe wiederherstellen",
+                trailing: _isRestoringPurchases
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CupertinoActivityIndicator(),
+                      )
+                    : const Icon(
+                        CupertinoIcons.chevron_right,
+                        size: 20,
+                      ),
+                onTap: _restorePurchases,
+              ),
+            ],
+          ),
           _buildSection(
             title: "Darstellung",
             children: [
@@ -1289,6 +1355,13 @@ class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
   }
 
   Future<void> _handleSelection(_IconOption option) async {
+    if (option.isPremiumOnly && !SubscriptionManager().isPremium) {
+      Navigator.of(context).pop();
+      await SubscriptionManager().presentNotelyPremiumPaywall(
+        source: PaywallSource.settingsAppIcon,
+      );
+      return;
+    }
     if (_changingIcon != null) return;
     setState(() {
       _changingIcon = option.iconName;
@@ -1300,6 +1373,7 @@ class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
       await _iconChannel.invokeMethod(
           'setAlternateIconName', option.isDefault ? null : option.iconName);
       changed = true;
+      AnalyticsService().logAppIconChanged(option.iconName);
       if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e) {
@@ -1415,13 +1489,13 @@ class _ChangeAppIconSheetState extends State<ChangeAppIconSheet> {
                 if (_loadingSelection)
                   const Center(child: CupertinoActivityIndicator())
                 else
-                  ..._iconOptions
-                      .where((o) => !o.isPremiumOnly || SubscriptionManager().isPremium)
-                      .map(
+                  ..._iconOptions.map(
                     (option) => _IconOptionTile(
                       option: option,
                       isSelected: _resolvedSelection() == option.iconName,
                       isLoading: _changingIcon == option.iconName,
+                      isLocked:
+                          option.isPremiumOnly && !SubscriptionManager().isPremium,
                       backgroundColor: fieldBackground,
                       helperStyle: helperStyle,
                       onTap: () => _handleSelection(option),
@@ -1458,6 +1532,7 @@ class _IconOptionTile extends StatelessWidget {
   final _IconOption option;
   final bool isSelected;
   final bool isLoading;
+  final bool isLocked;
   final Color backgroundColor;
   final TextStyle helperStyle;
   final VoidCallback onTap;
@@ -1466,6 +1541,7 @@ class _IconOptionTile extends StatelessWidget {
     required this.option,
     required this.isSelected,
     required this.isLoading,
+    this.isLocked = false,
     required this.backgroundColor,
     required this.helperStyle,
     required this.onTap,
@@ -1535,6 +1611,34 @@ class _IconOptionTile extends StatelessWidget {
             const SizedBox(width: 12),
             if (isLoading)
               const CupertinoActivityIndicator()
+            else if (isLocked)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.lock_fill,
+                      size: 14,
+                      color: Colors.amber,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      "PREMIUM",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.amber,
+                      ),
+                    ),
+                  ],
+                ),
+              )
             else if (isSelected)
               Icon(
                 CupertinoIcons.check_mark_circled_solid,
